@@ -86,7 +86,7 @@ See [testing notes](docs/testing.md) for browser and offline checks. No runtime 
 
 ## Deployment and installation
 
-The public app is hosted at **https://vibeshibe.github.io/openambience/**. GitHub Pages publishes from **main → /(root)**; `.nojekyll` serves the static files without Jekyll processing. Future pushes to `main` publish updates, while `dev` remains the development branch. These settings are under **Settings → Pages → Deploy from a branch**. Relative URLs also support other HTTPS hosts at `/` or a project path such as `/openambience/`. The local server is for development.
+Publishing address: **https://vibeshibe.github.io/openambience/**. Enable GitHub Pages under **Settings → Pages → Deploy from a branch → main → /(root)**. Once enabled, pushes to `main` publish updates, while `dev` remains the development branch. The `.nojekyll` file serves the static files without Jekyll processing. Relative URLs also support other HTTPS hosts at `/` or a project path such as `/openambience/`. The local server is for development.
 
 The hosted app has separate browser storage from the localhost preview. Existing local mixes and imported recordings do not automatically transfer to the published site.
 
