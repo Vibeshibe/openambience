@@ -1,5 +1,7 @@
 # Proposed scope: saved mixes and custom sounds
 
+> Implementation status (0.2.0-alpha.1): local imports, duplicate detection, removal, and saved-mix create/load/update/rename/duplicate/delete are available. Recipes remain in versioned localStorage; imported audio uses IndexedDB. Recipe export/import, missing-asset relinking, drag-and-drop, and storage-management UI below remain proposals.
+
 Date: 2026-09-30. **Design proposal only; none of the new behavior below is implemented by this research change.** The immediate product focus is reusable personal mixes, an openly licensed sound catalog, and simple local-file imports. Inventory and source selection are in [research](research/ambiphone-sound-inventory.md).
 
 ## Current baseline and intended next step

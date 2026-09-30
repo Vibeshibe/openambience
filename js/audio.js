@@ -1,4 +1,4 @@
-// Original procedural textures; no recordings or remote audio assets.
+// Original procedural textures alongside locally served or imported recordings.
 export function noiseSamples(kind, length, random = Math.random) {
   const samples = new Float32Array(length);
   let low = 0;
@@ -22,7 +22,12 @@ export function noiseSamples(kind, length, random = Math.random) {
 }
 
 export class AudioEngine {
-  constructor() { this.context = null; this.layers = new Map(); }
+  constructor(resolveSound) {
+    this.resolveSound = resolveSound;
+    this.context = null;
+    this.layers = new Map();
+    this.revision = 0;
+  }
   initialize() {
     if (this.context) return;
     const Context = globalThis.AudioContext || globalThis.webkitAudioContext;
@@ -33,57 +38,84 @@ export class AudioEngine {
     const compressor = this.context.createDynamicsCompressor();
     this.master.connect(compressor).connect(this.context.destination);
   }
-  createLayer(id) {
-    const ctx = this.context;
-    const source = ctx.createBufferSource();
-    const buffer = ctx.createBuffer(1, ctx.sampleRate * 12, ctx.sampleRate);
-    buffer.copyToChannel(noiseSamples(id, buffer.length), 0);
-    source.buffer = buffer;
-    source.loop = true;
-    const gain = ctx.createGain();
-    gain.gain.value = 0;
-    let tail = source;
-    if (['rain', 'ocean', 'wind'].includes(id)) {
-      const filter = ctx.createBiquadFilter();
-      filter.type = id === 'rain' ? 'highpass' : 'lowpass';
-      filter.frequency.value = { rain: 650, ocean: 700, wind: 350 }[id];
-      tail.connect(filter); tail = filter;
-    }
-    const nodes = [source, gain];
-    if (id === 'ocean' || id === 'wind') {
-      const swell = ctx.createGain();
-      swell.gain.value = 0.6;
-      const lfo = ctx.createOscillator();
-      const depth = ctx.createGain();
-      lfo.frequency.value = id === 'ocean' ? 0.09 : 0.045;
-      depth.gain.value = 0.3;
-      lfo.connect(depth).connect(swell.gain);
-      tail.connect(swell); tail = swell;
-      lfo.start(); nodes.push(lfo, depth, swell);
-    }
-    tail.connect(gain).connect(this.master);
-    source.start();
-    this.layers.set(id, { gain, nodes });
+  remove(id) {
+    const layer = this.layers.get(id);
+    if (!layer) return;
+    for (const node of layer.nodes) { try { node.stop?.(); } catch {} node.disconnect(); }
+    this.layers.delete(id);
   }
-  update(mix) {
-    if (!this.context) return;
-    for (const id of mix.enabled) if (!this.layers.has(id)) this.createLayer(id);
-    for (const [id, layer] of this.layers) {
-      // Fixed headroom keeps adding a layer from changing existing layer levels.
-      const level = mix.enabled.includes(id) ? mix.levels[id] / 100 / 3 : 0;
-      layer.gain.gain.setTargetAtTime(level, this.context.currentTime, 0.06);
+  async bufferFor(sound) {
+    const ctx = this.context;
+    if (sound.kind === 'recording' || sound.kind === 'custom') {
+      const bytes = sound.blob ? await sound.blob.arrayBuffer() : await fetch(sound.url).then(response => {
+        if (!response.ok) throw new Error(`${sound.name} could not be loaded.`);
+        return response.arrayBuffer();
+      });
+      return ctx.decodeAudioData(bytes);
     }
-    const parameter = this.master.gain;
-    parameter.cancelScheduledValues(this.context.currentTime);
-    parameter.setTargetAtTime(mix.master / 100, this.context.currentTime, 0.06);
+    const buffer = ctx.createBuffer(1, ctx.sampleRate * 12, ctx.sampleRate);
+    buffer.copyToChannel(noiseSamples(sound.id, buffer.length), 0);
+    return buffer;
+  }
+  async update(mix) {
+    if (!this.context) return;
+    const revision = ++this.revision;
+    for (const id of this.layers.keys()) if (!mix.enabled.includes(id)) this.remove(id);
+    for (const id of mix.enabled) {
+      if (this.layers.has(id)) continue;
+      const sound = this.resolveSound(id);
+      if (!sound) throw new Error('A sound is missing from this device.');
+      let buffer = await this.bufferFor(sound);
+      if (revision !== this.revision) return;
+      const used = [...this.layers.values()].reduce((sum, layer) => sum + layer.bytes, 0);
+      const bytes = (buffer.length + (sound.mode === 'event' ? buffer.sampleRate * 30 : 0)) * buffer.numberOfChannels * 4;
+      if (used + bytes > 96 * 1024 * 1024) throw new Error('This mix is too large. Remove a long recording and try again.');
+      // Thunder is an occasional event with silence between repeats.
+      if (sound.mode === 'event') {
+        const spaced = this.context.createBuffer(buffer.numberOfChannels, buffer.length + buffer.sampleRate * 30, buffer.sampleRate);
+        for (let channel = 0; channel < buffer.numberOfChannels; channel++) spaced.copyToChannel(buffer.getChannelData(channel), channel);
+        buffer = spaced;
+      }
+      const source = this.context.createBufferSource();
+      source.buffer = buffer;
+      source.loop = true;
+      const gain = this.context.createGain();
+      gain.gain.value = 0;
+      const nodes = [source, gain];
+      let tail = source;
+      if (['rain', 'ocean', 'wind'].includes(id)) {
+        const filter = this.context.createBiquadFilter();
+        filter.type = id === 'rain' ? 'highpass' : 'lowpass';
+        filter.frequency.value = { rain: 650, ocean: 700, wind: 350 }[id];
+        tail.connect(filter); tail = filter; nodes.push(filter);
+      }
+      if (id === 'ocean' || id === 'wind') {
+        const swell = this.context.createGain(); swell.gain.value = 0.6;
+        const lfo = this.context.createOscillator();
+        const depth = this.context.createGain();
+        lfo.frequency.value = id === 'ocean' ? 0.09 : 0.045; depth.gain.value = 0.3;
+        lfo.connect(depth).connect(swell.gain); tail.connect(swell); tail = swell;
+        lfo.start(); nodes.push(lfo, depth, swell);
+      }
+      tail.connect(gain).connect(this.master);
+      source.start();
+      this.layers.set(id, { gain, nodes, bytes: buffer.length * buffer.numberOfChannels * 4 });
+    }
+    if (revision !== this.revision) return;
+    for (const [id, layer] of this.layers) layer.gain.gain.setTargetAtTime(mix.levels[id] / 100 / 3, this.context.currentTime, 0.06);
+    this.master.gain.cancelScheduledValues(this.context.currentTime);
+    this.master.gain.setTargetAtTime(mix.master / 100, this.context.currentTime, 0.06);
   }
   async play(mix) {
     this.initialize();
     await this.context.resume();
     if (this.context.state !== 'running') throw new Error('Audio is paused by your browser. Try Play again.');
-    this.update(mix);
+    await this.update(mix);
   }
-  async pause() { if (this.context) await this.context.suspend(); }
+  async pause() {
+    ++this.revision;
+    if (this.context) await this.context.suspend();
+  }
   scheduleSleep(seconds, master) {
     if (!this.context) return;
     const now = this.context.currentTime;

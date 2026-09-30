@@ -1,14 +1,16 @@
 {
   "name": "openambience",
-  "version": "0.1.0",
+  "version": "0.2.0-alpha.1",
   "private": true,
   "description": "An open-source, offline-capable ambient sound mixer.",
   "type": "module",
   "license": "MIT",
-  "engines": { "node": ">=22" },
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
     "start": "node scripts/serve.js",
     "test": "node --test",
-    "check": "node --check app.js && node --check js/audio.js && node --check js/state.js && node --check sw.js && node --check scripts/serve.js"
+    "check": "node --check app.js && node --check js/audio.js && node --check js/state.js && node --check sw.js && node --check scripts/serve.js && node --check js/catalog.js && node --check js/storage.js"
   }
 }

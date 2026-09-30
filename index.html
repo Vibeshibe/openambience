@@ -2,10 +2,10 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#142924">
-  <meta name="description" content="Make room for a quieter mind. Mix ambient sounds for focus, rest, and everything in between.">
-  <title>OpenAmbience · A little room to breathe</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#10221e">
+  <meta name="description" content="Your own quiet corner. Mix nature recordings, ambient noise, and your own sounds, offline.">
+  <title>OpenAmbience · Your quiet corner</title>
   <link rel="icon" href="./icons/icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="./icons/icon-192.png">
   <link rel="manifest" href="./manifest.webmanifest">
@@ -13,47 +13,38 @@
   <script type="module" src="./app.js"></script>
 </head>
 <body>
-  <a class="skip-link" href="#sounds">Skip to sounds</a>
+  <a class="skip-link" href="#library">Skip to sounds</a>
   <header class="site-header">
-    <a class="brand" href="./"><img src="./icons/icon.svg" width="36" height="36" alt="">openambience<span class="badge">EARLY EDITION</span></a>
-    <button id="install" class="quiet" hidden>Install app</button>
+    <a class="brand" href="./"><img src="./icons/icon.svg" width="34" height="34" alt="">openambience</a>
+    <button id="install" class="quiet" hidden>Install</button>
+    <button id="update" class="quiet" hidden>Update app</button>
   </header>
   <main>
-    <section class="intro" aria-labelledby="title">
-      <p class="eyebrow">YOUR SPACE, YOUR PACE</p>
-      <h1 id="title">A little room<br>to <em>breathe.</em></h1>
-      <p>Layer a few sounds. Let the world soften.<br>A personal backdrop for focus, rest, and everything in between.</p>
+    <section class="intro">
+      <p class="eyebrow">YOUR OWN QUIET CORNER</p>
+      <h1>Make room for <em>quiet.</em></h1>
+      <p>Pick a few sounds. Find your balance. Stay awhile.</p>
     </section>
-    <section class="mixer" aria-label="Sound mixer">
-      <div class="toolbar">
-        <div><h2>Make yourself at home</h2><p id="layer-count">Choose a sound to begin.</p></div>
-        <label class="search"><span class="sr-only">Find a sound</span><input id="search" type="search" placeholder="Find a sound…" autocomplete="off"></label>
-      </div>
-      <div id="sounds" class="sound-grid" tabindex="-1"></div>
-      <p id="empty" hidden>No sounds match your search.</p>
+    <nav class="view-tabs" aria-label="Browse"><button id="library-tab" aria-pressed="true">Sound library <span id="sound-total"></span></button><button id="mixes-tab" aria-pressed="false">My mixes <span id="mix-total">0</span></button></nav>
+    <section id="library" aria-label="Sound library" tabindex="-1">
+      <div class="toolbar"><label class="search"><span class="sr-only">Find a sound</span><input id="search" type="search" placeholder="Find your sound…" autocomplete="off"></label><button id="add-sounds" class="quiet">＋ Add sounds</button><input id="sound-files" type="file" accept="audio/*,.mp3,.wav,.m4a,.ogg,.flac" multiple hidden></div>
+      <div id="categories" class="categories" aria-label="Sound categories"></div>
+      <div class="section-heading"><h2 id="category-heading">All sounds</h2><span id="visible-count"></span></div>
+      <div id="sounds" class="sound-grid"></div>
+      <p id="empty" class="empty" hidden>No sounds here yet. Try another category or add a recording.</p>
+      <p class="hint">Layer up to six sounds. Your imports stay on this device.</p>
     </section>
-    <section class="mixes" aria-labelledby="mixes-title">
-      <div><p class="eyebrow">SETTLE INTO SOMETHING</p><h2 id="mixes-title">A good place to start</h2></div>
-      <div id="presets" class="presets"></div>
-      <form id="save-form" class="save-form">
-        <label for="mix-name">Keep this mix</label>
-        <input id="mix-name" maxlength="40" required placeholder="Give your mix a name" autocomplete="off">
-        <button type="submit" class="quiet">Save mix</button>
-      </form>
-      <div id="saved-mixes" class="saved-mixes" aria-label="Saved mixes"></div>
+    <section id="mixes" aria-labelledby="mixes-title" hidden>
+      <div class="section-heading"><h2 id="mixes-title">Made for your moments</h2><button id="save-current" class="quiet">Save current mix</button></div>
+      <div id="saved-mixes" class="presets"></div>
+      <p id="no-mixes" class="empty">A mix worth coming back to? Save it from the player below.</p>
+      <h2>A place to start</h2><div id="presets" class="presets"></div>
     </section>
-    <p id="status" class="status" role="status" aria-live="polite">Sounds start only when you press play.</p>
-    <noscript><p>Enable JavaScript to mix and play sounds. Audio is generated on your device.</p></noscript>
+    <noscript>Enable JavaScript to mix and play sounds.</noscript>
   </main>
-  <footer><span>A quieter corner of the internet.</span><span>Open source · No accounts · No tracking</span></footer>
-  <section class="player" aria-label="Playback controls">
-    <div class="player-inner">
-      <button id="play" class="play" aria-pressed="false">Play mix</button>
-      <label class="master" for="master">Master volume <output id="master-value" for="master">40%</output><input id="master" type="range" min="0" max="100" value="40"></label>
-      <label class="timer" for="timer">Sleep timer<select id="timer"><option value="0">No timer</option><option value="15">15 minutes</option><option value="30">30 minutes</option><option value="60">1 hour</option></select></label>
-      <span id="countdown" class="countdown" aria-label="Time remaining"></span>
-      <button id="reset" class="quiet">Reset</button>
-    </div>
-  </section>
+  <footer><span id="offline">Preparing offline library…</span><button id="show-credits" class="text-button">Sound credits</button><span>v0.2.0-alpha.1 · No accounts. No tracking.</span></footer>
+  <div class="player-dock"><p id="status" role="status" aria-live="polite">Select sounds, then press play.</p><section class="player" aria-label="Playback controls"><button id="play" class="play" aria-pressed="false">▶ Play mix</button><div class="player-summary"><strong id="layer-count">Your quiet starts here</strong><span id="countdown">Nothing playing</span></div><button id="open-mixer" class="quiet" aria-haspopup="dialog">Mix <span aria-hidden="true">☷</span></button></section></div>
+  <dialog id="mixer-dialog" aria-labelledby="mixer-title"><div class="dialog-heading"><h2 id="mixer-title">Your mix</h2><button class="close quiet" aria-label="Close mixer">✕</button></div><p id="active-names" class="hint"></p><label class="volume-label" for="master">Master volume <output id="master-value">40%</output></label><input id="master" type="range" min="0" max="100" value="40"><label class="field" for="timer">Sleep timer<select id="timer"><option value="0">Keep playing</option><option value="15">15 minutes</option><option value="30">30 minutes</option><option value="60">1 hour</option></select></label><p class="hint">Gently fades out over the final five seconds.</p><form id="save-form"><label class="field" for="mix-name">Save for later<input id="mix-name" maxlength="40" required placeholder="Name this mix" autocomplete="off"></label><button type="submit" class="primary">Save mix on this device</button></form><button id="reset" class="text-button">Clear this mix</button><p id="dialog-status" role="status"></p></dialog>
+  <dialog id="credits-dialog" aria-labelledby="credits-title"><div class="dialog-heading"><h2 id="credits-title">The sounds behind the quiet</h2><button class="close quiet" aria-label="Close credits">✕</button></div><p>Recordings shared by their creators under CC0 or CC BY 4.0. Edited excerpts of their published MP3 previews; see each source for the original.</p><div id="credits"></div><p class="hint">Noise and synthetic textures are generated by OpenAmbience. Your own recordings remain on this device.</p></dialog>
 </body>
 </html>
