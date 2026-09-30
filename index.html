@@ -27,11 +27,11 @@
     </section>
     <nav class="view-tabs" aria-label="Browse"><button id="library-tab" aria-pressed="true">Sound library <span id="sound-total"></span></button><button id="mixes-tab" aria-pressed="false">My mixes <span id="mix-total">0</span></button></nav>
     <section id="library" aria-label="Sound library" tabindex="-1">
-      <div class="toolbar"><label class="search"><span class="sr-only">Find a sound</span><input id="search" type="search" placeholder="Find your sound…" autocomplete="off"></label><button id="add-sounds" class="quiet">＋ Add sounds</button><input id="sound-files" type="file" accept="audio/*,.mp3,.wav,.m4a,.ogg,.flac" multiple hidden></div>
-      <div id="categories" class="categories" aria-label="Sound categories"></div>
+      <div class="toolbar"><label class="search"><span class="sr-only">Find a sound</span><input id="search" type="search" placeholder="Find your sound…" autocomplete="off"></label><button id="add-sounds" class="quiet">＋ Add sounds</button><button id="add-radio" class="quiet">＋ Radio</button><input id="sound-files" type="file" accept="audio/*,.mp3,.wav,.m4a,.ogg,.flac" multiple hidden></div>
+      <nav id="categories" class="categories" aria-label="Sound categories"></nav>
       <div class="section-heading"><h2 id="category-heading">All sounds</h2><span id="visible-count"></span></div>
       <div id="sounds" class="sound-grid"></div>
-      <p id="empty" class="empty" hidden>No sounds here yet. Try another category or add a recording.</p>
+      <p id="empty" class="empty" hidden>No sounds here yet. Try another category or add a recording.</p><p id="radio-hint" class="hint" hidden>Radio uses your internet connection. Saved station URLs stay on this device; live audio is never downloaded for offline use.</p>
       <p class="hint">Layer up to six sounds. Your imports stay on this device.</p>
     </section>
     <section id="mixes" aria-labelledby="mixes-title" hidden>
@@ -42,9 +42,14 @@
     </section>
     <noscript>Enable JavaScript to mix and play sounds.</noscript>
   </main>
-  <footer><span id="offline">Preparing offline library…</span><button id="show-credits" class="text-button">Sound credits</button><span>v0.2.0-alpha.1 · No accounts. No tracking.</span></footer>
+  <footer><span id="offline">Preparing offline library…</span><button id="show-credits" class="text-button">Sound credits</button><span>v0.3.0-alpha.1 · No accounts. No tracking.</span></footer>
   <div class="player-dock"><p id="status" role="status" aria-live="polite">Select sounds, then press play.</p><section class="player" aria-label="Playback controls"><button id="play" class="play" aria-pressed="false">▶ Play mix</button><div class="player-summary"><strong id="layer-count">Your quiet starts here</strong><span id="countdown">Nothing playing</span></div><button id="open-mixer" class="quiet" aria-haspopup="dialog">Mix <span aria-hidden="true">☷</span></button></section></div>
   <dialog id="mixer-dialog" aria-labelledby="mixer-title"><div class="dialog-heading"><h2 id="mixer-title">Your mix</h2><button class="close quiet" aria-label="Close mixer">✕</button></div><p id="active-names" class="hint"></p><label class="volume-label" for="master">Master volume <output id="master-value">40%</output></label><input id="master" type="range" min="0" max="100" value="40"><label class="field" for="timer">Sleep timer<select id="timer"><option value="0">Keep playing</option><option value="15">15 minutes</option><option value="30">30 minutes</option><option value="60">1 hour</option></select></label><p class="hint">Gently fades out over the final five seconds.</p><form id="save-form"><label class="field" for="mix-name">Save for later<input id="mix-name" maxlength="40" required placeholder="Name this mix" autocomplete="off"></label><button type="submit" class="primary">Save mix on this device</button></form><button id="reset" class="text-button">Clear this mix</button><p id="dialog-status" role="status"></p></dialog>
+  <dialog id="radio-dialog" aria-labelledby="radio-title">
+    <div class="dialog-heading"><h2 id="radio-title">Add internet radio</h2><button class="close quiet" aria-label="Close radio form">✕</button></div>
+    <p>Bring a favourite station into your mix. Use a direct HTTPS audio stream (MP3 or AAC), rather than the station’s website or a playlist.</p>
+    <form id="radio-form"><label class="field" for="radio-name">Station name<input id="radio-name" maxlength="60" required autocomplete="off" placeholder="My favourite station"></label><label class="field" for="radio-url">Stream URL<input id="radio-url" type="url" maxlength="2048" required autocomplete="off" spellcheck="false" placeholder="https://…/live.mp3" aria-describedby="radio-help"></label><p id="radio-help" class="hint">The station must allow playback through a web audio mixer. Radio needs internet access and starts only when you press Play.</p><button class="primary" type="submit">Save station</button><p id="radio-form-status" role="status"></p></form>
+  </dialog>
   <dialog id="credits-dialog" aria-labelledby="credits-title"><div class="dialog-heading"><h2 id="credits-title">The sounds behind the quiet</h2><button class="close quiet" aria-label="Close credits">✕</button></div><p>Recordings shared by their creators under CC0 or CC BY 4.0. Edited excerpts of their published MP3 previews; see each source for the original.</p><div id="credits"></div><p class="hint">Noise and synthetic textures are generated by OpenAmbience. Your own recordings remain on this device.</p></dialog>
 </body>
 </html>

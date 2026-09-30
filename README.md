@@ -21,11 +21,12 @@ Open **http://localhost:8080**. Select some sounds or a preset, then press **Pla
 
 An alternative is `python3 -m http.server 8080 --bind 127.0.0.1` from this directory. Serve over HTTP locally or HTTPS when deployed; opening `index.html` through `file://` does not support modules and service workers reliably.
 
-## Available in 0.2.0-alpha.1
+## Available in 0.3.0-alpha.1
 
 - Twelve recorded sounds: rain, rain on glass, thunder, forest wind, waves, stream, fireplace, birds, crickets, café, fan, and cat purring.
 - Six generated textures, including white, pink, and brown noise. Earlier saved mixes keep their original procedural sounds.
-- A phone-friendly two-column library, search, category filters, and compact player with a mixer panel.
+- A phone-friendly two-column library, search, visible categories with counts, grouped browsing, and a compact player with a mixer panel. Custom recordings can be assigned a category.
+- **＋ Radio** saves direct HTTPS radio-stream URLs locally. Compatible stations join the mixer and sleep timer; live playback needs internet and is never cached. See [radio compatibility](docs/internet-radio.md).
 - Up to six simultaneous layers, individual and master volume, and a sleep timer with a five-second fade.
 - Twenty named local mixes with load, update, rename, duplicate, and delete controls.
 - Add multiple custom recordings using **Add sounds**. Supported formats depend on the browser; MP3 and WAV are good starting points. Files must be mono/stereo, at most 25 MB and two minutes long. Up to 30 imports; identical files are detected.
@@ -42,6 +43,8 @@ Nothing is uploaded when you import a recording. Clearing browser site data remo
 - [Complete 67-channel sound inventory](docs/research/ambiphone-sound-inventory.md) ([CSV](docs/research/ambiphone-sound-inventory.csv), [JSON](docs/research/ambiphone-sound-inventory.json))
 - [Openly licensed sound candidates and acquisition plan](docs/research/open-audio-sources.md)
 - [Proposed saved mixes and custom sound scope](docs/saved-mixes-and-custom-sounds.md)
+- [Where sounds are stored and how optional sync could work](docs/sync-and-offline.md)
+- [Internet radio support and compatibility](docs/internet-radio.md)
 - [Architecture and implementation decisions](docs/architecture.md)
 - [Roadmap](docs/roadmap.md)
 - [Validation checklist](docs/testing.md)
@@ -56,7 +59,9 @@ styles.css                 Responsive interface
 app.js                     UI, persistence, presets, timer, installation
 js/audio.js                Web Audio recordings, synthesis, and gain controls
 js/catalog.js              Generated bundled recording catalog
-js/storage.js              IndexedDB storage for custom audio
+js/storage.js              IndexedDB storage for custom audio and station URLs
+js/categories.js           Category membership and filtering
+js/radio.js                Stream URL validation and radio playback lifecycle
 audio/                     Bundled MP3s and their attribution register
 js/state.js                Catalog, defaults, input normalization
 sw.js                      Versioned offline app-shell cache
@@ -92,7 +97,7 @@ Increment the cache version in `sw.js` whenever shipping changed app files. A ne
 - Browser support for custom audio codecs varies. Custom recordings loop as supplied; trim or crossfade them in an audio editor for a smoother seam.
 - The engine limits decoded audio to 96 MiB and pauses with a message if a mix is too large. Six long imports may exceed this limit.
 - Bundled loops are short (roughly 30 seconds). Thunder includes a 30-second quiet interval between events.
-- Browser storage is local and may be cleared or evicted. Recipe export, cross-device sync, streaming radio, and Media Session controls are not included.
+- Browser storage is local and may be cleared or evicted. Recipe export, cross-device sync and Media Session controls are not included. Radio supports direct CORS-enabled HTTPS audio streams; playlists and station webpages are not supported.
 - The sleep timer uses the audio clock for fading and the wall clock for stopping; device suspension can delay UI updates.
 
 ## License

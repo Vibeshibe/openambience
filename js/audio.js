@@ -1,3 +1,4 @@
+import { RadioLayer } from './radio.js';
 // Original procedural textures alongside locally served or imported recordings.
 export function noiseSamples(kind, length, random = Math.random) {
   const samples = new Float32Array(length);
@@ -22,8 +23,9 @@ export function noiseSamples(kind, length, random = Math.random) {
 }
 
 export class AudioEngine {
-  constructor(resolveSound) {
+  constructor(resolveSound, onSoundStatus) {
     this.resolveSound = resolveSound;
+    this.onSoundStatus = onSoundStatus;
     this.context = null;
     this.layers = new Map();
     this.revision = 0;
@@ -41,6 +43,7 @@ export class AudioEngine {
   remove(id) {
     const layer = this.layers.get(id);
     if (!layer) return;
+    layer.radio?.destroy();
     for (const node of layer.nodes) { try { node.stop?.(); } catch {} node.disconnect(); }
     this.layers.delete(id);
   }
@@ -65,6 +68,12 @@ export class AudioEngine {
       if (this.layers.has(id)) continue;
       const sound = this.resolveSound(id);
       if (!sound) throw new Error('A sound is missing from this device.');
+      if (sound.kind === 'radio') {
+        const radio = new RadioLayer(this.context, sound, this.master, this.onSoundStatus);
+        this.layers.set(id, { radio, gain: radio.gain, nodes: [], bytes: 0 });
+        radio.start();
+        continue;
+      }
       let buffer = await this.bufferFor(sound);
       if (revision !== this.revision) return;
       const used = [...this.layers.values()].reduce((sum, layer) => sum + layer.bytes, 0);
@@ -114,8 +123,13 @@ export class AudioEngine {
   }
   async pause() {
     ++this.revision;
+    for (const [id, layer] of this.layers) if (layer.radio) this.remove(id);
     if (this.context) await this.context.suspend();
   }
+  disconnectRadios() {
+    for (const layer of this.layers.values()) layer.radio?.offline();
+  }
+  retryRadio(id) { this.layers.get(id)?.radio?.start(); }
   scheduleSleep(seconds, master) {
     if (!this.context) return;
     const now = this.context.currentTime;

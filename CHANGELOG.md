@@ -2,6 +2,16 @@
 
 App releases use [Semantic Versioning](docs/versioning.md). Research checkpoints on `dev` may precede the next release.
 
+## 0.3.0-alpha.1 — 2026-09-30
+
+Development preview on `dev`; the preceding 0.2.0-alpha.1 state was promoted to `main` at `32c9afe`.
+
+- Replaced the scrolling category strip with visible category buttons, counts, grouped browsing, and remembered navigation.
+- Added Weather, Water, Wildlife, Indoors, Noise & textures, My sounds, Radio, and In your mix filters; local imports can be assigned a category.
+- Added locally saved HTTPS radio URLs, shared mixing/volume/timer controls, connection status and retry, and per-station failure isolation.
+- Kept radio online-only, with no stream recording/caching and no station requests when simply saving URLs.
+- Documented local storage and a proposed offline-compatible sync architecture; no sync backend or uploads were added.
+
 ## 0.2.0-alpha.1 — 2026-09-30
 
 Development preview on `dev`.
