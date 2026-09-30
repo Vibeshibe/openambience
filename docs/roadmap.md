@@ -4,37 +4,31 @@
 
 - [x] Public-surface Ambiphone analysis with sources and evidence limits.
 - [x] Static HTML/CSS/JavaScript app with original visual identity.
-- [x] Six procedural sound layers, master transport, and volume controls.
-- [x] Search, presets, local named mixes, and a sleep timer.
-- [x] PWA manifest, icons, service worker, unit tests, and CI definition.
+- [x] Six procedural layers, volume controls, local mixes, and a sleep timer.
+- [x] PWA manifest, icons, service worker, automated tests, and CI.
 
-## Next — Saved mixes and custom sounds
+## 0.2.0-alpha.1 — Recorded library and mobile mixer
 
-The current priority is the [saved mixes and custom sound proposal](saved-mixes-and-custom-sounds.md). This is a scoped plan; implementation has not started.
+- [x] Inventory 67 reference channels and check 60 original-source licence pages.
+- [x] Bundle twelve CC0 / CC BY recordings with loop preparation and credits.
+- [x] Add mobile category browsing, two-column cards, and a compact player/mixer sheet.
+- [x] Extend saved mixes with update, rename, and duplicate.
+- [x] Add batch file-picker imports, stable IDs, duplicate detection, and local removal.
+- [x] Store imported recordings in IndexedDB and migrate existing mix recipes to versioned localStorage.
+- [x] Cache the whole recording pack offline and add an explicit update action.
+- [x] Verify Chromium offline playback, imports, legacy upgrade, and responsive widths.
 
-- [x] Inventory all 67 reference channels and check 60 original-source license pages.
-- [x] Identify an openly licensed starter-pack shortlist and alternatives.
-- [x] Define stable sound identities, local-file imports, and saved-mix portability.
-- [ ] Select and audition originals, prepare loops/events, and publish a versioned catalog with credits.
-- [ ] Extend mixes with rename, update, duplicate, and recipe export/import.
-- [ ] Store imported audio and mixes in IndexedDB, including migration from 0.1.0.
-- [ ] Add file-picker/batch imports, duplicate detection, and missing-sound recovery.
-- [ ] Verify storage failure recovery and offline restart on real Android/iOS devices.
+The [saved mixes and custom sound proposal](saved-mixes-and-custom-sounds.md) describes the broader scope. The following remain future work:
 
-## Quality and portability
+- [ ] Recipe export/import and missing-sound recovery.
+- [ ] Drag-and-drop imports and storage-management controls.
+- [ ] Verify storage pressure, offline restart, installation, and playback on physical Android/iOS devices.
+- [ ] Long listening sessions for loop repetition, clicks, and relative loudness.
+- [ ] Background/lock-screen playback, interruptions, and Media Session controls.
+- [ ] Screen-reader and 200% zoom audits on desktop and mobile.
+- [ ] Improve pink-noise spectrum and generated nature textures.
+- [ ] Expand the recording catalog and support selective offline downloads.
+- [ ] Versioned mix URLs and stereo placement.
+- [ ] Evaluate network streams separately from the offline catalog.
 
-- [ ] Listen for clicks, repeated patterns, and abrupt transitions over long sessions.
-- [ ] Improve pink-noise spectrum and nature texture quality.
-- [ ] Test installed iOS/Safari and Android playback, audio interruptions, and locked screens.
-- [ ] Add Media Session controls and reflect OS-driven audio state changes in the UI.
-- [ ] Add export/import, active-only filtering, and an explicit PWA update action.
-- [ ] Run screen-reader and zoom audits on desktop and mobile.
-
-## Later — Open sound library
-
-- [ ] Record or obtain compatible field recordings and maintain an attribution register.
-- [ ] Add documented loop preparation, lazy decoding, and per-sound offline downloads.
-- [ ] Add versioned mix URLs and stereo placement.
-- [ ] Evaluate stream support separately from the offline catalog.
-
-Repository publication and deployment are operational steps, not proof that these product milestones have been validated.
+Repository publication does not establish physical-device or listening-test results.
