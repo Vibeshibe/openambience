@@ -42,3 +42,11 @@ All asset and manifest paths are relative to support GitHub project Pages. HTTPS
 ## Extension points
 
 Add more recordings through `audio/credits.json`, which records file path, author, source, license, attribution, duration, and offline size. Load/decode them only on demand and design crossfades independently of the synthetic layer engine. Keep live streams opt-in and visibly network-dependent. Shareable mixes should use a versioned, validated schema and never imply shared access to someone else's local storage.
+
+## Categories and radio (0.3.0-alpha.1)
+
+`js/categories.js` maps stable bundled IDs to display categories. Imports can carry a user-selected category while remaining discoverable in My sounds. A selected category is remembered separately in localStorage.
+
+`js/radio.js` validates direct HTTPS URLs and manages one native media element per active station. Each element uses anonymous CORS and a `MediaElementAudioSourceNode` connected to the existing layer/master gains. The audio engine never fetches a whole live stream into a buffer. Errors and offline transitions disconnect the affected station while leaving local layers running; fifteen-second connection/buffering timeouts offer a manual retry. Pause and deselection release station connections.
+
+Station records share the IndexedDB metadata store, with `kind: radio`, a stable ID, name, and URL. They have no audio blob. Existing recipes can refer to these IDs without a schema change. The service worker still caches only the explicitly bundled library. See [radio compatibility](internet-radio.md) and [the proposed sync model](sync-and-offline.md).

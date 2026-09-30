@@ -47,6 +47,23 @@ PLAYWRIGHT_MODULE=/tmp/openambience-tools/node_modules/playwright node scripts/b
 
 Set `CHROMIUM_EXECUTABLE` if using an existing browser binary, and `PREVIEW_URL` to test another serving address. The harness validates timer deadlines by advancing a browser clock; it does not run a real-time fifteen-minute listening session.
 
+## Recorded 0.3.0-alpha.1 validation — 2026-09-30
+
+- Syntax checks and all four Node test files passed, including category membership, reassigned imports, radio URL validation, and saved station IDs.
+- The existing Chromium library suite passed with remembered category selection: imports, saved mixes, offline reload, all twelve decoded recordings, and timer behavior.
+- A separate Chromium 153 suite served a bundled recording from a local HTTPS fixture station. CORS-enabled playback produced nonzero samples through the Web Audio media source; CORS-blocked playback showed an error while a local noise layer kept running.
+- Verified station URL validation, duplicate detection, no station requests on save, per-station/master volume controls, pause/deselection/removal connection release, saved-mix persistence, offline local playback with radio selected, reconnect/retry, and timer-driven stream stop.
+- Confirmed station responses were absent from service-worker caches, and deleting a station removed its saved-mix references. Pause still works after deselecting the last layer.
+- Category counts, custom-category persistence, and 320/390/768/1440px layouts passed. Mobile category/radio screenshots were reviewed.
+
+Run the radio harness with the same Playwright setup as above. It additionally requires `openssl` on PATH and a free loopback port 8443. It creates a temporary self-signed certificate, trusts that certificate only in its isolated test context, and removes its certificate files on exit. No public station or third-party service is contacted.
+
+```sh
+PLAYWRIGHT_MODULE=/tmp/openambience-tools/node_modules/playwright node scripts/radio-browser-check.cjs
+```
+
+The fixture verifies browser streaming controls and CORS behavior with known audio. It does not establish compatibility with arbitrary station servers or codecs. Physical Android/iOS, background/lock-screen behavior, and overnight listening remain manual checks.
+
 ## Release checklist
 
 - Increment the service-worker cache name after changing cached assets.

@@ -18,6 +18,14 @@
 - [x] Cache the whole recording pack offline and add an explicit update action.
 - [x] Verify Chromium offline playback, imports, legacy upgrade, and responsive widths.
 
+## 0.3.0-alpha.1 — Categories and internet radio
+
+- [x] Visible category buttons, counts, grouped browsing, and remembered selection.
+- [x] Category assignment for custom recordings.
+- [x] Locally saved HTTPS radio URLs, shared mixer/timer controls, status, and retry.
+- [x] Failed/offline station isolation from local audio and no stream caching.
+- [x] Controlled HTTPS/CORS browser checks and an offline-compatible sync proposal.
+
 The [saved mixes and custom sound proposal](saved-mixes-and-custom-sounds.md) describes the broader scope. The following remain future work:
 
 - [ ] Recipe export/import and missing-sound recovery.
@@ -29,6 +37,7 @@ The [saved mixes and custom sound proposal](saved-mixes-and-custom-sounds.md) de
 - [ ] Improve pink-noise spectrum and generated nature textures.
 - [ ] Expand the recording catalog and support selective offline downloads.
 - [ ] Versioned mix URLs and stereo placement.
-- [ ] Evaluate network streams separately from the offline catalog.
+- [ ] Broaden radio compatibility beyond direct CORS-enabled streams, based on real station/device tests.
+- [ ] Choose a provider and implement optional sync with local playback copies and missing-asset recovery.
 
 Repository publication does not establish physical-device or listening-test results.
