@@ -94,6 +94,12 @@ Both browser harnesses were updated for the import dialog. The radio harness pas
 
 Syntax checks and all four Node test files passed. A focused Chromium check verified the footer repository link, keyboard focus, a minimum 44px touch target, and no horizontal overflow at 320/390/768/1440px widths. The mobile footer screenshot was reviewed. The updated app loaded all eighteen sounds and passed service-worker control, offline reload, and recorded playback checks locally.
 
+## Recorded 0.3.0-alpha.8 validation — 2026-09-30
+
+Syntax checks, all four Node test files, and the Chromium 153 library/offline suite passed. The import checks now cover a mixed batch containing a text file and valid extensionless MP3 with a generic MIME type, a PNG, invalid WAV data, and document data disguised as an MP3. Only decodable audio was saved; invalid selections produced feedback and valid imports survived offline reload and playback. Duplicate detection, saved mixes, timer expiry, and responsive layouts also passed.
+
+The file input now omits `accept` to request general file browsing instead of suggesting a media picker. Browser automation supplies files directly and cannot verify Android's native picker; that change still needs physical Android testing. The browser and operating system determine the final picker UI. See [MDN's file-type hint documentation](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Attributes/accept).
+
 ## Release checklist
 
 - Increment the service-worker cache name after changing cached assets.

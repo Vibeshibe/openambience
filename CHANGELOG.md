@@ -2,6 +2,12 @@
 
 App releases use [Semantic Versioning](docs/versioning.md). Research checkpoints on `dev` may precede the next release.
 
+## 0.3.0-alpha.8 — 2026-09-30
+
+- Removed the media-type picker hint so imports request general file browsing on mobile browsers.
+- Clarified that unreadable or unsupported files are skipped and improved audio-decoding feedback; valid files in a mixed batch still import.
+- Removed GitHub Pages deployment instructions from the README.
+
 ## 0.3.0-alpha.7 — 2026-09-30
 
 - Prepared GitHub Pages publishing from main with a static `.nojekyll` site and a public app link.

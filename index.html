@@ -47,7 +47,7 @@
     </section>
     <noscript>Enable JavaScript to mix and play sounds.</noscript>
   </main>
-  <footer><span id="offline">Preparing offline library…</span><button id="show-credits" class="text-button">Sound credits</button><a class="repo-link" href="https://github.com/Vibeshibe/openambience" target="_blank" rel="noopener noreferrer" aria-label="OpenAmbience on GitHub (opens in a new tab)">GitHub <span aria-hidden="true">↗</span></a><span>v0.3.0-alpha.7 · No accounts. No tracking.</span></footer>
+  <footer><span id="offline">Preparing offline library…</span><button id="show-credits" class="text-button">Sound credits</button><a class="repo-link" href="https://github.com/Vibeshibe/openambience" target="_blank" rel="noopener noreferrer" aria-label="OpenAmbience on GitHub (opens in a new tab)">GitHub <span aria-hidden="true">↗</span></a><span>v0.3.0-alpha.8 · No accounts. No tracking.</span></footer>
   <div class="player-dock">
     <div class="player-summary"><strong id="layer-count">Your quiet starts here</strong><span id="countdown">Nothing playing</span></div>
     <section class="player" aria-label="Playback controls">
@@ -73,8 +73,8 @@
     <div class="dialog-heading"><h2 id="upload-title">Add your sounds</h2><button class="close quiet" aria-label="Close sound import">✕</button></div>
     <p>Your recordings join the library with an <span class="source-tag">Uploaded</span> tag. Files stay on this device and work offline.</p>
     <form id="upload-form">
-      <label class="field" for="sound-files">Audio files<input id="sound-files" type="file" accept="audio/*,.mp3,.wav,.m4a,.ogg,.flac" multiple required aria-describedby="upload-limits"></label>
-      <p id="upload-limits" class="hint">Up to 25 MB and 2 minutes per file. Choose one or more mono or stereo recordings.</p>
+      <label class="field" for="sound-files">Audio files<input id="sound-files" type="file" multiple required aria-describedby="upload-limits"></label>
+      <p id="upload-limits" class="hint">Browse your files and choose audio recordings, such as MP3 or WAV. Up to 25 MB and 2 minutes per file, mono or stereo. Files your browser cannot read as audio are skipped.</p>
       <label class="field" for="upload-category">Category<select id="upload-category" aria-describedby="upload-category-help"></select></label>
       <p id="upload-category-help" class="hint">Applies to these files. They’ll appear beside the built-in sounds in this category. You can change each recording’s category later.</p>
       <button id="import-submit" class="primary" type="submit">Add to library</button>

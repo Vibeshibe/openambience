@@ -21,7 +21,7 @@ Open **http://localhost:8080**. Select some sounds or a preset, then press **Pla
 
 An alternative is `python3 -m http.server 8080 --bind 127.0.0.1` from this directory. Serve over HTTP locally or HTTPS when deployed; opening `index.html` through `file://` does not support modules and service workers reliably.
 
-## Available in 0.3.0-alpha.7
+## Available in 0.3.0-alpha.8
 
 - Twelve recorded sounds: rain, rain on glass, thunder, forest wind, waves, stream, fireplace, birds, crickets, café, fan, and cat purring.
 - Six generated textures, including white, pink, and brown noise. Earlier saved mixes keep their original procedural sounds.
@@ -84,9 +84,7 @@ npm test
 
 See [testing notes](docs/testing.md) for browser and offline checks. No runtime or development dependencies are required for these commands.
 
-## Deployment and installation
-
-Publishing address: **https://vibeshibe.github.io/openambience/**. Enable GitHub Pages under **Settings → Pages → Deploy from a branch → main → /(root)**. Once enabled, pushes to `main` publish updates, while `dev` remains the development branch. The `.nojekyll` file serves the static files without Jekyll processing. Relative URLs also support other HTTPS hosts at `/` or a project path such as `/openambience/`. The local server is for development.
+## Installation and updates
 
 The hosted app has separate browser storage from the localhost preview. Existing local mixes and imported recordings do not automatically transfer to the published site.
 

@@ -312,7 +312,7 @@ async function inspectDuration(file) {
       const timeout = setTimeout(() => { cleanup(); reject(new Error('could not read audio metadata')); }, 15000);
       const cleanup = () => { clearTimeout(timeout); audio.onloadedmetadata = null; audio.onerror = null; };
       audio.onloadedmetadata = () => { cleanup(); Number.isFinite(audio.duration) ? resolve(audio.duration) : reject(new Error('recording duration is unavailable')); };
-      audio.onerror = () => { cleanup(); reject(new Error('this audio format is not supported by your browser')); };
+      audio.onerror = () => { cleanup(); reject(new Error('not readable audio or a format this browser supports; try MP3 or WAV')); };
       audio.src = url;
     });
   } finally { audio.removeAttribute('src'); audio.load(); URL.revokeObjectURL(url); }
@@ -339,7 +339,10 @@ $('#upload-form').onsubmit = async event => {
         const data = await file.arrayBuffer();
         const hash = [...new Uint8Array(await crypto.subtle.digest('SHA-256', data))].map(byte => byte.toString(16).padStart(2, '0')).join('');
         if (catalog.some(sound => sound.hash === hash)) throw new Error('already in your library');
-        const buffer = await decoder.decodeAudioData(data);
+        // Validate the content, since file names and MIME types are not reliable.
+        let buffer;
+        try { buffer = await decoder.decodeAudioData(data); }
+        catch { throw new Error('could not decode this recording; it may be damaged or unsupported; try MP3 or WAV'); }
         if (buffer.duration > 120) throw new Error('choose a recording of two minutes or less');
         if (buffer.numberOfChannels > 2) throw new Error('choose a mono or stereo recording');
         const sound = { id: `custom-${crypto.randomUUID()}`, name: file.name.replace(/\.[^.]+$/, '').slice(0, 60) || 'My sound', kind: 'custom', category, hash, durationSeconds: buffer.duration, blob: file };
@@ -376,7 +379,7 @@ if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('./sw.js').then(registration => {
     const check = async () => {
       let ready = false;
-      try { ready = Boolean(await caches.match(new URL('./audio/credits.json', location.href), { cacheName: 'openambience-shell-0.3.0-alpha.7' })); } catch {}
+      try { ready = Boolean(await caches.match(new URL('./audio/credits.json', location.href), { cacheName: 'openambience-shell-0.3.0-alpha.8' })); } catch {}
       $('#offline').textContent = ready && registration.active ? '● Library ready offline' : 'Preparing offline library…';
       $('#update').hidden = !registration.waiting;
     };

@@ -81,14 +81,28 @@ async function importFile(page, file) {
  await page.locator('#library-tab').click();
  assert.equal(await page.locator('#volume-rain-leaves').inputValue(),'27');
  await page.locator('#play').click();
- await importFile(page, require('node:path').resolve(__dirname, '../audio/fire.mp3'));
+ assert.equal(await page.locator('#sound-files').getAttribute('accept'),null);
+ await importFile(page, [
+   {name:'notes.txt',mimeType:'text/plain',buffer:Buffer.from('not an audio recording')},
+   {name:'fire',mimeType:'application/octet-stream',buffer:require('node:fs').readFileSync(require('node:path').resolve(__dirname, '../audio/fire.mp3'))}
+ ]);
  await page.waitForFunction(()=>document.querySelectorAll('.sound-card').length===19);
+ assert.match(await page.locator('#status').textContent(),/1 recording added.*notes.txt: not readable audio/);
  await importFile(page, require('node:path').resolve(__dirname, '../audio/fire.mp3'));
  await page.waitForFunction(()=>document.querySelector('#status').textContent.includes('already in your library'));
  assert.equal(await page.locator('.sound-card').count(),19);
  await importFile(page, {name:'invalid.wav',mimeType:'audio/wav',buffer:Buffer.from('not audio')});
  await page.waitForFunction(()=>!document.querySelector('#add-sounds').disabled);
  assert.equal(await page.locator('.sound-card').count(),19);
+ assert.match(await page.locator('#status').textContent(),/0 recordings added.*invalid.wav: not readable audio/);
+ for (const file of [
+   {name:'photo.png',mimeType:'image/png',buffer:require('node:fs').readFileSync(require('node:path').resolve(__dirname, '../icons/icon-192.png'))},
+   {name:'document.mp3',mimeType:'audio/mpeg',buffer:Buffer.from('%PDF-1.4\nThis is not audio.')}
+ ]) {
+   await importFile(page,file);
+   assert.equal(await page.locator('.sound-card').count(),19);
+   assert.match(await page.locator('#status').textContent(),/0 recordings added.*not readable audio/);
+ }
  await chooseCategory(page, 'My sounds');
  await page.locator('.sound-card:visible .sound-toggle').click();
  const customID=await page.locator('.sound-card:visible').getAttribute('data-sound');
