@@ -21,15 +21,15 @@ Open **http://localhost:8080**. Select some sounds or a preset, then press **Pla
 
 An alternative is `python3 -m http.server 8080 --bind 127.0.0.1` from this directory. Serve over HTTP locally or HTTPS when deployed; opening `index.html` through `file://` does not support modules and service workers reliably.
 
-## Available in 0.3.0-alpha.5
+## Available in 0.3.0-alpha.6
 
 - Twelve recorded sounds: rain, rain on glass, thunder, forest wind, waves, stream, fireplace, birds, crickets, café, fan, and cat purring.
 - Six generated textures, including white, pink, and brown noise. Earlier saved mixes keep their original procedural sounds.
-- A phone-friendly two-column library, search, a collapsible Filters panel with multi-select category checkboxes, counts, and a visible active-filter summary, grouped browsing, and a compact player with a mixer panel. Custom recordings can be assigned a category.
+- A phone-friendly two-column library, search, a collapsible Filters panel with multi-select category checkboxes, counts, and a visible active-filter summary, grouped browsing, and a compact player with a mixer panel. Uploaded recordings appear beside built-in sounds in their assigned category, with a small **Uploaded** tag.
 - **＋ Radio** saves direct HTTPS radio-stream URLs locally. Compatible stations join the mixer and sleep timer; live playback needs internet and is never cached. See [radio compatibility](docs/internet-radio.md).
 - Up to six simultaneous layers, individual volume, and a sleep timer with a five-second fade. The persistent player has a large play/pause button, an always-visible master-volume slider, and mute/unmute. The three-dot **Mix options** button opens saving and timer controls.
 - Twenty named local mixes with load, update, rename, duplicate, and delete controls.
-- Add multiple custom recordings using **Add sounds**. Supported formats depend on the browser; MP3 and WAV are good starting points. Files must be mono/stereo, at most 25 MB and two minutes long. Up to 30 imports; identical files are detected.
+- Choose files and a category in **Add sounds**, then select **Add to library**. A batch shares the chosen category; you can change each recording’s category afterward. **My sounds** still finds every imported recording. Supported formats depend on the browser; MP3 and WAV are good starting points. Files must be mono/stereo, at most 25 MB and two minutes long. Up to 30 imports; identical files are detected.
 - Offline caching of the app and the entire bundled library. Wait for **Library ready offline** before disconnecting. Imports are stored locally in IndexedDB; mix recipes use localStorage.
 - In-app sound credits, install support, and an update button for future versions.
 

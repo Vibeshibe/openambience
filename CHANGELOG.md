@@ -2,6 +2,15 @@
 
 App releases use [Semantic Versioning](docs/versioning.md). Research checkpoints on `dev` may precede the next release.
 
+## 0.3.0-alpha.6 — 2026-09-30
+
+Development preview on `dev`; 0.3.0-alpha.5 was promoted to `main` at `856ac84` and tagged.
+
+- Added a file-import dialog with category selection, a suggestion from the current filter, and batch category assignment.
+- Added Uploaded source badges and visible category labels to imported sound cards, including previously saved imports.
+- Kept imported recordings alongside built-in sounds within their chosen category, with per-card category editing and the My sounds shortcut.
+- Kept invalid/duplicate-file feedback in the import dialog and revealed successfully imported recordings in their selected category.
+
 ## 0.3.0-alpha.5 — 2026-09-30
 
 - Changed category filters to checkboxes: matching any selected category includes a sound, with no duplicates for overlapping categories.

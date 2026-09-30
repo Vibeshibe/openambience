@@ -678,3 +678,10 @@ form .primary {
   .intro { padding-top: 12px; padding-bottom: 10px; }
   .intro > p:last-child { max-width: none; }
 }
+
+.source-tag { display:inline-flex; align-items:center; border:1px solid #7c9a88; border-radius:5px; padding:2px 6px; color:var(--accent); background:#263d30; font-size:11px; line-height:1.4; font-weight:600; white-space:nowrap; }
+.sound-meta { display:flex; align-items:center; flex-wrap:wrap; gap:6px; min-height:23px; }
+.sound-category { overflow-wrap:anywhere; }
+#sound-files { min-width:0; font-size:13px; }
+#sound-files::file-selector-button { min-height:44px; border:1px solid var(--line); border-radius:8px; padding:8px 12px; margin-right:10px; background:var(--bg); color:var(--text); font:inherit; cursor:pointer; }
+#import-status { color:var(--muted); font-size:13px; overflow-wrap:anywhere; }

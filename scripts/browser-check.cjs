@@ -3,9 +3,16 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright');
 const assert = require('node:assert/strict');
 async function chooseCategory(page, name) {
  if (!await page.locator('#filters').evaluate(element => element.open)) await page.locator('#filter-toggle').click();
- for (const input of await page.locator('#categories input:checked').all()) await input.uncheck();
+ while (await page.locator('#categories input:checked').count()) await page.locator('#categories input:checked').first().uncheck();
  if (name !== 'All sounds') await page.getByRole('checkbox', { name, exact: true }).check();
  await page.locator('#filter-toggle').click();
+}
+async function importFile(page, file) {
+ await page.locator('#add-sounds').click();
+ await page.locator('#sound-files').setInputFiles(file);
+ await page.locator('#import-submit').click();
+ await page.waitForFunction(() => !document.querySelector('#import-submit').disabled);
+ if (await page.locator('#upload-dialog').evaluate(element => element.open)) await page.getByRole('button', { name: 'Close sound import', exact: true }).click();
 }
 (async () => {
  const browser = await chromium.launch({executablePath:process.env.CHROMIUM_EXECUTABLE,headless:true});
@@ -74,12 +81,12 @@ async function chooseCategory(page, name) {
  await page.locator('#library-tab').click();
  assert.equal(await page.locator('#volume-rain-leaves').inputValue(),'27');
  await page.locator('#play').click();
- await page.locator('#sound-files').setInputFiles(require('node:path').resolve(__dirname, '../audio/fire.mp3'));
+ await importFile(page, require('node:path').resolve(__dirname, '../audio/fire.mp3'));
  await page.waitForFunction(()=>document.querySelectorAll('.sound-card').length===19);
- await page.locator('#sound-files').setInputFiles(require('node:path').resolve(__dirname, '../audio/fire.mp3'));
+ await importFile(page, require('node:path').resolve(__dirname, '../audio/fire.mp3'));
  await page.waitForFunction(()=>document.querySelector('#status').textContent.includes('already in your library'));
  assert.equal(await page.locator('.sound-card').count(),19);
- await page.locator('#sound-files').setInputFiles({name:'invalid.wav',mimeType:'audio/wav',buffer:Buffer.from('not audio')});
+ await importFile(page, {name:'invalid.wav',mimeType:'audio/wav',buffer:Buffer.from('not audio')});
  await page.waitForFunction(()=>!document.querySelector('#add-sounds').disabled);
  assert.equal(await page.locator('.sound-card').count(),19);
  await chooseCategory(page, 'My sounds');

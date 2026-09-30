@@ -131,6 +131,12 @@ function renderSounds() {
     card.querySelector('.sound-name').textContent = sound.name;
     card.querySelector('.sound-icon').textContent = sound.kind === 'radio' ? '◉' : symbols[sound.icon] || sound.icon || '♫';
     card.querySelector('.sound-kind').textContent = sound.kind === 'radio' ? 'INTERNET RADIO · ONLINE ONLY' : sound.kind === 'custom' ? 'ON THIS DEVICE' : sound.kind === 'recording' ? (sound.mode === 'event' ? 'RECORDING · OCCASIONAL' : 'FIELD RECORDING') : 'GENERATED TEXTURE';
+    if (sound.kind === 'custom') {
+      const badge = document.createElement('span'); badge.className = 'source-tag'; badge.textContent = 'Uploaded'; badge.title = 'Imported on this device; available offline';
+      const category = document.createElement('span'); category.className = 'sound-category'; category.textContent = categoryOf(sound) === 'My sounds' ? 'Uncategorized' : categoryOf(sound);
+      card.querySelector('.sound-kind').classList.add('sound-meta');
+      card.querySelector('.sound-kind').replaceChildren(badge, category);
+    }
     const slider = card.querySelector('input'); slider.id = `volume-${sound.id}`;
     slider.setAttribute('aria-label', `${sound.name} volume`);
     card.querySelector('label').htmlFor = slider.id;
@@ -151,7 +157,7 @@ function renderSounds() {
     if (sound.kind === 'custom') {
       const label = document.createElement('label'); label.className = 'custom-category'; label.textContent = 'Category';
       const select = document.createElement('select'); select.setAttribute('aria-label', `${sound.name} category`);
-      for (const name of CUSTOM_CATEGORIES) { const option = document.createElement('option'); option.value = name; option.textContent = name; select.append(option); }
+      for (const name of CUSTOM_CATEGORIES) { const option = document.createElement('option'); option.value = name; option.textContent = name === 'My sounds' ? 'Uncategorized' : name; select.append(option); }
       select.value = categoryOf(sound);
       select.onchange = async () => {
         select.disabled = true;
@@ -287,7 +293,16 @@ $('#radio-form').onsubmit = async event => {
 };
 window.addEventListener('offline', () => { engine.disconnectRadios(); renderRadioStates(); });
 window.addEventListener('online', renderRadioStates);
-$('#add-sounds').onclick = () => $('#sound-files').click();
+for (const name of CUSTOM_CATEGORIES) {
+  const option = document.createElement('option'); option.value = name; option.textContent = name === 'My sounds' ? 'Uncategorized' : name;
+  $('#upload-category').append(option);
+}
+$('#add-sounds').onclick = () => {
+  $('#upload-form').reset(); $('#import-status').textContent = '';
+  // Suggest the current genre when browsing one category; other views start uncategorized.
+  $('#upload-category').value = selectedCategories.length === 1 && CUSTOM_CATEGORIES.includes(selectedCategories[0]) ? selectedCategories[0] : 'My sounds';
+  $('#upload-dialog').showModal();
+};
 async function inspectDuration(file) {
   const url = URL.createObjectURL(file);
   const audio = document.createElement('audio');
@@ -302,10 +317,15 @@ async function inspectDuration(file) {
     });
   } finally { audio.removeAttribute('src'); audio.load(); URL.revokeObjectURL(url); }
 }
-$('#sound-files').onchange = async event => {
-  if (!db) return;
-  $('#add-sounds').disabled = true;
-  const files = [...event.target.files]; let imported = 0; const problems = [];
+$('#upload-form').onsubmit = async event => {
+  event.preventDefault();
+  if (!db || $('#import-submit').disabled) return;
+  const files = [...$('#sound-files').files];
+  if (!files.length) { $('#import-status').textContent = 'Choose at least one audio file.'; return; }
+  const category = CUSTOM_CATEGORIES.includes($('#upload-category').value) ? $('#upload-category').value : 'My sounds';
+  for (const id of ['add-sounds', 'import-submit', 'sound-files', 'upload-category']) $(`#${id}`).disabled = true;
+  $('#import-submit').textContent = 'Adding…'; $('#import-status').textContent = 'Checking your recordings…';
+  let imported = 0; const problems = [];
   // A separate decoder never connects imported audio to the speakers.
   const Context = globalThis.AudioContext || globalThis.webkitAudioContext;
   let decoder;
@@ -322,15 +342,22 @@ $('#sound-files').onchange = async event => {
         const buffer = await decoder.decodeAudioData(data);
         if (buffer.duration > 120) throw new Error('choose a recording of two minutes or less');
         if (buffer.numberOfChannels > 2) throw new Error('choose a mono or stereo recording');
-        const sound = { id: `custom-${crypto.randomUUID()}`, name: file.name.replace(/\.[^.]+$/, '').slice(0, 60) || 'My sound', kind: 'custom', category: 'My sounds', hash, durationSeconds: buffer.duration, blob: file };
+        const sound = { id: `custom-${crypto.randomUUID()}`, name: file.name.replace(/\.[^.]+$/, '').slice(0, 60) || 'My sound', kind: 'custom', category, hash, durationSeconds: buffer.duration, blob: file };
         await putSound(db, sound); catalog.push(sound); imported++;
       } catch (error) { problems.push(`${file.name}: ${error.message}`); }
     }
   } catch (error) { problems.push(error.message); }
   finally {
-    await decoder?.close(); event.target.value = ''; $('#add-sounds').disabled = false;
-    mix = normalize(mix); renderSounds(); sync();
-    status(`${imported} recording${imported === 1 ? '' : 's'} added.${problems.length ? ` ${problems[0]}${problems.length > 1 ? ` (${problems.length - 1} other files could not be added.)` : ''}` : ' Ready to play, even offline.'}`);
+    await decoder?.close();
+    for (const id of ['add-sounds', 'import-submit', 'sound-files', 'upload-category']) $(`#${id}`).disabled = false;
+    $('#import-submit').textContent = 'Add to library';
+    mix = normalize(mix); renderSounds();
+    if (imported) { showView('library'); $('#search').value = ''; setCategoryFilters([category]); }
+    sync();
+    const message = `${imported} recording${imported === 1 ? '' : 's'} added.${problems.length ? ` ${problems[0]}${problems.length > 1 ? ` (${problems.length - 1} other files could not be added.)` : ''}` : ' Tagged Uploaded and ready offline.'}`;
+    $('#import-status').textContent = message; status(message);
+    if (imported && !problems.length) { $('#upload-dialog').close(); $('#upload-form').reset(); }
+
   }
 };
 for (const sound of SOUNDS.filter(sound => sound.kind === 'recording')) {
@@ -349,7 +376,7 @@ if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('./sw.js').then(registration => {
     const check = async () => {
       let ready = false;
-      try { ready = Boolean(await caches.match(new URL('./audio/credits.json', location.href), { cacheName: 'openambience-shell-0.3.0-alpha.5' })); } catch {}
+      try { ready = Boolean(await caches.match(new URL('./audio/credits.json', location.href), { cacheName: 'openambience-shell-0.3.0-alpha.6' })); } catch {}
       $('#offline').textContent = ready && registration.active ? '● Library ready offline' : 'Preparing offline library…';
       $('#update').hidden = !registration.waiting;
     };

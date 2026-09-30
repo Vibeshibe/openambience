@@ -26,3 +26,11 @@ The Filters section starts collapsed to give sound cards more room on phones. Ex
 Checking a category keeps the section open so users can select more. Closing it preserves the selections, and the header shows the selection and result counts. Selections survive reloads; the prior single-category preference migrates automatically. Clear filters resets all checkboxes and search text. There is no competing “All sounds” checkbox, because an empty selection already includes everything.
 
 Native `details`/`summary` and checkbox inputs provide disclosure and multi-selection semantics. Each checkbox row has at least 44px touch height. This keeps browsing filters separate from the player's Mix options panel.
+
+## Uploaded sounds: category and origin
+
+Category describes a sound; the Uploaded tag identifies where it came from. An uploaded wave recording assigned to Water appears alongside the built-in stream and ocean recordings. Its text badge distinguishes it without relying on colour or a separate library. My sounds remains a shortcut to every imported recording, across categories; combining that shortcut with another category uses the same inclusive filtering as other checkboxes.
+
+The Add sounds dialog collects files and their category before import. Browsing a single assignable category suggests that choice; other views start at Uncategorized. The category applies to the batch and remains editable on each card. Successful imports reveal the chosen category and clear search so the new recordings are visible. Invalid or duplicate files leave an explanation in the dialog.
+
+The Uploaded badge means imported from the device, not sent to a server. The dialog and badge tooltip make local/offline storage explicit. Existing imported files receive the same tag automatically, using their saved metadata and stable IDs.

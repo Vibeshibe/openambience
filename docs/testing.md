@@ -84,6 +84,12 @@ Syntax checks, the library browser suite, and the controlled radio suite passed.
 
 Syntax checks and all four Node test files passed, including new assertions for OR category matching, overlap without duplicates, legacy migration, and malformed storage. Focused Chromium checks passed for multiple checkboxes, Space toggling, search intersection, the collapsed summary, persisted multi-selection after offline reload, Clear filters overriding the old preference, empty selection showing all sounds, and In your mix combined with a category without stopping playback. Touch rows remained at least 44px high, with no overflow at 320/390/768/1440px widths. The checkbox panel screenshot was reviewed. Existing browser harness selectors were updated for checkbox controls; the unchanged audio suites were not rerun for this filtering change.
 
+## Recorded 0.3.0-alpha.6 validation — 2026-09-30
+
+Syntax checks, all four Node test files, and the complete Chromium library/offline suite passed with the new import dialog. A focused Chromium check verified category suggestions, assigning a category to a batch of imports, uploaded tags appearing only on imported cards, and imported recordings appearing beside built-in sounds. Combining a category with My sounds showed each recording once. Editing a category, duplicate rejection, category persistence after offline reload, and saved-mix playback using imported audio passed. No uncaught browser errors or horizontal overflow occurred at 320/390/768/1440px widths; mobile dialog and card screenshots were reviewed.
+
+Both browser harnesses were updated for the import dialog. The radio harness passed syntax validation but was not rerun for this change. Physical-device and assistive-technology checks remain outstanding as described above.
+
 ## Release checklist
 
 - Increment the service-worker cache name after changing cached assets.

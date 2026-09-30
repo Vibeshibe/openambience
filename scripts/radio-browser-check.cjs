@@ -13,9 +13,16 @@ execFileSync('openssl', ['req', '-x509', '-newkey', 'rsa:2048', '-nodes', '-keyo
 process.on('exit', () => fs.rmSync(fixtureDir, { recursive: true, force: true }));
 async function chooseCategory(page, name) {
  if (!await page.locator('#filters').evaluate(element => element.open)) await page.locator('#filter-toggle').click();
- for (const input of await page.locator('#categories input:checked').all()) await input.uncheck();
+ while (await page.locator('#categories input:checked').count()) await page.locator('#categories input:checked').first().uncheck();
  if (name !== 'All sounds') await page.getByRole('checkbox', { name, exact: true }).check();
  await page.locator('#filter-toggle').click();
+}
+async function importFile(page, file) {
+ await page.locator('#add-sounds').click();
+ await page.locator('#sound-files').setInputFiles(file);
+ await page.locator('#import-submit').click();
+ await page.waitForFunction(() => !document.querySelector('#import-submit').disabled);
+ if (await page.locator('#upload-dialog').evaluate(element => element.open)) await page.getByRole('button', { name: 'Close sound import', exact: true }).click();
 }
 (async () => {
  const browser = await chromium.launch({executablePath:process.env.CHROMIUM_EXECUTABLE,headless:true});
@@ -82,7 +89,7 @@ async function chooseCategory(page, name) {
  await context.setOffline(false);await page.locator('.retry-radio').click();
  await page.waitForFunction(()=>document.querySelector('.radio-state').textContent.includes('Live'));
  await page.locator('#play').click();
- await page.locator('#sound-files').setInputFiles(path.resolve(__dirname, '../audio/fire.mp3'));await page.waitForFunction(()=>document.querySelectorAll('[data-kind="custom"]').length===1);
+ await importFile(page, path.resolve(__dirname, '../audio/fire.mp3'));await page.waitForFunction(()=>document.querySelectorAll('[data-kind="custom"]').length===1);
  await chooseCategory(page, 'My sounds');await page.locator('.custom-category select').selectOption('Water');
  await page.waitForFunction(()=>document.querySelector('#status').textContent.includes('category saved'));
  assert.equal(await page.locator('[data-kind="custom"]:visible').count(),1);
