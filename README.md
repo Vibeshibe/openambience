@@ -1,8 +1,45 @@
-# OpenAmbience
+<p align="center">
+  <img src="icons/icon-192.png" alt="" width="80" height="80">
+</p>
 
-A little room to breathe. An open-source ambient sound mixer for focus, relaxation, and rest.
+<h1 align="center">OpenAmbience</h1>
 
-[Open the app](https://vibeshibe.github.io/openambience/) · [GitHub repository](https://github.com/Vibeshibe/openambience)
+<p align="center">
+  <strong>A little room to breathe.</strong><br>
+  Mix your own soundscape for focus, relaxation, and rest.<br>
+  Open source. Offline capable. No accounts.
+</p>
+
+<p align="center">
+  <a href="https://github.com/Vibeshibe/openambience/stargazers"><img src="https://img.shields.io/github/stars/Vibeshibe/openambience?style=flat&amp;color=d4e6a2&amp;labelColor=1b302a" alt="GitHub stars"></a>
+  <a href="https://github.com/Vibeshibe/openambience/forks"><img src="https://img.shields.io/github/forks/Vibeshibe/openambience?style=flat&amp;color=d4e6a2&amp;labelColor=1b302a" alt="GitHub forks"></a>
+  <a href="https://github.com/Vibeshibe/openambience/tags"><img src="https://img.shields.io/github/v/tag/Vibeshibe/openambience?include_prereleases&amp;sort=semver&amp;label=version&amp;color=d4e6a2&amp;labelColor=1b302a" alt="Latest version tag, including previews"></a>
+  <a href="https://github.com/Vibeshibe/openambience/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/Vibeshibe/openambience/ci.yml?branch=main&amp;label=checks&amp;labelColor=1b302a" alt="Checks on main"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/code_license-MIT-d4e6a2?labelColor=1b302a" alt="Code license: MIT"></a>
+</p>
+
+<p align="center">
+  <a href="https://vibeshibe.github.io/openambience/"><img src="https://img.shields.io/badge/Live_demo-Open_OpenAmbience-d4e6a2?style=for-the-badge&amp;labelColor=1b302a" alt="Live demo — open OpenAmbience" height="32"></a>
+</p>
+
+<p align="center">
+  <a href="https://vibeshibe.github.io/openambience/">Try it in your browser</a> ·
+  <a href="#features">Features</a> ·
+  <a href="#run-locally">Run locally</a> ·
+  <a href="https://github.com/Vibeshibe/openambience/issues">Report an issue</a> ·
+  <a href="CONTRIBUTING.md">Contribute</a>
+</p>
+
+## At a glance
+
+| Make it yours | What you can do |
+| --- | --- |
+| **18 built-in sounds** | Layer nature recordings and generated noise textures. |
+| **Your own recordings** | Import audio, choose categories, and keep it on your device. |
+| **Saved mixes** | Return to your favourite combinations with a tap. |
+| **Offline listening** | Cache the bundled library and play imported sounds offline. |
+| **Internet radio** | Add compatible live streams when you’re online. |
+| **Settle in** | Adjust each layer, set a sleep timer, and install the app where supported. |
 
 Development happens on [`dev`](https://github.com/Vibeshibe/openambience/tree/dev). Releases follow [semantic versioning](docs/versioning.md); see the [changelog](CHANGELOG.md).
 
@@ -21,7 +58,9 @@ Open **http://localhost:8080**. Select some sounds or a preset, then press **Pla
 
 An alternative is `python3 -m http.server 8080 --bind 127.0.0.1` from this directory. Serve over HTTP locally or HTTPS when deployed; opening `index.html` through `file://` does not support modules and service workers reliably.
 
-## Available in 0.3.0-alpha.8
+## Features
+
+Available in **0.3.0-alpha.8**:
 
 - Twelve recorded sounds: rain, rain on glass, thunder, forest wind, waves, stream, fireplace, birds, crickets, café, fan, and cat purring.
 - Six generated textures, including white, pink, and brown noise. Earlier saved mixes keep their original procedural sounds.
