@@ -4,6 +4,8 @@ A little room to breathe. An open-source ambient sound mixer for focus, relaxati
 
 [GitHub repository](https://github.com/Vibeshibe/openambience)
 
+Development happens on [`dev`](https://github.com/Vibeshibe/openambience/tree/dev). Releases follow [semantic versioning](docs/versioning.md); see the [changelog](CHANGELOG.md).
+
 OpenAmbience is an independent project inspired by the experience of layering sounds in [Ambiphone](https://ambiph.one/). It includes a documented product analysis and a working static PWA starter, with original code, graphics, and procedurally generated audio. It is not affiliated with Ambiphone and does not redistribute its code or sound library.
 
 ## Run locally

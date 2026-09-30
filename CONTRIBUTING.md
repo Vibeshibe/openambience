@@ -1,5 +1,7 @@
 # Contributing
 
+Work from `dev` and push coherent checkpoints regularly. Follow the [versioning and release policy](docs/versioning.md) and record changes in [CHANGELOG.md](CHANGELOG.md).
+
 Use Node.js 22+ and run `npm start`. Keep runtime code dependency-free unless a concrete need justifies a change. Use native controls, descriptive labels, keyboard focus styles, and relative URLs.
 
 Before proposing a change, run `npm run check` and `npm test`, then follow the relevant checks in [docs/testing.md](docs/testing.md). Explain the observable problem, resulting behavior, and validation in your pull request.
