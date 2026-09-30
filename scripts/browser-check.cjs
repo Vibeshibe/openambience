@@ -7,7 +7,9 @@ const assert = require('node:assert/strict');
  await context.addInitScript(() => {
    window.__contexts=[];
    const Native=window.AudioContext;
-   window.AudioContext=class extends Native {constructor(...args){super(...args);window.__contexts.push(this);}};
+   window.AudioContext=class extends Native {constructor(...args){super(...args);window.__contexts.push(this);}
+     createGain(){const gain=super.createGain();this.__gains ||= [];this.__gains.push(gain);return gain;}
+   };
  });
  const page = await context.newPage(), errors=[];
  page.on('pageerror', error=>errors.push(error.message));
@@ -16,6 +18,22 @@ const assert = require('node:assert/strict');
  await page.waitForSelector('.sound-card:visible');
  assert.equal(await page.locator('.sound-card').count(),18);
  assert.equal(await page.evaluate(()=>window.__contexts.length),0);
+ for (const width of [320,390,768,1440]) {
+   await page.setViewportSize({width,height:844});
+   for (const selector of ['#play','#mute','#open-mixer']) {
+     const bounds=await page.locator(selector).boundingBox();
+     assert.ok(bounds.width>=44&&bounds.height>=44&&bounds.y+bounds.height<=844, `${selector} touch target at ${width}`);
+   }
+   const slider=await page.locator('#master').boundingBox();assert.ok(slider.width>=80&&slider.height>=44);
+   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+ }
+ await page.setViewportSize({width:320,height:844});
+ const track=await page.locator('#master').boundingBox();
+ await page.touchscreen.tap(track.x+track.width*.75,track.y+track.height/2);
+ assert.ok(Number(await page.locator('#master').inputValue())>60);
+ await page.locator('#master').focus();const previous=Number(await page.locator('#master').inputValue());await page.keyboard.press('ArrowLeft');
+ assert.equal(Number(await page.locator('#master').inputValue()),previous-1);
+ await page.setViewportSize({width:390,height:844});
  const toggle = id=>page.locator(`[data-sound="${id}"] .sound-toggle`);
  await toggle('rain-leaves').click(); await toggle('brown').click();
  for(const id of ['rain-glass','thunder','forest-wind','stream']) await toggle(id).click();
@@ -26,7 +44,18 @@ const assert = require('node:assert/strict');
  await page.waitForFunction(()=>document.querySelector('#play').textContent.includes('Pause'));
  assert.equal(await page.evaluate(()=>window.__contexts[0].state),'running');
  await page.locator('#volume-rain-leaves').fill('27');
- await page.locator('#open-mixer').click(); await page.locator('#master').fill('35');
+ await page.locator('#master').fill('35');
+ await page.getByRole('button',{name:'Mute volume',exact:true}).click();
+ assert.equal(await page.locator('#master').inputValue(),'0');
+ assert.equal(await page.locator('#play').getAttribute('aria-label'),'Pause mix');
+ await page.waitForFunction(()=>window.__contexts[0].__gains[0].gain.value<.001);
+ await page.getByRole('button',{name:'Unmute volume',exact:true}).click();
+ assert.equal(await page.locator('#master').inputValue(),'35');
+ await page.waitForFunction(()=>window.__contexts[0].__gains[0].gain.value>.34);
+ await page.locator('#master').fill('0');
+ assert.equal(await page.locator('#mute').getAttribute('aria-pressed'),'true');
+ await page.locator('#mute').click();assert.equal(await page.locator('#master').inputValue(),'35');
+ await page.locator('#open-mixer').click();
  await page.locator('#mix-name').fill('Evening <test>'); await page.locator('#save-form button').click();
  await page.locator('#mixer-dialog .close').click();
  await page.locator('#mixes-tab').click();
@@ -94,6 +123,6 @@ const assert = require('node:assert/strict');
  await page.locator('#library-tab').click(); await page.getByRole('button',{name:'All sounds',exact:true}).click();
  await page.setViewportSize({width:1440,height:1000});await page.screenshot({path:require('node:path').join(require('node:os').tmpdir(), 'openambience-desktop.png'),fullPage:true});
  assert.deepEqual(errors,[]);
- console.log(JSON.stringify({browser:await browser.version(),checks:['18 sounds','no autoplay','recording playback','per-layer and master levels','save/load/duplicate/rename/delete','multi-format validation','custom import and duplicate detection','persistence','offline reload/playback including imports','all 12 assets decoded offline and non-silent','search','320/390/768/1440px overflow','timer expiry','custom deletion updates saved mixes','no uncaught errors'],decoded},null,2));
+ console.log(JSON.stringify({browser:await browser.version(),checks:['player touch targets at four widths','touch and keyboard master volume','mute and restore actual master gain','18 sounds','no autoplay','recording playback','per-layer and master levels','save/load/duplicate/rename/delete','multi-format validation','custom import and duplicate detection','persistence','offline reload/playback including imports','all 12 assets decoded offline and non-silent','search','320/390/768/1440px overflow','timer expiry','custom deletion updates saved mixes','no uncaught errors'],decoded},null,2));
  await browser.close();
 })().catch(error=>{console.error(error);process.exit(1);});

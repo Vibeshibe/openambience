@@ -377,30 +377,66 @@ input[type=range] {
   margin:auto;
   display:flex;
   align-items:center;
-  gap:20px;
-  padding-top:5px;
+  gap:16px;
 }
 .play {
-  min-width:135px;
-  min-height:50px;
+  display:grid;
+  place-items:center;
+  flex:0 0 52px;
+  min-width:52px;
+  height:52px;
+  padding:12px;
+  border-radius:50%;
 }
+.play svg { width:26px; height:26px; fill:currentColor; }
+.play[aria-busy=true] { opacity:.6; }
 .player-summary {
-  flex:1;
-  min-width:0;
+  max-width:900px;
+  margin:9px auto 3px;
   display:flex;
-  flex-direction:column;
-  gap:4px;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+  min-height:17px;
 }
 .player-summary strong {
-  font-size:14px;
+  font-size:12px;
+  font-weight:500;
   overflow:hidden;
   white-space:nowrap;
   text-overflow:ellipsis;
 }
 .player-summary span {
   color:var(--muted);
-  font-size:12px;
+  font-size:11px;
+  white-space:nowrap;
 }
+.player-volume {
+  display:flex;
+  align-items:center;
+  gap:8px;
+  flex:1;
+  min-width:0;
+}
+.volume-button {
+  display:grid;
+  place-items:center;
+  flex:0 0 44px;
+  min-height:48px;
+  padding:10px;
+  border:0;
+}
+.volume-button svg { width:24px; height:24px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; }
+.volume-slider { flex:1; min-width:0; }
+.volume-slider label { display:flex; justify-content:space-between; gap:6px; font-size:11px; color:var(--muted); }
+#master { height:44px; padding:0; margin:0; background:transparent; -webkit-appearance:none; appearance:none; }
+#master::-webkit-slider-runnable-track { height:6px; border-radius:6px; background:var(--line); }
+#master::-webkit-slider-thumb { -webkit-appearance:none; width:24px; height:24px; margin-top:-9px; border:2px solid var(--bg); border-radius:50%; background:var(--accent); }
+#master::-moz-range-track { height:6px; border-radius:6px; background:var(--line); }
+#master::-moz-range-thumb { width:22px; height:22px; border:2px solid var(--bg); border-radius:50%; background:var(--accent); }
+#master::-moz-range-progress { height:6px; background:var(--accent); border-radius:6px; }
+#mute[aria-pressed=true] { color:var(--accent); }
+#open-mixer { min-height:48px; }
 footer {
   display:flex;
   gap:16px;
@@ -546,10 +582,8 @@ form .primary {
   .player {
     gap:10px;
   }
-  .play {
-    min-width:108px;
-    padding:10px 12px;
-  }
+  .player-volume { gap:2px; }
+  .player-summary { gap:8px; }
   .player-summary strong {
     font-size:12px;
   }

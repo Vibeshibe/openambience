@@ -15,6 +15,7 @@ let { mix, saved } = readStore(storage, catalog);
 const radioStates = new Map();
 const engine = new AudioEngine(id => catalog.find(sound => sound.id === id), (id, state) => { radioStates.set(id, state); renderRadioStates(); });
 let playing = false, busy = false, deadline = 0, category = 'All sounds', installPrompt;
+let lastAudibleVolume = mix.master || 40;
 const symbols = { rain: '☂', thunder: 'ϟ', wind: '≋', ocean: '≈', water: '≋', fire: '♨', bird: '♪', moon: '☾', cup: '☕', fan: '✺', cat: '♧' };
 try { const previous = storage?.getItem('openambience.category'); if (CATEGORIES.includes(previous)) category = previous; } catch {}
 const normalize = value => normalizeMix(value, catalog);
@@ -51,7 +52,20 @@ function sync() {
   }
   $('#master').value = mix.master;
   $('#master-value').value = `${mix.master}%`;
-  $('#play').textContent = busy ? 'Loading…' : playing ? 'Ⅱ Pause' : '▶ Play mix';
+  const playLabel = busy ? 'Loading audio' : playing ? 'Pause mix' : 'Play mix';
+  $('#play-label').textContent = playLabel;
+  $('#play').setAttribute('aria-label', playLabel);
+  $('#play').title = playLabel;
+  $('#play').setAttribute('aria-busy', String(busy));
+  $('#play .play-symbol').toggleAttribute('hidden', playing);
+  $('#play .pause-symbol').toggleAttribute('hidden', !playing);
+  if (mix.master > 0) lastAudibleVolume = mix.master;
+  const muted = mix.master === 0;
+  $('#mute').setAttribute('aria-pressed', String(muted));
+  $('#mute').setAttribute('aria-label', muted ? 'Unmute volume' : 'Mute volume');
+  $('#mute').title = muted ? 'Unmute volume' : 'Mute volume';
+  $('#mute .volume-waves').toggleAttribute('hidden', muted);
+  $('#mute .volume-cross').toggleAttribute('hidden', !muted);
   $('#play').disabled = busy;
   $('#play').setAttribute('aria-pressed', String(playing));
   $('#layer-count').textContent = mix.enabled.length ? `${mix.enabled.length} sound${mix.enabled.length === 1 ? '' : 's'} selected` : 'Your quiet starts here';
@@ -190,7 +204,9 @@ $('#play').onclick = async () => {
   } catch (error) { await pause(); status(`Could not play this mix. ${error.message}`); }
   finally { busy = false; sync(); }
 };
-$('#master').oninput = event => { mix.master = Number(event.target.value); sync(); void updateAudio(); };
+function setMasterVolume(value) { mix.master = value; sync(); void updateAudio(); }
+$('#master').oninput = event => setMasterVolume(Number(event.target.value));
+$('#mute').onclick = () => setMasterVolume(mix.master === 0 ? lastAudibleVolume : 0);
 $('#timer').onchange = () => {
   const minutes = Number($('#timer').value); deadline = playing && minutes ? Date.now() + minutes * 60000 : 0;
   scheduleTimer(); sync();
@@ -326,7 +342,7 @@ if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('./sw.js').then(registration => {
     const check = async () => {
       let ready = false;
-      try { ready = Boolean(await caches.match(new URL('./audio/credits.json', location.href), { cacheName: 'openambience-shell-0.3.0-alpha.1' })); } catch {}
+      try { ready = Boolean(await caches.match(new URL('./audio/credits.json', location.href), { cacheName: 'openambience-shell-0.3.0-alpha.2' })); } catch {}
       $('#offline').textContent = ready && registration.active ? '● Library ready offline' : 'Preparing offline library…';
       $('#update').hidden = !registration.waiting;
     };

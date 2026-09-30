@@ -2,6 +2,15 @@
 
 App releases use [Semantic Versioning](docs/versioning.md). Research checkpoints on `dev` may precede the next release.
 
+## 0.3.0-alpha.2 — 2026-09-30
+
+Development preview on `dev`; 0.3.0-alpha.1 was promoted to `main` at `0856981` and tagged.
+
+- Replaced the wide text transport with a 52px play/pause icon button and accessible state labels.
+- Moved master volume into the persistent player, with a larger slider thumb and a mute/unmute button that restores the previous audible level during the session.
+- Kept mix saving and sleep-timer controls in the Mix panel, with selected-sound and timer information above the player.
+- Verified touch target sizes, touch/keyboard volume, actual master gain on mute/unmute, offline recordings, and radio/timer behavior in Chromium.
+
 ## 0.3.0-alpha.1 — 2026-09-30
 
 Development preview on `dev`; the preceding 0.2.0-alpha.1 state was promoted to `main` at `32c9afe`.

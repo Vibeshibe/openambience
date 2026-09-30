@@ -64,6 +64,14 @@ PLAYWRIGHT_MODULE=/tmp/openambience-tools/node_modules/playwright node scripts/r
 
 The fixture verifies browser streaming controls and CORS behavior with known audio. It does not establish compatibility with arbitrary station servers or codecs. Physical Android/iOS, background/lock-screen behavior, and overnight listening remain manual checks.
 
+## Recorded 0.3.0-alpha.2 validation — 2026-09-30
+
+- Syntax checks and all four Node test files passed.
+- Chromium 153 confirmed play/pause, mute, and Mix targets measure at least 44×44 CSS pixels at 320, 390, 768, and 1440px widths; the master slider remains visible and at least 80px wide, with no page overflow.
+- A touch tap and keyboard arrow changed master volume. Mute/unmute changed the actual Web Audio master gain to zero and back to the previous level without pausing playback; moving the slider to zero also updated the mute state.
+- The complete library/offline suite and controlled HTTPS radio suite passed with master volume in the player. Radio remained connected while muted, and pause/timer expiry still released its connection.
+- Mobile screenshots were reviewed. These checks use browser emulation; physical-device validation remains as listed above.
+
 ## Release checklist
 
 - Increment the service-worker cache name after changing cached assets.
