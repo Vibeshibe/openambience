@@ -72,6 +72,10 @@ The fixture verifies browser streaming controls and CORS behavior with known aud
 - The complete library/offline suite and controlled HTTPS radio suite passed with master volume in the player. Radio remained connected while muted, and pause/timer expiry still released its connection.
 - Mobile screenshots were reviewed. These checks use browser emulation; physical-device validation remains as listed above.
 
+## Recorded 0.3.0-alpha.3 validation — 2026-09-30
+
+Syntax checks passed. A focused Chromium check verified the Mix options button and dialog names, a 48×48px touch target at 320/390/768/1440px widths, a usable master slider, touch and Enter opening, Escape and Close dismissal, and focus returning to the opener. No page overflow or uncaught browser errors occurred. The player screenshot was reviewed. Playback logic was unchanged, so the broader audio suites were not repeated for this icon change.
+
 ## Release checklist
 
 - Increment the service-worker cache name after changing cached assets.

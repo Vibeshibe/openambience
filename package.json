@@ -1,6 +1,6 @@
 {
   "name": "openambience",
-  "version": "0.3.0-alpha.2",
+  "version": "0.3.0-alpha.3",
   "private": true,
   "description": "An open-source, offline-capable ambient sound mixer.",
   "type": "module",

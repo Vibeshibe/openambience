@@ -2,6 +2,12 @@
 
 App releases use [Semantic Versioning](docs/versioning.md). Research checkpoints on `dev` may precede the next release.
 
+## 0.3.0-alpha.3 — 2026-09-30
+
+- Replaced the player’s Mix text button with a three-dot Mix options icon, matching the panel’s secondary actions.
+- Kept a 48px touch target, explicit accessible name, descriptive tooltip, and dialog association; renamed the panel to Mix options.
+- Documented the UI hierarchy: direct playback controls, contextual mix actions, and visible library navigation.
+
 ## 0.3.0-alpha.2 — 2026-09-30
 
 Development preview on `dev`; 0.3.0-alpha.1 was promoted to `main` at `0856981` and tagged.

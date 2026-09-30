@@ -21,13 +21,13 @@ Open **http://localhost:8080**. Select some sounds or a preset, then press **Pla
 
 An alternative is `python3 -m http.server 8080 --bind 127.0.0.1` from this directory. Serve over HTTP locally or HTTPS when deployed; opening `index.html` through `file://` does not support modules and service workers reliably.
 
-## Available in 0.3.0-alpha.2
+## Available in 0.3.0-alpha.3
 
 - Twelve recorded sounds: rain, rain on glass, thunder, forest wind, waves, stream, fireplace, birds, crickets, café, fan, and cat purring.
 - Six generated textures, including white, pink, and brown noise. Earlier saved mixes keep their original procedural sounds.
 - A phone-friendly two-column library, search, visible categories with counts, grouped browsing, and a compact player with a mixer panel. Custom recordings can be assigned a category.
 - **＋ Radio** saves direct HTTPS radio-stream URLs locally. Compatible stations join the mixer and sleep timer; live playback needs internet and is never cached. See [radio compatibility](docs/internet-radio.md).
-- Up to six simultaneous layers, individual volume, and a sleep timer with a five-second fade. The persistent player has a large play/pause button, an always-visible master-volume slider, and mute/unmute. The Mix button opens saving and timer controls.
+- Up to six simultaneous layers, individual volume, and a sleep timer with a five-second fade. The persistent player has a large play/pause button, an always-visible master-volume slider, and mute/unmute. The three-dot **Mix options** button opens saving and timer controls.
 - Twenty named local mixes with load, update, rename, duplicate, and delete controls.
 - Add multiple custom recordings using **Add sounds**. Supported formats depend on the browser; MP3 and WAV are good starting points. Files must be mono/stereo, at most 25 MB and two minutes long. Up to 30 imports; identical files are detected.
 - Offline caching of the app and the entire bundled library. Wait for **Library ready offline** before disconnecting. Imports are stored locally in IndexedDB; mix recipes use localStorage.
@@ -46,6 +46,7 @@ Nothing is uploaded when you import a recording. Clearing browser site data remo
 - [Where sounds are stored and how optional sync could work](docs/sync-and-offline.md)
 - [Internet radio support and compatibility](docs/internet-radio.md)
 - [Architecture and implementation decisions](docs/architecture.md)
+- [Interface design principles](docs/ui-design.md)
 - [Roadmap](docs/roadmap.md)
 - [Validation checklist](docs/testing.md)
 - [Asset provenance](docs/assets.md)
