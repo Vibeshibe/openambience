@@ -2,7 +2,7 @@
 
 A little room to breathe. An open-source ambient sound mixer for focus, relaxation, and rest.
 
-[GitHub repository](https://github.com/Vibeshibe/openambience)
+[Open the app](https://vibeshibe.github.io/openambience/) · [GitHub repository](https://github.com/Vibeshibe/openambience)
 
 Development happens on [`dev`](https://github.com/Vibeshibe/openambience/tree/dev). Releases follow [semantic versioning](docs/versioning.md); see the [changelog](CHANGELOG.md).
 
@@ -21,7 +21,7 @@ Open **http://localhost:8080**. Select some sounds or a preset, then press **Pla
 
 An alternative is `python3 -m http.server 8080 --bind 127.0.0.1` from this directory. Serve over HTTP locally or HTTPS when deployed; opening `index.html` through `file://` does not support modules and service workers reliably.
 
-## Available in 0.3.0-alpha.6
+## Available in 0.3.0-alpha.7
 
 - Twelve recorded sounds: rain, rain on glass, thunder, forest wind, waves, stream, fireplace, birds, crickets, café, fan, and cat purring.
 - Six generated textures, including white, pink, and brown noise. Earlier saved mixes keep their original procedural sounds.
@@ -86,7 +86,9 @@ See [testing notes](docs/testing.md) for browser and offline checks. No runtime 
 
 ## Deployment and installation
 
-Publish the static app files on an HTTPS host. Relative URLs support hosting at `/` or a project path such as `/openambience/`. For GitHub Pages, choose **Settings → Pages → Deploy from a branch → main → /(root)** after the repository has been pushed. The local server is for development.
+The public app is hosted at **https://vibeshibe.github.io/openambience/**. GitHub Pages publishes from **main → /(root)**; `.nojekyll` serves the static files without Jekyll processing. Future pushes to `main` publish updates, while `dev` remains the development branch. These settings are under **Settings → Pages → Deploy from a branch**. Relative URLs also support other HTTPS hosts at `/` or a project path such as `/openambience/`. The local server is for development.
+
+The hosted app has separate browser storage from the localhost preview. Existing local mixes and imported recordings do not automatically transfer to the published site.
 
 On browsers that offer the install event, an **Install app** button appears. Otherwise use the browser's install or Add to Home Screen menu where supported. Installation UI varies by browser. The service worker caches the app and bundled recordings; clearing site data removes this cache and saved mixes.
 
@@ -100,6 +102,12 @@ Increment the cache version in `sw.js` whenever shipping changed app files. A ne
 - Bundled loops are short (roughly 30 seconds). Thunder includes a 30-second quiet interval between events.
 - Browser storage is local and may be cleared or evicted. Recipe export, cross-device sync and Media Session controls are not included. Radio supports direct CORS-enabled HTTPS audio streams; playlists and station webpages are not supported.
 - The sleep timer uses the audio clock for fading and the wall clock for stopping; device suspension can delay UI updates.
+
+## AI usage disclosure
+
+OpenAmbience has been developed with substantial assistance from OpenAI Codex. AI assistance has been used for product research, architecture and interface design, code and documentation, and writing and running automated checks. Project direction and feature decisions come from the maintainer. The repository includes AI-generated contributions; this disclosure does not imply that every contribution has received independent human review. Recorded checks and remaining validation limits are documented in [testing notes](docs/testing.md).
+
+Bundled recordings come from the credited creators and retain their own licences; see [audio credits](audio/credits.json). Generated noise textures use procedural audio synthesis. The app does not require an AI service to run, and importing audio does not send it to an AI provider.
 
 ## License
 

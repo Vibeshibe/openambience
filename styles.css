@@ -438,6 +438,19 @@ footer {
 footer>span:last-child {
   margin-left:auto;
 }
+.repo-link {
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  min-height:44px;
+  padding:10px 14px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  text-decoration:none;
+}
+.repo-link:hover {
+  border-color:var(--accent);
+}
 dialog {
   color:var(--text);
   background:var(--bg);

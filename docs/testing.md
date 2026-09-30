@@ -90,6 +90,10 @@ Syntax checks, all four Node test files, and the complete Chromium library/offli
 
 Both browser harnesses were updated for the import dialog. The radio harness passed syntax validation but was not rerun for this change. Physical-device and assistive-technology checks remain outstanding as described above.
 
+## Recorded 0.3.0-alpha.7 validation — 2026-09-30
+
+Syntax checks and all four Node test files passed. A focused Chromium check verified the footer repository link, keyboard focus, a minimum 44px touch target, and no horizontal overflow at 320/390/768/1440px widths. The mobile footer screenshot was reviewed. The updated app loaded all eighteen sounds and passed service-worker control, offline reload, and recorded playback checks locally.
+
 ## Release checklist
 
 - Increment the service-worker cache name after changing cached assets.

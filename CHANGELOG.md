@@ -2,6 +2,12 @@
 
 App releases use [Semantic Versioning](docs/versioning.md). Research checkpoints on `dev` may precede the next release.
 
+## 0.3.0-alpha.7 — 2026-09-30
+
+- Prepared GitHub Pages publishing from main with a static `.nojekyll` site and a public app link.
+- Added a touch-friendly GitHub repository link in the app footer.
+- Added an AI usage disclosure to the README and explained the separate storage used by the hosted app.
+
 ## 0.3.0-alpha.6 — 2026-09-30
 
 Development preview on `dev`; 0.3.0-alpha.5 was promoted to `main` at `856ac84` and tagged.
