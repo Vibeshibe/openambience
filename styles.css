@@ -639,6 +639,7 @@ form .primary {
 .category-option input { flex:0 0 18px; width:18px; height:18px; min-height:0; margin:0; accent-color:var(--accent); }
 .category-name { min-width:0; overflow-wrap:anywhere; }
 .category-count { margin-left:auto; color:var(--muted); font-size:11px; }
+.filter-help { margin:4px 20px 10px; }
 .filter-actions { padding:4px 20px 10px; }
 .filter-actions button { font-size:12px; }
 .sound-group-heading {

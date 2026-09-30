@@ -1,5 +1,5 @@
 import { SOUNDS, PRESETS, normalizeMix, presetMix, readStore } from './js/state.js';
-import { CATEGORIES, CUSTOM_CATEGORIES, categoryOf, matchesCategory } from './js/categories.js';
+import { CATEGORIES, FILTER_CATEGORIES, CUSTOM_CATEGORIES, categoryOf, matchesCategory, matchesCategories, normalizeCategories, readCategoryFilters } from './js/categories.js';
 import { normalizeRadioUrl } from './js/radio.js';
 import { AudioEngine } from './js/audio.js';
 import { openLibrary, listSounds, putSound, deleteSound } from './js/storage.js';
@@ -14,10 +14,10 @@ catch { status('Local sound storage is unavailable. The built-in library still w
 let { mix, saved } = readStore(storage, catalog);
 const radioStates = new Map();
 const engine = new AudioEngine(id => catalog.find(sound => sound.id === id), (id, state) => { radioStates.set(id, state); renderRadioStates(); });
-let playing = false, busy = false, deadline = 0, category = 'All sounds', installPrompt;
+let playing = false, busy = false, deadline = 0, installPrompt;
+let selectedCategories = readCategoryFilters(storage);
 let lastAudibleVolume = mix.master || 40;
 const symbols = { rain: '☂', thunder: 'ϟ', wind: '≋', ocean: '≈', water: '≋', fire: '♨', bird: '♪', moon: '☾', cup: '☕', fan: '✺', cat: '♧' };
-try { const previous = storage?.getItem('openambience.category'); if (CATEGORIES.includes(previous)) category = previous; } catch {}
 const normalize = value => normalizeMix(value, catalog);
 function persist() {
   // Do not overwrite recipes with custom IDs if their database could not load.
@@ -82,21 +82,24 @@ function filterSounds() {
   const visibleGroups = new Set();
   for (const card of $('#sounds').querySelectorAll('.sound-card')) {
     const sound = catalog.find(item => item.id === card.dataset.sound);
-    card.hidden = !matchesSearch(sound) || !matchesCategory(sound, category, mix.enabled);
+    card.hidden = !matchesSearch(sound) || !matchesCategories(sound, selectedCategories, mix.enabled);
     if (!card.hidden) { count++; visibleGroups.add(categoryOf(sound)); }
   }
-  for (const heading of $('#sounds').querySelectorAll('.sound-group-heading')) heading.hidden = category !== 'All sounds' || !visibleGroups.has(heading.dataset.category);
+  for (const heading of $('#sounds').querySelectorAll('.sound-group-heading')) heading.hidden = selectedCategories.length === 1 || !visibleGroups.has(heading.dataset.category);
   for (const input of $('#categories').querySelectorAll('input')) {
-    input.checked = input.value === category;
+    input.checked = selectedCategories.includes(input.value);
     input.closest('label').querySelector('.category-count').textContent = catalog.filter(sound => matchesSearch(sound) && matchesCategory(sound, input.value, mix.enabled)).length;
   }
-  $('#filter-summary').textContent = `${category} · ${count}`;
-  $('#filters').classList.toggle('filtered', category !== 'All sounds' || Boolean(query));
+  const category = selectedCategories.length === 1 ? selectedCategories[0] : selectedCategories.length ? 'Filtered sounds' : 'All sounds';
+  const summary = selectedCategories.length > 1 ? `${selectedCategories.length} categories` : category;
+  $('#filter-summary').textContent = `${summary} · ${count}`;
+  $('#filter-summary').title = selectedCategories.join(', ') || 'All sounds';
+  $('#filters').classList.toggle('filtered', selectedCategories.length > 0 || Boolean(query));
   $('#empty').hidden = count > 0;
-  $('#empty').textContent = query ? 'No sounds match your search in this category.' : category === 'Radio' ? 'Add a station using ＋ Radio. Your saved stations will appear here.' : category === 'My sounds' ? 'Choose ＋ Add sounds to import recordings from your device.' : category === 'In your mix' ? 'Select sounds from the library to build your mix.' : 'No sounds in this category yet.';
+  $('#empty').textContent = query ? 'No sounds match your search and selected filters.' : category === 'Radio' ? 'Add a station using ＋ Radio. Your saved stations will appear here.' : category === 'My sounds' ? 'Choose ＋ Add sounds to import recordings from your device.' : category === 'In your mix' ? 'Select sounds from the library to build your mix.' : 'No sounds match the selected filters yet.';
   $('#visible-count').textContent = `${count} sound${count === 1 ? '' : 's'}`;
   $('#category-heading').textContent = category;
-  $('#radio-hint').hidden = category !== 'Radio';
+  $('#radio-hint').hidden = !selectedCategories.includes('Radio');
 }
 function renderRadioStates() {
   for (const card of $('#sounds').querySelectorAll('[data-kind="radio"]')) {
@@ -106,9 +109,9 @@ function renderRadioStates() {
     card.querySelector('.retry-radio').disabled = navigator.onLine === false;
   }
 }
-function selectCategory(name) {
-  category = name;
-  try { storage?.setItem('openambience.category', name); } catch {}
+function setCategoryFilters(names) {
+  selectedCategories = normalizeCategories(names);
+  try { storage?.setItem('openambience.categories', JSON.stringify(selectedCategories)); } catch {}
   filterSounds();
 }
 function renderSounds() {
@@ -174,15 +177,15 @@ function renderSounds() {
     $('#sounds').append(card);
   }
 }
-for (const name of CATEGORIES) {
+for (const name of FILTER_CATEGORIES) {
   const label = document.createElement('label'); label.className = 'category-option';
-  const input = document.createElement('input'); input.type = 'radio'; input.name = 'category'; input.value = name; input.setAttribute('aria-label', name);
+  const input = document.createElement('input'); input.type = 'checkbox'; input.name = 'category'; input.value = name; input.setAttribute('aria-label', name);
   const text = document.createElement('span'); text.className = 'category-name'; text.textContent = name;
   const count = document.createElement('span'); count.className = 'category-count'; count.setAttribute('aria-hidden', 'true');
-  label.append(input, text, count); input.onchange = () => { if (input.checked) selectCategory(name); };
+  label.append(input, text, count); input.onchange = () => setCategoryFilters([...$('#categories').querySelectorAll('input:checked')].map(item => item.value));
   $('#categories').append(label);
 }
-$('#clear-filters').onclick = () => { $('#search').value = ''; selectCategory('All sounds'); };
+$('#clear-filters').onclick = () => { $('#search').value = ''; setCategoryFilters([]); };
 $('#search').oninput = filterSounds;
 function showView(name) {
   $('#library').hidden = name !== 'library'; $('#mixes').hidden = name !== 'mixes';
@@ -276,7 +279,7 @@ $('#radio-form').onsubmit = async event => {
     if (catalog.filter(sound => sound.kind === 'radio').length >= 20) throw new Error('You have 20 stations. Remove one to make room.');
     const sound = { id: `radio-${crypto.randomUUID()}`, name: name.slice(0, 60), kind: 'radio', category: 'Radio', url };
     await putSound(db, sound); catalog.push(sound); mix = normalize(mix);
-    renderSounds(); showView('library'); selectCategory('Radio'); sync();
+    renderSounds(); showView('library'); setCategoryFilters(['Radio']); sync();
     $('#radio-dialog').close(); $('#radio-form').reset();
     status(`Saved “${name}”. Select the station and press Play to connect.`);
   } catch (error) { $('#radio-form-status').textContent = error.message; }
@@ -346,7 +349,7 @@ if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('./sw.js').then(registration => {
     const check = async () => {
       let ready = false;
-      try { ready = Boolean(await caches.match(new URL('./audio/credits.json', location.href), { cacheName: 'openambience-shell-0.3.0-alpha.4' })); } catch {}
+      try { ready = Boolean(await caches.match(new URL('./audio/credits.json', location.href), { cacheName: 'openambience-shell-0.3.0-alpha.5' })); } catch {}
       $('#offline').textContent = ready && registration.active ? '● Library ready offline' : 'Preparing offline library…';
       $('#update').hidden = !registration.waiting;
     };

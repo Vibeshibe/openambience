@@ -17,3 +17,17 @@ export function matchesCategory(sound, category, enabled = []) {
   if (category === 'My sounds') return sound.kind === 'custom';
   return categoryOf(sound) === category;
 }
+
+export const FILTER_CATEGORIES = CATEGORIES.filter(name => name !== 'All sounds');
+export function normalizeCategories(value) {
+  return Array.isArray(value) ? FILTER_CATEGORIES.filter(name => value.includes(name)) : [];
+}
+export function readCategoryFilters(storage) {
+  try {
+    const current = storage?.getItem('openambience.categories');
+    return current != null ? normalizeCategories(JSON.parse(current)) : normalizeCategories([storage?.getItem('openambience.category')]);
+  } catch { return []; }
+}
+export function matchesCategories(sound, selected = [], enabled = []) {
+  return selected.length === 0 || selected.some(name => matchesCategory(sound, name, enabled));
+}

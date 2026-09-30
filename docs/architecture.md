@@ -45,7 +45,7 @@ Add more recordings through `audio/credits.json`, which records file path, autho
 
 ## Categories and radio (0.3.0-alpha.1)
 
-`js/categories.js` maps stable bundled IDs to display categories. Imports can carry a user-selected category while remaining discoverable in My sounds. A selected category is remembered separately in localStorage.
+`js/categories.js` maps stable bundled IDs to display categories. Imports can carry a user-selected category while remaining discoverable in My sounds. Selected categories are remembered in `openambience.categories` as a normalized JSON array. The former `openambience.category` string migrates to a single checked option when the new key is absent. Category selections use OR semantics, followed by the search constraint; an empty array includes every category.
 
 `js/radio.js` validates direct HTTPS URLs and manages one native media element per active station. Each element uses anonymous CORS and a `MediaElementAudioSourceNode` connected to the existing layer/master gains. The audio engine never fetches a whole live stream into a buffer. Errors and offline transitions disconnect the affected station while leaving local layers running; fifteen-second connection/buffering timeouts offer a manual retry. Pause and deselection release station connections.
 

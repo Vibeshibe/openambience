@@ -3,7 +3,8 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright');
 const assert = require('node:assert/strict');
 async function chooseCategory(page, name) {
  if (!await page.locator('#filters').evaluate(element => element.open)) await page.locator('#filter-toggle').click();
- await page.getByRole('radio', { name, exact: true }).check();
+ for (const input of await page.locator('#categories input:checked').all()) await input.uncheck();
+ if (name !== 'All sounds') await page.getByRole('checkbox', { name, exact: true }).check();
  await page.locator('#filter-toggle').click();
 }
 (async () => {

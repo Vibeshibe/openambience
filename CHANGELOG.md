@@ -2,6 +2,13 @@
 
 App releases use [Semantic Versioning](docs/versioning.md). Research checkpoints on `dev` may precede the next release.
 
+## 0.3.0-alpha.5 — 2026-09-30
+
+- Changed category filters to checkboxes: matching any selected category includes a sound, with no duplicates for overlapping categories.
+- No selections includes all categories; Clear filters resets both selections and search text.
+- Persisted multiple selections and migrated the previous single-category preference without changing mixes or recordings.
+- Added coverage for combined filters, overlapping matches, migration, and invalid filter storage.
+
 ## 0.3.0-alpha.4 — 2026-09-30
 
 Development preview on `dev`; the previous player/options version was promoted to `main` at `99355ed` and tagged `v0.3.0-alpha.3`.

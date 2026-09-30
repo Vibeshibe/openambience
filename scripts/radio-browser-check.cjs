@@ -13,7 +13,8 @@ execFileSync('openssl', ['req', '-x509', '-newkey', 'rsa:2048', '-nodes', '-keyo
 process.on('exit', () => fs.rmSync(fixtureDir, { recursive: true, force: true }));
 async function chooseCategory(page, name) {
  if (!await page.locator('#filters').evaluate(element => element.open)) await page.locator('#filter-toggle').click();
- await page.getByRole('radio', { name, exact: true }).check();
+ for (const input of await page.locator('#categories input:checked').all()) await input.uncheck();
+ if (name !== 'All sounds') await page.getByRole('checkbox', { name, exact: true }).check();
  await page.locator('#filter-toggle').click();
 }
 (async () => {
@@ -37,7 +38,7 @@ async function chooseCategory(page, name) {
  const page=await context.newPage();const errors=[];page.on('pageerror',error=>errors.push(error.message));page.on('dialog',dialog=>dialog.accept());
  await page.goto(process.env.PREVIEW_URL || 'http://127.0.0.1:8080/');await page.waitForSelector('.sound-card:visible');
  assert.equal(await page.locator('.sound-card').count(),18);
- assert.equal(await page.locator('#categories input').count(),9);
+ assert.equal(await page.locator('#categories input').count(),8);
  for(const [category,count] of [['Weather',4],['Water',2],['Wildlife',3],['Indoors',3],['Noise & textures',6]]){
   await chooseCategory(page, category);
   assert.equal(await page.locator('.sound-card:visible').count(),count);

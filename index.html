@@ -30,7 +30,8 @@
       <div class="toolbar"><label class="search"><span class="sr-only">Find a sound</span><input id="search" type="search" placeholder="Find your sound…" autocomplete="off"></label><button id="add-sounds" class="quiet">＋ Add sounds</button><button id="add-radio" class="quiet">＋ Radio</button><input id="sound-files" type="file" accept="audio/*,.mp3,.wav,.m4a,.ogg,.flac" multiple hidden></div>
       <details id="filters" class="filters">
         <summary id="filter-toggle"><svg class="filter-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 17h16"/><circle cx="9" cy="7" r="2.5"/><circle cx="15" cy="17" r="2.5"/></svg><span>Filters</span><span id="filter-summary">All sounds</span><svg class="filter-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m7 10 5 5 5-5"/></svg></summary>
-        <fieldset id="categories" class="categories"><legend>Show sounds</legend></fieldset>
+        <p id="filter-help" class="filter-help hint">Show sounds from any checked category. Leave all unchecked to include every category.</p>
+        <fieldset id="categories" class="categories" aria-describedby="filter-help"><legend>Categories</legend></fieldset>
         <div class="filter-actions"><button id="clear-filters" class="text-button" type="button">Clear filters</button></div>
       </details>
       <div class="section-heading"><h2 id="category-heading">All sounds</h2><span id="visible-count"></span></div>
@@ -46,7 +47,7 @@
     </section>
     <noscript>Enable JavaScript to mix and play sounds.</noscript>
   </main>
-  <footer><span id="offline">Preparing offline library…</span><button id="show-credits" class="text-button">Sound credits</button><span>v0.3.0-alpha.4 · No accounts. No tracking.</span></footer>
+  <footer><span id="offline">Preparing offline library…</span><button id="show-credits" class="text-button">Sound credits</button><span>v0.3.0-alpha.5 · No accounts. No tracking.</span></footer>
   <div class="player-dock">
     <div class="player-summary"><strong id="layer-count">Your quiet starts here</strong><span id="countdown">Nothing playing</span></div>
     <section class="player" aria-label="Playback controls">

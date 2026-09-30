@@ -80,6 +80,10 @@ Syntax checks passed. A focused Chromium check verified the Mix options button a
 
 Syntax checks, the library browser suite, and the controlled radio suite passed. A focused Chromium check verified collapsed-by-default filters, the active category/count summary, Enter/touch disclosure controls, native radio arrow-key selection, search/category intersection, Clear filters, empty states, and remembered category selection after an offline reload. Filtering did not interrupt playback. Radio rows remained at least 44px tall with no page overflow at 320/390/768/1440px widths. Expanded and collapsed mobile screenshots were reviewed. Physical-device checks remain outstanding.
 
+## Recorded 0.3.0-alpha.5 validation — 2026-09-30
+
+Syntax checks and all four Node test files passed, including new assertions for OR category matching, overlap without duplicates, legacy migration, and malformed storage. Focused Chromium checks passed for multiple checkboxes, Space toggling, search intersection, the collapsed summary, persisted multi-selection after offline reload, Clear filters overriding the old preference, empty selection showing all sounds, and In your mix combined with a category without stopping playback. Touch rows remained at least 44px high, with no overflow at 320/390/768/1440px widths. The checkbox panel screenshot was reviewed. Existing browser harness selectors were updated for checkbox controls; the unchanged audio suites were not rerun for this filtering change.
+
 ## Release checklist
 
 - Increment the service-worker cache name after changing cached assets.
