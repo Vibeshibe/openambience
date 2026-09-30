@@ -165,26 +165,6 @@ p {
 input::placeholder {
   color:var(--muted);
 }
-.categories {
-  display:flex;
-  gap:8px;
-  overflow-x:auto;
-  padding:16px 2px 8px;
-  scrollbar-width:thin;
-}
-.categories button {
-  white-space:nowrap;
-  border-radius:24px;
-  min-height:44px;
-  font-size:13px;
-  padding:8px 16px;
-  background:transparent;
-}
-.categories button[aria-pressed=true] {
-  background:var(--accent);
-  color:var(--bg);
-  border-color:var(--accent);
-}
 .section-heading {
   display:flex;
   align-items:center;
@@ -559,10 +539,6 @@ form .primary {
     min-width:0;
     font-size:16px;
   }
-  .categories {
-    margin-right:-18px;
-    padding-right:18px;
-  }
   .sound-grid {
     grid-template-columns:repeat(2,minmax(0,1fr));
     gap:10px;
@@ -633,31 +609,38 @@ form .primary {
     scroll-behavior:auto!important;
   }
 }
-/* Keep every category visible, including on narrow screens. */
-.categories {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  overflow: visible;
-  margin: 0;
-  padding: 18px 0 6px;
+/* Disclose browsing filters only when needed; retain the active choice. */
+.filters { margin-top:16px; border:1px solid var(--line); border-radius:14px; }
+.filters summary {
+  display:flex;
+  align-items:center;
+  gap:10px;
+  min-height:52px;
+  padding:10px 14px;
+  cursor:pointer;
+  list-style:none;
+  font-size:14px;
+  border-radius:13px;
 }
-.categories button {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 6px;
-  white-space: normal;
-  text-align: left;
-  border-radius: 12px;
-  padding: 10px;
-  font-size: 12px;
-  min-height: 52px;
-}
-.category-count {
-  font-size: 11px;
-  opacity: .8;
-  flex-shrink: 0;
-}
+.filters summary, .category-option { -webkit-tap-highlight-color:transparent; }
+.filters summary::-webkit-details-marker { display:none; }
+.filters summary:focus-visible { outline:3px solid var(--accent); outline-offset:3px; }
+.filters summary:hover { background:var(--panel); }
+.filters svg { width:20px; height:20px; flex-shrink:0; fill:none; stroke:currentColor; stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round; }
+.filters .filter-icon circle { fill:var(--bg); }
+#filter-summary { margin-left:auto; color:var(--muted); font-size:12px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.filters.filtered #filter-summary { color:var(--accent); }
+.filters[open] .filter-chevron { transform:rotate(180deg); }
+.categories { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:4px 8px; min-width:0; margin:4px 0 0; padding:0 12px; border:0; }
+.categories legend { padding:4px 2px 8px; color:var(--muted); font-size:12px; }
+.category-option { display:flex; align-items:center; gap:8px; min-height:44px; padding:8px; border-radius:8px; font-size:13px; cursor:pointer; }
+.category-option:hover { background:var(--panel); }
+.category-option:has(input:checked) { background:#263d30; color:var(--accent); }
+.category-option input { flex:0 0 18px; width:18px; height:18px; min-height:0; margin:0; accent-color:var(--accent); }
+.category-name { min-width:0; overflow-wrap:anywhere; }
+.category-count { margin-left:auto; color:var(--muted); font-size:11px; }
+.filter-actions { padding:4px 20px 10px; }
+.filter-actions button { font-size:12px; }
 .sound-group-heading {
   grid-column: 1 / -1;
   margin: 12px 0 0;
@@ -686,8 +669,7 @@ form .primary {
 .retry-radio { font-size: 12px; padding: 6px 10px; }
 #status { overflow-wrap: anywhere; max-height: 3.8em; overflow-y: auto; }
 @media (min-width: 700px) {
-  .categories { grid-template-columns: repeat(5, minmax(0, 1fr)); }
-  .categories button { font-size: 13px; padding: 10px 14px; }
+  .categories { grid-template-columns:repeat(3,minmax(0,1fr)); }
 }
 @media (max-width: 600px) {
   .toolbar { display: grid; grid-template-columns: 1fr 1fr; }

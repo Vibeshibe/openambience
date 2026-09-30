@@ -11,6 +11,11 @@ const cert = path.join(fixtureDir, 'cert.pem');
 // Temporary self-signed certificate for our loopback-only test station.
 execFileSync('openssl', ['req', '-x509', '-newkey', 'rsa:2048', '-nodes', '-keyout', key, '-out', cert, '-days', '2', '-subj', '/CN=localhost', '-addext', 'subjectAltName=IP:127.0.0.1,DNS:localhost'], { stdio: 'ignore' });
 process.on('exit', () => fs.rmSync(fixtureDir, { recursive: true, force: true }));
+async function chooseCategory(page, name) {
+ if (!await page.locator('#filters').evaluate(element => element.open)) await page.locator('#filter-toggle').click();
+ await page.getByRole('radio', { name, exact: true }).check();
+ await page.locator('#filter-toggle').click();
+}
 (async () => {
  const browser = await chromium.launch({executablePath:process.env.CHROMIUM_EXECUTABLE,headless:true});
  const context = await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,ignoreHTTPSErrors:true});
@@ -32,9 +37,9 @@ process.on('exit', () => fs.rmSync(fixtureDir, { recursive: true, force: true })
  const page=await context.newPage();const errors=[];page.on('pageerror',error=>errors.push(error.message));page.on('dialog',dialog=>dialog.accept());
  await page.goto(process.env.PREVIEW_URL || 'http://127.0.0.1:8080/');await page.waitForSelector('.sound-card:visible');
  assert.equal(await page.locator('.sound-card').count(),18);
- assert.equal(await page.locator('#categories button').count(),9);
+ assert.equal(await page.locator('#categories input').count(),9);
  for(const [category,count] of [['Weather',4],['Water',2],['Wildlife',3],['Indoors',3],['Noise & textures',6]]){
-  await page.getByRole('button',{name:category,exact:true}).click();
+  await chooseCategory(page, category);
   assert.equal(await page.locator('.sound-card:visible').count(),count);
  }
  await page.locator('#add-radio').click();await page.locator('#radio-name').fill('Station <test>');
@@ -47,11 +52,11 @@ process.on('exit', () => fs.rmSync(fixtureDir, { recursive: true, force: true })
  assert.equal(requests,0,'Saving a station must not connect');
  const radioID=await page.locator('[data-kind="radio"]').getAttribute('data-sound');
  await page.locator('[data-kind="radio"] .sound-toggle').click();
- await page.getByRole('button',{name:'Noise & textures',exact:true}).click();await page.locator('[data-sound="brown"] .sound-toggle').click();
+ await chooseCategory(page, 'Noise & textures');await page.locator('[data-sound="brown"] .sound-toggle').click();
  await page.locator('#play').click();await page.waitForFunction(()=>document.querySelector('.radio-state').textContent.includes('Live'));
  await page.waitForFunction(()=>{const values=new Float32Array(2048);window.__analysers[0].getFloatTimeDomainData(values);return values.some(value=>Math.abs(value)>.001);});
  assert.equal(await page.evaluate(()=>window.__radios[0].crossOrigin),'anonymous');
- await page.getByRole('button',{name:'Radio',exact:true}).click();await page.locator(`[data-sound="${radioID}"] input`).fill('31');
+ await chooseCategory(page, 'Radio');await page.locator(`[data-sound="${radioID}"] input`).fill('31');
  await page.locator('#master').fill('28');
  await page.locator('#mute').click();assert.equal(await page.locator('#master').inputValue(),'0');
  assert.equal(await page.evaluate(()=>window.__radios.at(-1).paused),false);
@@ -77,14 +82,14 @@ process.on('exit', () => fs.rmSync(fixtureDir, { recursive: true, force: true })
  await page.waitForFunction(()=>document.querySelector('.radio-state').textContent.includes('Live'));
  await page.locator('#play').click();
  await page.locator('#sound-files').setInputFiles(path.resolve(__dirname, '../audio/fire.mp3'));await page.waitForFunction(()=>document.querySelectorAll('[data-kind="custom"]').length===1);
- await page.getByRole('button',{name:'My sounds',exact:true}).click();await page.locator('.custom-category select').selectOption('Water');
+ await chooseCategory(page, 'My sounds');await page.locator('.custom-category select').selectOption('Water');
  await page.waitForFunction(()=>document.querySelector('#status').textContent.includes('category saved'));
  assert.equal(await page.locator('[data-kind="custom"]:visible').count(),1);
- await page.getByRole('button',{name:'Water',exact:true}).click();assert.equal(await page.locator('.sound-card:visible').count(),3);
+ await chooseCategory(page, 'Water');assert.equal(await page.locator('.sound-card:visible').count(),3);
  await page.waitForFunction(()=>document.querySelector('#offline').textContent.includes('ready offline'));
  await page.reload();await page.waitForSelector('.sound-card:visible');assert.equal(await page.locator('#category-heading').textContent(),'Water');
  await page.locator('#mixes-tab').click();await page.getByRole('button',{name:'Radio and brown',exact:true}).click();await page.locator('#library-tab').click();
- await page.getByRole('button',{name:'Radio',exact:true}).click();assert.equal(await page.locator('[data-kind="radio"] input').inputValue(),'31');
+ await chooseCategory(page, 'Radio');assert.equal(await page.locator('[data-kind="radio"] input').inputValue(),'31');
  await context.setOffline(true);await page.reload();await page.waitForSelector('.sound-card:visible');
  const before=requests;await page.locator('#play').click();await page.waitForFunction(()=>document.querySelector('#play').textContent.includes('Pause'));
  assert.equal(requests,before);assert.match(await page.locator('.radio-state').textContent(),/Offline/);
@@ -96,13 +101,13 @@ process.on('exit', () => fs.rmSync(fixtureDir, { recursive: true, force: true })
  await page.clock.install();await page.locator('#play').click();await page.waitForFunction(()=>document.querySelector('.radio-state').textContent.includes('Live'));await page.clock.fastForward(901000);
  await page.waitForFunction(()=>document.querySelector('#status').textContent.includes('Sleep timer finished'));
  assert.equal(await page.evaluate(()=>window.__radios.every(media=>media.paused&&!media.hasAttribute('src'))),true);
- await page.getByRole('button',{name:'All sounds',exact:true}).click();
- for(const width of [320,390,768,1440]){await page.setViewportSize({width,height:900});assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);assert.equal(await page.locator('#categories button:visible').count(),9);}
+ await chooseCategory(page, 'All sounds');
+ for(const width of [320,390,768,1440]){await page.setViewportSize({width,height:900});assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);assert.equal(await page.locator('#filter-toggle').isVisible(),true);}
  await page.setViewportSize({width:390,height:844});await page.screenshot({path:path.join(os.tmpdir(), 'openambience-categories-mobile.png'),fullPage:true});
- await page.getByRole('button',{name:'Radio',exact:true}).click();await page.screenshot({path:path.join(os.tmpdir(), 'openambience-radio-mobile.png')});
+ await chooseCategory(page, 'Radio');await page.screenshot({path:path.join(os.tmpdir(), 'openambience-radio-mobile.png')});
  await page.locator('#open-mixer').click();await page.locator('#timer').selectOption('0');await page.locator('#mixer-dialog .close').click();
- await page.getByRole('button',{name:'Noise & textures',exact:true}).click();await page.locator('[data-sound="brown"] .sound-toggle').click();
- await page.getByRole('button',{name:'Radio',exact:true}).click();await page.locator('#play').click();await page.waitForFunction(()=>document.querySelector('.radio-state').textContent.includes('Live'));
+ await chooseCategory(page, 'Noise & textures');await page.locator('[data-sound="brown"] .sound-toggle').click();
+ await chooseCategory(page, 'Radio');await page.locator('#play').click();await page.waitForFunction(()=>document.querySelector('.radio-state').textContent.includes('Live'));
  await page.locator('[data-kind="radio"] .sound-toggle').click();
  await page.waitForFunction(()=>window.__radios.every(media=>media.paused&&!media.hasAttribute('src')));
  await page.locator('#play').click();assert.equal(await page.evaluate(()=>window.__contexts[0].state),'suspended');

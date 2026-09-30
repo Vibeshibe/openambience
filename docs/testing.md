@@ -76,6 +76,10 @@ The fixture verifies browser streaming controls and CORS behavior with known aud
 
 Syntax checks passed. A focused Chromium check verified the Mix options button and dialog names, a 48×48px touch target at 320/390/768/1440px widths, a usable master slider, touch and Enter opening, Escape and Close dismissal, and focus returning to the opener. No page overflow or uncaught browser errors occurred. The player screenshot was reviewed. Playback logic was unchanged, so the broader audio suites were not repeated for this icon change.
 
+## Recorded 0.3.0-alpha.4 validation — 2026-09-30
+
+Syntax checks, the library browser suite, and the controlled radio suite passed. A focused Chromium check verified collapsed-by-default filters, the active category/count summary, Enter/touch disclosure controls, native radio arrow-key selection, search/category intersection, Clear filters, empty states, and remembered category selection after an offline reload. Filtering did not interrupt playback. Radio rows remained at least 44px tall with no page overflow at 320/390/768/1440px widths. Expanded and collapsed mobile screenshots were reviewed. Physical-device checks remain outstanding.
+
 ## Release checklist
 
 - Increment the service-worker cache name after changing cached assets.

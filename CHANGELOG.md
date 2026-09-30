@@ -2,6 +2,14 @@
 
 App releases use [Semantic Versioning](docs/versioning.md). Research checkpoints on `dev` may precede the next release.
 
+## 0.3.0-alpha.4 — 2026-09-30
+
+Development preview on `dev`; the previous player/options version was promoted to `main` at `99355ed` and tagged `v0.3.0-alpha.3`.
+
+- Replaced the category button grid with a collapsed-by-default Filters disclosure and native single-choice controls.
+- Kept the selected category and result count visible while collapsed; search and saved category selection continue to work together.
+- Added Clear filters to reset category and search, and retained accessible touch targets and keyboard controls.
+
 ## 0.3.0-alpha.3 — 2026-09-30
 
 - Replaced the player’s Mix text button with a three-dot Mix options icon, matching the panel’s secondary actions.

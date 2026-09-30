@@ -21,11 +21,11 @@ Open **http://localhost:8080**. Select some sounds or a preset, then press **Pla
 
 An alternative is `python3 -m http.server 8080 --bind 127.0.0.1` from this directory. Serve over HTTP locally or HTTPS when deployed; opening `index.html` through `file://` does not support modules and service workers reliably.
 
-## Available in 0.3.0-alpha.3
+## Available in 0.3.0-alpha.4
 
 - Twelve recorded sounds: rain, rain on glass, thunder, forest wind, waves, stream, fireplace, birds, crickets, café, fan, and cat purring.
 - Six generated textures, including white, pink, and brown noise. Earlier saved mixes keep their original procedural sounds.
-- A phone-friendly two-column library, search, visible categories with counts, grouped browsing, and a compact player with a mixer panel. Custom recordings can be assigned a category.
+- A phone-friendly two-column library, search, a collapsible Filters panel with category counts and a visible active-filter summary, grouped browsing, and a compact player with a mixer panel. Custom recordings can be assigned a category.
 - **＋ Radio** saves direct HTTPS radio-stream URLs locally. Compatible stations join the mixer and sleep timer; live playback needs internet and is never cached. See [radio compatibility](docs/internet-radio.md).
 - Up to six simultaneous layers, individual volume, and a sleep timer with a five-second fade. The persistent player has a large play/pause button, an always-visible master-volume slider, and mute/unmute. The three-dot **Mix options** button opens saving and timer controls.
 - Twenty named local mixes with load, update, rename, duplicate, and delete controls.

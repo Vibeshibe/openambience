@@ -1,6 +1,11 @@
 // Optional browser checks: see docs/testing.md for setup.
 const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright');
 const assert = require('node:assert/strict');
+async function chooseCategory(page, name) {
+ if (!await page.locator('#filters').evaluate(element => element.open)) await page.locator('#filter-toggle').click();
+ await page.getByRole('radio', { name, exact: true }).check();
+ await page.locator('#filter-toggle').click();
+}
 (async () => {
  const browser = await chromium.launch({executablePath:process.env.CHROMIUM_EXECUTABLE,headless:true});
  const context = await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true});
@@ -76,7 +81,7 @@ const assert = require('node:assert/strict');
  await page.locator('#sound-files').setInputFiles({name:'invalid.wav',mimeType:'audio/wav',buffer:Buffer.from('not audio')});
  await page.waitForFunction(()=>!document.querySelector('#add-sounds').disabled);
  assert.equal(await page.locator('.sound-card').count(),19);
- await page.getByRole('button',{name:'My sounds',exact:true}).click();
+ await chooseCategory(page, 'My sounds');
  await page.locator('.sound-card:visible .sound-toggle').click();
  const customID=await page.locator('.sound-card:visible').getAttribute('data-sound');
  await page.locator('#open-mixer').click(); await page.locator('#mix-name').fill('With import'); await page.locator('#save-form button').click(); await page.locator('#mixer-dialog .close').click();
@@ -100,7 +105,7 @@ const assert = require('node:assert/strict');
    await ctx.close();return results;
  });
  assert.equal(decoded.length,12); for(const sound of decoded){assert.ok(sound.duration>5);assert.ok(sound.rms>.001);}
- await page.getByRole('button',{name:'All sounds',exact:true}).click();
+ await chooseCategory(page, 'All sounds');
  await page.locator('#search').fill('ocean');assert.equal(await page.locator('.sound-card:visible').count(),2);
  await page.locator('#search').fill('unknown-sound');assert.equal(await page.locator('#empty').isVisible(),true);
  await page.locator('#search').fill('');
@@ -114,13 +119,13 @@ const assert = require('node:assert/strict');
  await page.locator('#timer').selectOption('15');await page.locator('#mixer-dialog .close').click();
  await page.clock.install();await page.locator('#play').click();await page.waitForFunction(()=>document.querySelector('#play').textContent.includes('Pause'));
  await page.clock.fastForward(901000);await page.waitForFunction(()=>document.querySelector('#status').textContent.includes('Sleep timer finished'));
- await page.getByRole('button',{name:'My sounds',exact:true}).click();await page.locator('.remove-sound').click();
+ await chooseCategory(page, 'My sounds');await page.locator('.remove-sound').click();
  await page.waitForFunction(()=>document.querySelectorAll('.sound-card').length===18);
  await page.locator('#mixes-tab').click();await page.getByRole('button',{name:'With import',exact:true}).click();
  assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('openambience.v2')).mix.enabled.some(id=>id.startsWith('custom-'))),false);
  await page.getByRole('button',{name:'Delete Renamed mix',exact:true}).click();
  assert.equal(await page.locator('.saved-item').count(),2);
- await page.locator('#library-tab').click(); await page.getByRole('button',{name:'All sounds',exact:true}).click();
+ await page.locator('#library-tab').click(); await chooseCategory(page, 'All sounds');
  await page.setViewportSize({width:1440,height:1000});await page.screenshot({path:require('node:path').join(require('node:os').tmpdir(), 'openambience-desktop.png'),fullPage:true});
  assert.deepEqual(errors,[]);
  console.log(JSON.stringify({browser:await browser.version(),checks:['player touch targets at four widths','touch and keyboard master volume','mute and restore actual master gain','18 sounds','no autoplay','recording playback','per-layer and master levels','save/load/duplicate/rename/delete','multi-format validation','custom import and duplicate detection','persistence','offline reload/playback including imports','all 12 assets decoded offline and non-silent','search','320/390/768/1440px overflow','timer expiry','custom deletion updates saved mixes','no uncaught errors'],decoded},null,2));
