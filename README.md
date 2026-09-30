@@ -36,6 +36,9 @@ All audio is generated on the device. Nature sounds are synthesized textures, an
 ## Research and design
 
 - [Ambiphone analysis and source references](docs/research/ambiphone.md)
+- [Complete 67-channel sound inventory](docs/research/ambiphone-sound-inventory.md) ([CSV](docs/research/ambiphone-sound-inventory.csv), [JSON](docs/research/ambiphone-sound-inventory.json))
+- [Openly licensed sound candidates and acquisition plan](docs/research/open-audio-sources.md)
+- [Proposed saved mixes and custom sound scope](docs/saved-mixes-and-custom-sounds.md)
 - [Architecture and implementation decisions](docs/architecture.md)
 - [Roadmap](docs/roadmap.md)
 - [Validation checklist](docs/testing.md)

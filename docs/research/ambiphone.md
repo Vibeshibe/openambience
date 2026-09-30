@@ -2,6 +2,8 @@
 
 Research date: 2026-09-30. Purpose: establish a useful starting point for an independent, open-source ambient sound mixer.
 
+Follow-up research now includes the [full sound inventory](ambiphone-sound-inventory.md), [original-source license checks and candidates](open-audio-sources.md), and [saved mixes/custom sound scope](../saved-mixes-and-custom-sounds.md). That follow-up additionally inspects public channel/attribution metadata delivered to browsers; the evidence limits below describe this initial review.
+
 ## Evidence and limits
 
 This is a public-surface review, not an audit of Ambiphone's source code. The user describes it as closed source; this review did not establish a published source license. Evidence comes from indexed public interface text, the fetched HTML shell and manifest, installation instructions, and credits. Indexed pages can lag the live app. The indexed footer reports version 1.15.0; that is not a verified live release number.

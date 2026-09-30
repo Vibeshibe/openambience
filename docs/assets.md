@@ -1,5 +1,7 @@
 # Asset provenance
 
+The [sound-source research](research/open-audio-sources.md) and [inventory register](research/ambiphone-sound-inventory.json) list **candidates only**. No third-party audio is currently bundled. Research-page checksums identify inspected metadata, not downloaded audio. Use the [saved mixes and custom sound proposal](saved-mixes-and-custom-sounds.md) when designing imports.
+
 | Asset | Origin | License | Notes |
 | --- | --- | --- | --- |
 | Application code and styles | Original OpenAmbience implementation | MIT | No Ambiphone source copied |

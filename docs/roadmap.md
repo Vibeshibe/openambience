@@ -8,7 +8,20 @@
 - [x] Search, presets, local named mixes, and a sleep timer.
 - [x] PWA manifest, icons, service worker, unit tests, and CI definition.
 
-## Next — Quality and portability
+## Next — Saved mixes and custom sounds
+
+The current priority is the [saved mixes and custom sound proposal](saved-mixes-and-custom-sounds.md). This is a scoped plan; implementation has not started.
+
+- [x] Inventory all 67 reference channels and check 60 original-source license pages.
+- [x] Identify an openly licensed starter-pack shortlist and alternatives.
+- [x] Define stable sound identities, local-file imports, and saved-mix portability.
+- [ ] Select and audition originals, prepare loops/events, and publish a versioned catalog with credits.
+- [ ] Extend mixes with rename, update, duplicate, and recipe export/import.
+- [ ] Store imported audio and mixes in IndexedDB, including migration from 0.1.0.
+- [ ] Add file-picker/batch imports, duplicate detection, and missing-sound recovery.
+- [ ] Verify storage failure recovery and offline restart on real Android/iOS devices.
+
+## Quality and portability
 
 - [ ] Listen for clicks, repeated patterns, and abrupt transitions over long sessions.
 - [ ] Improve pink-noise spectrum and nature texture quality.
