@@ -94,6 +94,7 @@ Media controls are confirmed by user testing on iOS/Safari, iOS/Chrome, Android/
 - [Interface design principles](docs/ui-design.md)
 - [Roadmap](docs/roadmap.md)
 - [Validation checklist](docs/testing.md)
+- [Link previews and search discovery](docs/search-discovery.md)
 - [Asset provenance](docs/assets.md)
 - [Contribution guide](CONTRIBUTING.md)
 

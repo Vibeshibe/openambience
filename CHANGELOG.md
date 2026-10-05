@@ -2,6 +2,12 @@
 
 App releases use [Semantic Versioning](docs/versioning.md). Research checkpoints on `dev` may precede the next release.
 
+## Unreleased
+
+- Add Open Graph and Twitter card metadata using the existing PNG logo for shared-link previews.
+- Add a canonical URL, descriptive search title and summary, crawlable introductory text, and a sitemap for the public app.
+- Document search indexing verification and sitemap submission; refresh the offline shell for the updated page.
+
 ## 0.5.0-alpha.2 — 2026-10-05
 
 Promoted to `main` with the expanded sound library, binaural presets, and update reminder.
