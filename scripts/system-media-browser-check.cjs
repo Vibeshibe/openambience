@@ -23,6 +23,7 @@ const assert = require('node:assert/strict');
     page.on('pageerror', error => errors.push(error.message));
     await page.goto(process.env.PREVIEW_URL || 'http://127.0.0.1:8080/');
     await page.locator('[data-sound="brown"] .sound-toggle').click();
+    await page.locator('#volume-toggle').click();
     await page.locator('#master').fill('1');
     await page.locator('#play').click();
     await page.waitForFunction(() => navigator.mediaSession.playbackState === 'playing');

@@ -66,6 +66,10 @@ function sync() {
   }
   $('#master').value = mix.master;
   $('#master-value').value = `${mix.master}%`;
+  $('#master').setAttribute('aria-valuetext', `${mix.master} percent`);
+  $('#master').style.setProperty('--volume', `${mix.master}%`);
+  $('#volume-value').textContent = `${mix.master}%`;
+  $('#volume-toggle').setAttribute('aria-label', `Volume: ${mix.master}%. Adjust volume`);
   const playLabel = busy ? 'Loading audio' : playing ? 'Pause mix' : 'Play mix';
   $('#play-label').textContent = playLabel;
   $('#play').setAttribute('aria-label', playLabel);
@@ -247,6 +251,31 @@ $('#play').onclick = async () => {
 function setMasterVolume(value) { mix.master = value; sync(); void updateAudio(); }
 $('#master').oninput = event => setMasterVolume(Number(event.target.value));
 $('#mute').onclick = () => setMasterVolume(mix.master === 0 ? lastAudibleVolume : 0);
+function fitVolumePopout() {
+  $('#master').style.height = '180px';
+  const overflow = Math.max(0, 8 - $('#volume-popout').getBoundingClientRect().top);
+  $('#master').style.height = `${Math.max(44, 180 - overflow)}px`;
+}
+function setVolumeOpen(open, restoreFocus = false) {
+  $('#volume-popout').hidden = !open;
+  $('#volume-toggle').setAttribute('aria-expanded', String(open));
+  if (open) { fitVolumePopout(); $('#master').focus({ preventScroll: true }); }
+  else if (restoreFocus) $('#volume-toggle').focus({ preventScroll: true });
+}
+$('#volume-toggle').onclick = () => setVolumeOpen($('#volume-popout').hidden);
+document.addEventListener('pointerdown', event => {
+  if (!$('.volume-control').contains(event.target)) setVolumeOpen(false);
+});
+document.addEventListener('focusin', event => {
+  if (!$('.volume-control').contains(event.target)) setVolumeOpen(false);
+});
+document.addEventListener('keydown', event => {
+  if (event.key === 'Escape' && !$('#volume-popout').hidden) {
+    event.preventDefault(); setVolumeOpen(false, true);
+  }
+});
+window.addEventListener('resize', () => { if (!$('#volume-popout').hidden) fitVolumePopout(); });
+new ResizeObserver(() => { if (!$('#volume-popout').hidden) fitVolumePopout(); }).observe($('.player-dock'));
 $('#timer').onchange = () => {
   const minutes = Number($('#timer').value); deadline = playing && minutes ? Date.now() + minutes * 60000 : 0;
   scheduleTimer(); sync();
@@ -406,7 +435,7 @@ if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('./sw.js').then(registration => {
     const check = async () => {
       let ready = false;
-      try { ready = Boolean(await caches.match(new URL('./audio/credits.json', location.href), { cacheName: 'openambience-shell-0.4.0-alpha.3' })); } catch {}
+      try { ready = Boolean(await caches.match(new URL('./audio/credits.json', location.href), { cacheName: 'openambience-shell-0.4.0-alpha.4' })); } catch {}
       $('#offline').textContent = ready && registration.active ? '● Library ready offline' : 'Preparing offline library…';
       $('#update').hidden = !registration.waiting;
     };

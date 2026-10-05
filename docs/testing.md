@@ -178,3 +178,12 @@ Exact browser/OS versions, test duration, and a per-action/per-device checklist 
 - Verify old tabs keep a consistent version and closing/reopening activates the update.
 - Check new asset licenses and attribution entries.
 - Record actual browser/OS versions and results; do not infer mobile compatibility from desktop tests.
+
+
+## 0.4.0-alpha.4 volume popout preview — 2026-10-05
+
+- Chromium 153 checks passed for the vertical master range at 320, 390, 768, and 1440px widths, with 44px-or-larger touch targets and no horizontal overflow. The popout also fits a 568×320 landscape viewport.
+- Verified touch position, Arrow Up/Down, Home/End, visible percentage updates, focus on opening, Escape focus restoration, Tab leaving the group, toggle dismissal, outside-click dismissal, and closing when Mix options opens.
+- Mute/unmute still changes the actual master gain and restores the previous volume. The library/offline and radio suites passed with the new controls.
+- Firefox 140.16 ESR passed native vertical pointer/keyboard adjustment, percentage updates, and Escape/Tab/outside dismissal. Linux system-media checks also passed in Firefox and Chromium.
+- Desktop/mobile Chromium and narrow Firefox screenshots were reviewed. Physical Android/iOS touch testing and feedback on the new layout remain pending; earlier media-control device confirmations apply to alpha.3.

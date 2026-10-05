@@ -65,6 +65,7 @@ async function importFile(page, file) {
  await page.waitForFunction(()=>{const values=new Float32Array(2048);window.__analysers[0].getFloatTimeDomainData(values);return values.some(value=>Math.abs(value)>.001);});
  assert.equal(await page.evaluate(()=>window.__radios[0].crossOrigin),'anonymous');
  await chooseCategory(page, 'Radio');await page.locator(`[data-sound="${radioID}"] input`).fill('31');
+ await page.locator('#volume-toggle').click();
  await page.locator('#master').fill('28');
  await page.locator('#mute').click();assert.equal(await page.locator('#master').inputValue(),'0');
  assert.equal(await page.evaluate(()=>window.__radios.at(-1).paused),false);

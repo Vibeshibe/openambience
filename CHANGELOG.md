@@ -2,6 +2,14 @@
 
 App releases use [Semantic Versioning](docs/versioning.md). Research checkpoints on `dev` may precede the next release.
 
+## 0.4.0-alpha.4 — 2026-10-05
+
+Development preview on `dev` for volume-control feedback.
+
+- Moved master volume into a vertical popout with a large percentage above the track and a persistent percentage button in the player.
+- Kept one-tap mute/unmute alongside it; added Escape, outside-click, and focus-leave dismissal with keyboard and touch adjustment.
+- Size the slider to available height on short screens and refresh the offline shell for the new controls.
+
 ## 0.4.0-alpha.3 — 2026-10-05
 
 - Fixed Firefox media-control activation by giving the control track non-silent decoded samples and routing them through a dedicated zero-gain node before they can reach the mix.

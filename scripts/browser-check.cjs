@@ -33,20 +33,47 @@ async function importFile(page, file) {
  assert.equal(await page.evaluate(()=>window.__contexts.length),0);
  for (const width of [320,390,768,1440]) {
    await page.setViewportSize({width,height:844});
-   for (const selector of ['#play','#mute','#open-mixer']) {
+   for (const selector of ['#play','#mute','#volume-toggle','#open-mixer']) {
      const bounds=await page.locator(selector).boundingBox();
      assert.ok(bounds.width>=44&&bounds.height>=44&&bounds.y+bounds.height<=844, `${selector} touch target at ${width}`);
    }
-   const slider=await page.locator('#master').boundingBox();assert.ok(slider.width>=80&&slider.height>=44);
+   await page.locator('#volume-toggle').click();
+   const slider=await page.locator('#master').boundingBox();assert.ok(slider.width>=44&&slider.height>=100);
+   const panel=await page.locator('#volume-popout').boundingBox();
+   assert.ok(panel.x>=0&&panel.x+panel.width<=width&&panel.y>=0);
+   assert.equal(await page.locator('#master').evaluate(element=>element===document.activeElement),true);
+   assert.equal(await page.locator('#master-value').textContent(),await page.locator('#volume-value').textContent());
+   if (width === 1440) await page.screenshot({path:'/tmp/openambience-volume-desktop.png'});
+   await page.keyboard.press('Escape');
+   assert.equal(await page.locator('#volume-toggle').evaluate(element=>element===document.activeElement),true);
+   assert.equal(await page.locator('#volume-popout').isVisible(),false);
    assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
  }
  await page.setViewportSize({width:320,height:844});
+ await page.locator('#volume-toggle').click();
  const track=await page.locator('#master').boundingBox();
- await page.touchscreen.tap(track.x+track.width*.75,track.y+track.height/2);
+ await page.touchscreen.tap(track.x+track.width/2,track.y+track.height*.25);
  assert.ok(Number(await page.locator('#master').inputValue())>60);
- await page.locator('#master').focus();const previous=Number(await page.locator('#master').inputValue());await page.keyboard.press('ArrowLeft');
+ await page.locator('#master').focus();const previous=Number(await page.locator('#master').inputValue());await page.keyboard.press('ArrowDown');
  assert.equal(Number(await page.locator('#master').inputValue()),previous-1);
+ await page.keyboard.press('ArrowUp');assert.equal(Number(await page.locator('#master').inputValue()),previous);
+ await page.keyboard.press('Home');assert.equal(await page.locator('#master').inputValue(),'0');
+ await page.keyboard.press('End');assert.equal(await page.locator('#master').inputValue(),'100');
+ assert.equal(await page.locator('#volume-value').textContent(),'100%');
+ await page.keyboard.press('Tab');assert.equal(await page.locator('#volume-popout').isVisible(),false);
+ await page.locator('#volume-toggle').click();await page.locator('#volume-toggle').click();
+ assert.equal(await page.locator('#volume-popout').isVisible(),false);
+ await page.locator('#volume-toggle').click();await page.locator('h1').click();
+ assert.equal(await page.locator('#volume-popout').isVisible(),false);
+ await page.setViewportSize({width:568,height:320});
+ await page.locator('#volume-toggle').click();
+ const landscape=await page.locator('#volume-popout').boundingBox();assert.ok(landscape.y>=0);
+ await page.keyboard.press('Escape');
  await page.setViewportSize({width:390,height:844});
+ await page.locator('#volume-toggle').click();
+ await page.locator('#master').fill('40');
+ await page.screenshot({path:'/tmp/openambience-volume-mobile.png'});
+ await page.keyboard.press('Escape');
  const toggle = id=>page.locator(`[data-sound="${id}"] .sound-toggle`);
  await toggle('rain-leaves').click(); await toggle('brown').click();
  for(const id of ['rain-glass','thunder','forest-wind','stream']) await toggle(id).click();
@@ -57,6 +84,7 @@ async function importFile(page, file) {
  await page.waitForFunction(()=>document.querySelector('#play').textContent.includes('Pause'));
  assert.equal(await page.evaluate(()=>window.__contexts[0].state),'running');
  await page.locator('#volume-rain-leaves').fill('27');
+ await page.locator('#volume-toggle').click();
  await page.locator('#master').fill('35');
  await page.getByRole('button',{name:'Mute volume',exact:true}).click();
  assert.equal(await page.locator('#master').inputValue(),'0');
@@ -69,6 +97,7 @@ async function importFile(page, file) {
  assert.equal(await page.locator('#mute').getAttribute('aria-pressed'),'true');
  await page.locator('#mute').click();assert.equal(await page.locator('#master').inputValue(),'35');
  await page.locator('#open-mixer').click();
+ assert.equal(await page.locator('#volume-popout').isVisible(),false);
  await page.locator('#mix-name').fill('Evening <test>'); await page.locator('#save-form button').click();
  await page.locator('#mixer-dialog .close').click();
  await page.locator('#mixes-tab').click();
@@ -150,6 +179,6 @@ async function importFile(page, file) {
  await page.locator('#library-tab').click(); await chooseCategory(page, 'All sounds');
  await page.setViewportSize({width:1440,height:1000});await page.screenshot({path:require('node:path').join(require('node:os').tmpdir(), 'openambience-desktop.png'),fullPage:true});
  assert.deepEqual(errors,[]);
- console.log(JSON.stringify({browser:await browser.version(),checks:['player touch targets at four widths','touch and keyboard master volume','mute and restore actual master gain','18 sounds','no autoplay','recording playback','per-layer and master levels','save/load/duplicate/rename/delete','multi-format validation','custom import and duplicate detection','persistence','offline reload/playback including imports','all 12 assets decoded offline and non-silent','search','320/390/768/1440px overflow','timer expiry','custom deletion updates saved mixes','no uncaught errors'],decoded},null,2));
+ console.log(JSON.stringify({browser:await browser.version(),checks:['player touch targets at four widths','vertical volume touch/keyboard controls, visible percentage, Escape/Tab/outside dismissal, short landscape layout','mute and restore actual master gain','18 sounds','no autoplay','recording playback','per-layer and master levels','save/load/duplicate/rename/delete','multi-format validation','custom import and duplicate detection','persistence','offline reload/playback including imports','all 12 assets decoded offline and non-silent','search','320/390/768/1440px overflow','timer expiry','custom deletion updates saved mixes','no uncaught errors'],decoded},null,2));
  await browser.close();
 })().catch(error=>{console.error(error);process.exit(1);});

@@ -47,7 +47,7 @@
     </section>
     <noscript>Enable JavaScript to mix and play sounds.</noscript>
   </main>
-  <footer><span id="offline">Preparing offline library…</span><button id="show-credits" class="text-button">Sound credits</button><a class="repo-link" href="https://github.com/Vibeshibe/openambience" target="_blank" rel="noopener noreferrer" aria-label="OpenAmbience on GitHub (opens in a new tab)">GitHub <span aria-hidden="true">↗</span></a><span>v0.4.0-alpha.3 · No accounts. No tracking.</span></footer>
+  <footer><span id="offline">Preparing offline library…</span><button id="show-credits" class="text-button">Sound credits</button><a class="repo-link" href="https://github.com/Vibeshibe/openambience" target="_blank" rel="noopener noreferrer" aria-label="OpenAmbience on GitHub (opens in a new tab)">GitHub <span aria-hidden="true">↗</span></a><span>v0.4.0-alpha.4 · No accounts. No tracking.</span></footer>
   <div class="player-dock">
     <div class="player-summary"><strong id="layer-count">Your quiet starts here</strong><span id="countdown">Nothing playing</span></div>
     <section class="player" aria-label="Playback controls">
@@ -57,10 +57,19 @@
         <span id="play-label" class="sr-only">Play mix</span>
       </button>
       <div class="player-volume">
-        <button id="mute" class="volume-button quiet" aria-label="Mute volume" aria-pressed="false" title="Mute volume">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 4 5 9H2v6h3l6 5z" fill="currentColor" stroke="none"/><g class="volume-waves"><path d="M15 8a6 6 0 0 1 0 8M18 5a10 10 0 0 1 0 14"/></g><path class="volume-cross" d="m15 9 6 6m0-6-6 6" hidden/></svg>
-        </button>
-        <div class="volume-slider"><label for="master">Volume <output id="master-value" for="master">40%</output></label><input id="master" type="range" min="0" max="100" value="40" aria-label="Master volume"></div>
+        <div class="volume-control">
+          <button id="mute" class="volume-button quiet" aria-label="Mute volume" aria-pressed="false" title="Mute volume">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 4 5 9H2v6h3l6 5z" fill="currentColor" stroke="none"/><g class="volume-waves"><path d="M15 8a6 6 0 0 1 0 8M18 5a10 10 0 0 1 0 14"/></g><path class="volume-cross" d="m15 9 6 6m0-6-6 6" hidden/></svg>
+          </button>
+          <button id="volume-toggle" class="quiet" aria-expanded="false" aria-controls="volume-popout" aria-label="Volume: 40%. Adjust volume" title="Adjust volume">
+            <span id="volume-value">40%</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 14 5-5 5 5"/></svg>
+          </button>
+          <div id="volume-popout" role="group" aria-labelledby="volume-title" hidden>
+            <label id="volume-title" for="master">Volume</label>
+            <output id="master-value" for="master" aria-live="off">40%</output>
+            <input id="master" type="range" min="0" max="100" value="40" aria-label="Master volume" aria-orientation="vertical">
+          </div>
+        </div>
       </div>
       <button id="open-mixer" class="quiet" aria-haspopup="dialog" aria-controls="mixer-dialog" aria-label="Mix options" title="Mix options: sleep timer, save, or clear">
         <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="5" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="19" cy="12" r="1.8"/></svg>

@@ -55,6 +55,33 @@ const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
     session = created.sessionId;
     await request(`/session/${session}/url`, { url: process.env.PREVIEW_URL || 'http://127.0.0.1:8080/' });
     await until(() => script('return !!document.querySelector(".sound-card")'), 'app loaded');
+    // Exercise native vertical-range geometry and keyboard behavior in Firefox.
+    await request(`/session/${session}/window/rect`, { width: 390, height: 844 });
+    await click('#volume-toggle');
+    assert.equal(await script('return document.activeElement.id'), 'master');
+    const bounds = await script('return document.querySelector("#master").getBoundingClientRect().toJSON()');
+    assert.ok(bounds.width >= 44 && bounds.height > bounds.width);
+    await request(`/session/${session}/actions`, { actions: [{ type: 'pointer', id: 'mouse', parameters: { pointerType: 'mouse' }, actions: [
+      { type: 'pointerMove', duration: 0, origin: 'viewport', x: Math.round(bounds.x + bounds.width / 2), y: Math.round(bounds.y + bounds.height / 4) },
+      { type: 'pointerDown', button: 0 }, { type: 'pointerUp', button: 0 },
+    ] }] });
+    const value = () => script('return Number(document.querySelector("#master").value)');
+    const previous = await value(); assert.ok(previous > 60);
+    const slider = await request(`/session/${session}/element`, { using: 'css selector', value: '#master' });
+    const key = text => request(`/session/${session}/element/${Object.values(slider)[0]}/value`, { text });
+    await key('\uE015'); assert.equal(await value(), previous - 1); // Arrow Down
+    await key('\uE013'); assert.equal(await value(), previous); // Arrow Up
+    await key('\uE011'); assert.equal(await value(), 0); // Home
+    await key('\uE010'); assert.equal(await value(), 100); // End
+    assert.equal(await script('return document.querySelector("#volume-value").textContent'), '100%');
+    require('node:fs').writeFileSync('/tmp/openambience-volume-firefox.png', Buffer.from(await request(`/session/${session}/screenshot`, null, 'GET'), 'base64'));
+    await key('\uE00C'); // Escape
+    assert.equal(await script('return document.querySelector("#volume-popout").hidden && document.activeElement.id === "volume-toggle"'), true);
+    await click('#volume-toggle'); await key('\uE004'); // Tab leaves the group
+    assert.equal(await script('return document.querySelector("#volume-popout").hidden'), true);
+    await click('#volume-toggle'); await click('h1');
+    assert.equal(await script('return document.querySelector("#volume-popout").hidden'), true);
+    await script('const slider = document.querySelector("#master"); slider.value = 40; slider.dispatchEvent(new Event("input", { bubbles: true }))');
     assert.equal(await script('return navigator.mediaSession.playbackState'), 'none');
     await click('[data-sound="brown"] .sound-toggle'); await click('#play');
     await until(() => script('return navigator.mediaSession.playbackState === "playing"'), 'mix playing');
@@ -96,6 +123,7 @@ const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
     assert.deepEqual(measured, { signal: true, zero: true, gain: 0, released: true });
     console.log(JSON.stringify({ browser: `Firefox ${created.capabilities.browserVersion}`, checks: [
       'no autoplay', 'non-silent decoder input with exactly silent control-track output',
+      'vertical volume pointer and keyboard controls, visible percentage, Escape/Tab/outside dismissal',
       'Linux MPRIS Pause/Play/Stop update the mixer', 'stop releases source and preserves selection', 'resume after stop',
     ] }, null, 2));
   } finally {
