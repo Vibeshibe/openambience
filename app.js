@@ -3,6 +3,7 @@ import { CATEGORIES, FILTER_CATEGORIES, CUSTOM_CATEGORIES, categoryOf, matchesCa
 import { normalizeRadioUrl } from './js/radio.js';
 import { AudioEngine } from './js/audio.js';
 import { MixMediaSession } from './js/media-session.js';
+import { BINAURAL_BEATS } from './js/binaural.js';
 import { openLibrary, listSounds, putSound, deleteSound } from './js/storage.js';
 
 const $ = selector => document.querySelector(selector);
@@ -72,6 +73,7 @@ function sync() {
     card.querySelector('.indicator').textContent = enabled ? '✓' : '+';
     card.querySelector('input').value = mix.levels[id];
     card.querySelector('output').value = `${mix.levels[id]}%`;
+    if (id === 'binaural') card.querySelector('.binaural-beat').value = mix.binauralBeat;
   }
   $('#master').value = mix.master;
   $('#master-value').value = `${mix.master}%`;
@@ -174,6 +176,16 @@ function renderSounds() {
       sync(); void updateAudio();
     };
     slider.oninput = () => { mix.levels[sound.id] = Number(slider.value); sync(); void updateAudio(); };
+    if (sound.kind === 'binaural') {
+      card.querySelector('.sound-kind').textContent = 'GENERATED TONES';
+      const hint = document.createElement('p'); hint.className = 'hint'; hint.id = 'binaural-help'; hint.textContent = 'Use stereo headphones.';
+      const label = document.createElement('label'); label.className = 'field binaural-setting'; label.htmlFor = 'binaural-beat'; label.textContent = 'Beat difference';
+      const select = document.createElement('select'); select.id = 'binaural-beat'; select.className = 'binaural-beat';
+      select.setAttribute('aria-describedby', hint.id);
+      for (const beat of BINAURAL_BEATS) { const option = document.createElement('option'); option.value = beat; option.textContent = `${beat} Hz`; select.append(option); }
+      select.onchange = () => { mix.binauralBeat = Number(select.value); sync(); void updateAudio(); };
+      label.append(select); card.append(label, hint);
+    }
     if (sound.kind === 'radio') {
       const info = document.createElement('p'); info.className = 'radio-state hint'; info.setAttribute('role', 'status');
       const retry = document.createElement('button'); retry.className = 'retry-radio'; retry.textContent = 'Retry station'; retry.hidden = true;
@@ -309,7 +321,7 @@ $('#open-mixer').onclick = openMixer; $('#save-current').onclick = openMixer;
 for (const preset of PRESETS) {
   const button = document.createElement('button'); button.className = 'preset'; button.textContent = preset.name;
   const note = document.createElement('small'); note.textContent = preset.note; button.append(note);
-  button.onclick = () => { mix = { ...presetMix(preset.levels), master: mix.master }; mix = normalize(mix); sync(); void updateAudio(); status(`${preset.name} selected.`); };
+  button.onclick = () => { mix = { ...presetMix(preset.levels), master: mix.master, binauralBeat: mix.binauralBeat }; mix = normalize(mix); sync(); void updateAudio(); status(`${preset.name} selected.`); };
   $('#presets').append(button);
 }
 function renderSaved() {
@@ -437,7 +449,9 @@ for (const sound of SOUNDS.filter(sound => sound.kind === 'recording')) {
   const licence = document.createElement('a'); licence.href = sound.licenseUrl; licence.textContent = sound.license; licence.target = '_blank'; licence.rel = 'noopener noreferrer';
   const details = document.createElement('p'); details.append(source, ' · ', licence);
   const changes = document.createElement('p'); changes.textContent = sound.modifications;
-  entry.append(title, details, changes); $('#credits').append(entry);
+  entry.append(title, details, changes);
+  if (sound.attributionText) { const attribution = document.createElement('p'); attribution.textContent = sound.attributionText; entry.append(attribution); }
+  $('#credits').append(entry);
 }
 $('#show-credits').onclick = () => $('#credits-dialog').showModal();
 window.addEventListener('beforeinstallprompt', event => { event.preventDefault(); installPrompt = event; $('#install').hidden = false; });
@@ -457,7 +471,7 @@ if ('serviceWorker' in navigator) {
     const check = async () => {
       renderUpdate();
       let ready = false;
-      try { ready = Boolean(await caches.match(new URL('./audio/credits.json', location.href), { cacheName: 'openambience-shell-0.4.0-alpha.7' })); } catch {}
+      try { ready = Boolean(await caches.match(new URL('./audio/credits.json', location.href), { cacheName: 'openambience-shell-0.5.0-alpha.1' })); } catch {}
       $('#offline').textContent = ready && registration.active ? '● Library ready offline' : 'Preparing offline library…';
     };
     void check();

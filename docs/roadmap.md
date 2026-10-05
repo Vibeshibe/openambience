@@ -43,8 +43,9 @@ The [saved mixes and custom sound proposal](saved-mixes-and-custom-sounds.md) de
 - [ ] Screen-reader and 200% zoom audits on desktop and mobile.
 - [ ] Improve pink-noise spectrum and generated nature textures.
 - [ ] Expand the recording catalog and support selective offline downloads.
-- [ ] Audition and add rain on tent, evening birds, and train carriage ambience; clarify the existing dawn recording as Morning birds. See the [source shortlist](research/sound-expansion.md).
-- [ ] Add original binaural generation with separate left/right tones, a headphones hint, and saved-mix support.
+- [x] Add rain on tent, evening birds, and train carriage ambience on `dev`; clarify the existing dawn recording as Morning birds. See the [source shortlist](research/sound-expansion.md).
+- [ ] Listen to the new recording loops for speech, handling noise, relative levels, and repetition.
+- [x] Add original binaural generation with separate left/right tones, a headphones hint, and saved-mix support.
 - [ ] Versioned mix URLs and stereo placement.
 - [ ] Broaden radio compatibility beyond direct CORS-enabled streams, based on real station/device tests.
 - [ ] Choose a provider and implement optional sync with local playback copies and missing-asset recovery.

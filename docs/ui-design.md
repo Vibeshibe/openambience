@@ -53,3 +53,8 @@ A waiting update appears as a bordered green card below the header, using the ap
 Update & reload pauses playback and activates the waiting version; the reloaded app keeps the saved selection and volume but does not autoplay. Later dismisses the card for the current visit and focuses a small Update available button in the header. That button reopens the card and focuses Update & reload. A different waiting update may show the card again.
 
 An update activated in another tab removes stale update notices without pausing or reloading this tab. First-time installation does not show an update card. Browser-managed activation after all old tabs close remains normal service-worker behavior.
+
+
+## Binaural layer
+
+Binaural beats appear under Noise & textures as a single generated layer. Its normal volume control is followed by a Beat difference selector (2, 4, 6, 8, 10, 14, 20, or 30 Hz) and a stereo-headphones hint. The default is 6 Hz; the selection is included in saved mixes. Choosing a library preset preserves the current beat setting, while loading a saved mix restores that mix's setting. Frequency changes apply smoothly during playback. Labels describe the signal settings rather than promising an outcome.

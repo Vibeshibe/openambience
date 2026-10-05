@@ -700,3 +700,7 @@ form .primary {
 #sound-files { min-width:0; font-size:13px; }
 #sound-files::file-selector-button { min-height:44px; border:1px solid var(--line); border-radius:8px; padding:8px 12px; margin-right:10px; background:var(--bg); color:var(--text); font:inherit; cursor:pointer; }
 #import-status { color:var(--muted); font-size:13px; overflow-wrap:anywhere; }
+
+.binaural-setting { margin:12px 0 0; font-size:12px; }
+.binaural-setting select { width:100%; }
+.credit p { overflow-wrap:anywhere; }

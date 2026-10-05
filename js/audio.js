@@ -1,5 +1,6 @@
 import { RadioLayer } from './radio.js';
 import { MediaTransport } from './media-transport.js';
+import { createBinauralLayer } from './binaural.js';
 // Original procedural textures alongside locally served or imported recordings.
 export function noiseSamples(kind, length, random = Math.random) {
   const samples = new Float32Array(length);
@@ -74,6 +75,10 @@ export class AudioEngine {
       if (this.layers.has(id)) continue;
       const sound = this.resolveSound(id);
       if (!sound) throw new Error('A sound is missing from this device.');
+      if (sound.kind === 'binaural') {
+        this.layers.set(id, createBinauralLayer(this.context, this.master, mix.binauralBeat));
+        continue;
+      }
       if (sound.kind === 'radio') {
         const radio = new RadioLayer(this.context, sound, this.master, this.onSoundStatus);
         this.layers.set(id, { radio, gain: radio.gain, nodes: [], bytes: 0 });
@@ -117,7 +122,10 @@ export class AudioEngine {
       this.layers.set(id, { gain, nodes, bytes: buffer.length * buffer.numberOfChannels * 4 });
     }
     if (revision !== this.revision) return;
-    for (const [id, layer] of this.layers) layer.gain.gain.setTargetAtTime(mix.levels[id] / 100 / 3, this.context.currentTime, 0.06);
+    for (const [id, layer] of this.layers) {
+      layer.setBeat?.(mix.binauralBeat);
+      layer.gain.gain.setTargetAtTime(mix.levels[id] / 100 / 3, this.context.currentTime, 0.06);
+    }
     this.master.gain.cancelScheduledValues(this.context.currentTime);
     this.master.gain.setTargetAtTime(mix.master / 100, this.context.currentTime, 0.06);
   }

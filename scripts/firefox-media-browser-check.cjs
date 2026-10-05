@@ -55,6 +55,24 @@ const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
     session = created.sessionId;
     await request(`/session/${session}/url`, { url: process.env.PREVIEW_URL || 'http://127.0.0.1:8080/' });
     await until(() => script('return !!document.querySelector(".sound-card")'), 'app loaded');
+    const binaural = await request(`/session/${session}/execute/async`, { args: [], script: `
+      const done = arguments[arguments.length - 1];
+      import('./js/binaural.js').then(async ({ createBinauralLayer }) => {
+        const ctx = new OfflineAudioContext(2, 44100, 44100);
+        const layer = createBinauralLayer(ctx, ctx.destination, 6); layer.gain.gain.value = 1;
+        const buffer = await ctx.startRendering();
+        const amplitude = (channel, hz) => {
+          const data = buffer.getChannelData(channel); let real = 0, imaginary = 0;
+          for (let i = 0; i < data.length; i++) {
+            const angle = 2 * Math.PI * hz * i / 44100;
+            real += data[i] * Math.cos(angle); imaginary += data[i] * Math.sin(angle);
+          }
+          return 2 * Math.hypot(real, imaginary) / data.length;
+        };
+        done({ left: amplitude(0, 200), right: amplitude(1, 206), leftLeak: amplitude(0, 206), rightLeak: amplitude(1, 200) });
+      }).catch(error => done({ error: error.message }));
+    ` });
+    assert.ok(binaural.left > .09 && binaural.right > .09 && binaural.leftLeak < .00001 && binaural.rightLeak < .00001, JSON.stringify(binaural));
     // Exercise native vertical-range geometry and keyboard behavior in Firefox.
     await request(`/session/${session}/window/rect`, { width: 390, height: 844 });
     await click('#volume-toggle');
@@ -127,6 +145,7 @@ const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
     console.log(JSON.stringify({ browser: `Firefox ${created.capabilities.browserVersion}`, checks: [
       'no autoplay', 'non-silent decoder input with exactly silent control-track output',
       'vertical volume pointer and keyboard controls, visible percentage, Escape/Tab/outside dismissal',
+      'binaural tones render at separate left/right frequencies',
       'Linux MPRIS Pause/Play/Stop update the mixer', 'stop releases source and preserves selection', 'resume after stop',
     ] }, null, 2));
   } finally {

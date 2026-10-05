@@ -44,9 +44,9 @@ async function importFile(page, file) {
  });
  const page=await context.newPage();const errors=[];page.on('pageerror',error=>errors.push(error.message));page.on('dialog',dialog=>dialog.accept());
  await page.goto(process.env.PREVIEW_URL || 'http://127.0.0.1:8080/');await page.waitForSelector('.sound-card:visible');
- assert.equal(await page.locator('.sound-card').count(),18);
+ assert.equal(await page.locator('.sound-card').count(),22);
  assert.equal(await page.locator('#categories input').count(),8);
- for(const [category,count] of [['Weather',4],['Water',2],['Wildlife',3],['Indoors',3],['Noise & textures',6]]){
+ for(const [category,count] of [['Weather',5],['Water',2],['Wildlife',4],['Indoors',4],['Noise & textures',7]]){
   await chooseCategory(page, category);
   assert.equal(await page.locator('.sound-card:visible').count(),count);
  }

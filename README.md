@@ -34,7 +34,7 @@
 
 | Make it yours | What you can do |
 | --- | --- |
-| **18 built-in sounds** | Layer nature recordings and generated noise textures. |
+| **22 built-in sounds** | Layer nature recordings, train ambience, noise textures, and binaural tones. |
 | **Your own recordings** | Import audio, choose categories, and keep it on your device. |
 | **Saved mixes** | Return to your favourite combinations with a tap. |
 | **Offline listening** | Cache the bundled library and play imported sounds offline. |
@@ -60,10 +60,10 @@ An alternative is `python3 -m http.server 8080 --bind 127.0.0.1` from this direc
 
 ## Features
 
-Available in **0.4.0-alpha.7**:
+Available in **0.5.0-alpha.1** (`dev` preview):
 
-- Twelve recorded sounds: rain, rain on glass, thunder, forest wind, waves, stream, fireplace, birds, crickets, café, fan, and cat purring.
-- Six generated textures, including white, pink, and brown noise. Earlier saved mixes keep their original procedural sounds.
+- Fifteen recorded sounds: rain, rain on glass, rain on tent, thunder, forest wind, waves, stream, fireplace, morning birds, evening birds, crickets, café, fan, cat purring, and train carriage.
+- Six generated textures, including white, pink, and brown noise, plus binaural beats with a saved 2–30 Hz beat-difference selector. Use stereo headphones for the separate left/right tones. Earlier saved mixes keep their original sound IDs, including Birdsong, now labelled Morning birds.
 - A phone-friendly two-column library, search, a collapsible Filters panel with multi-select category checkboxes, counts, and a visible active-filter summary, grouped browsing, and a compact player with a mixer panel. Uploaded recordings appear beside built-in sounds in their assigned category, with a small **Uploaded** tag.
 - **＋ Radio** saves direct HTTPS radio-stream URLs locally. Compatible stations join the mixer and sleep timer; live playback needs internet and is never cached. See [radio compatibility](docs/internet-radio.md).
 - Up to six simultaneous layers, individual volume, and a sleep timer with a five-second fade. The persistent player centers three circular controls: **Mix options** on the left, play/pause in the middle, and a speaker button on the right. The speaker opens a vertical volume slider with a large percentage and mute/unmute; Mix options opens saving and timer controls.

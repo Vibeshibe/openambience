@@ -1,4 +1,5 @@
 import { RECORDINGS } from './catalog.js';
+import { normalizeBinauralBeat } from './binaural.js';
 export const SOUNDS = [...RECORDINGS,
   { id: 'rain', name: 'Rain texture', icon: '☂', description: 'A gentle wash against the window.' },
   { id: 'ocean', name: 'Ocean texture', icon: '≈', description: 'Slow swells, a little further away.' },
@@ -6,6 +7,7 @@ export const SOUNDS = [...RECORDINGS,
   { id: 'white', name: 'White noise', icon: '⋮', description: 'A bright, even blanket of sound.' },
   { id: 'pink', name: 'Pink noise', icon: '∿', description: 'A softer texture for settling in.' },
   { id: 'brown', name: 'Brown noise', icon: '⌁', description: 'Low and warm, with room to think.' },
+  { id: 'binaural', name: 'Binaural beats', kind: 'binaural', icon: '∿', description: 'Separate tones for each ear. Use stereo headphones.' },
 ];
 export const PRESETS = [
   { name: 'Deep focus', note: 'Less distraction, more flow', levels: { brown: 65, 'rain-leaves': 35 } },
@@ -17,6 +19,7 @@ export function normalizeMix(raw = {}, catalog = SOUNDS) {
   if (!raw || typeof raw !== 'object') raw = {};
   return {
     master: percent(raw.master, 40),
+    binauralBeat: normalizeBinauralBeat(raw.binauralBeat),
     levels: Object.fromEntries(catalog.map(({ id }) => [id, percent(raw.levels?.[id], 50)])),
     enabled: catalog.filter(({ id }) => Array.isArray(raw.enabled) && raw.enabled.includes(id)).map(({ id }) => id).slice(0, 6),
   };

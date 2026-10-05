@@ -2,6 +2,16 @@
 
 App releases use [Semantic Versioning](docs/versioning.md). Research checkpoints on `dev` may precede the next release.
 
+## 0.5.0-alpha.1 — 2026-10-05
+
+Development preview on `dev` for listening feedback.
+
+- Added Rain on tent, Evening birds, and Train carriage recordings with source licences, checksums, and preparation details. Longer 60-second bird/train loops reduce the repeat frequency.
+- Renamed Birdsong to Morning birds while retaining its original sound ID, audio file, and saved-mix compatibility.
+- Added original binaural generation with separate left/right tones, a headphones hint, and a saved beat-difference selector from 2 to 30 Hz.
+- Include all 22 sounds and the new tone module offline; retain layer volume, master/mute, timer, and media controls.
+- Added real stereo-render, frequency-change, oscillator-cleanup, saved-mix, offline, and Firefox checks. Human listening and physical-device validation of the new sounds remain pending.
+
 ## 0.4.0-alpha.7 — 2026-10-05
 
 Promoted to `main` with the quiet update notice and optional deferral.

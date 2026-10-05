@@ -9,6 +9,10 @@ test('all bundled sounds have one browsable category without changing stable IDs
   assert.equal(categoryOf(SOUNDS.find(sound => sound.id === 'rain-leaves')), 'Weather');
   assert.equal(categoryOf(SOUNDS.find(sound => sound.id === 'rain')), 'Noise & textures');
   assert.equal(categoryOf(SOUNDS.find(sound => sound.id === 'purr')), 'Wildlife');
+  assert.equal(categoryOf(SOUNDS.find(sound => sound.id === 'rain-tent')), 'Weather');
+  assert.equal(categoryOf(SOUNDS.find(sound => sound.id === 'birds-evening')), 'Wildlife');
+  assert.equal(categoryOf(SOUNDS.find(sound => sound.id === 'train-carriage')), 'Indoors');
+  assert.equal(categoryOf(SOUNDS.find(sound => sound.id === 'binaural')), 'Noise & textures');
 });
 test('imports stay discoverable in My sounds after assigning another category', () => {
   const sound = { id: 'custom-1', kind: 'custom', category: 'Water' };
@@ -35,7 +39,7 @@ test('multiple categories form a union, with no selections showing all sounds', 
   const { matchesCategories, normalizeCategories } = await import('../js/categories.js');
   const selected = normalizeCategories(['Weather', 'Water', 'Weather', 'unknown', 'All sounds']);
   assert.deepEqual(selected, ['Weather', 'Water']);
-  assert.equal(SOUNDS.filter(sound => matchesCategories(sound, selected)).length, 6);
+  assert.equal(SOUNDS.filter(sound => matchesCategories(sound, selected)).length, 7);
   assert.equal(SOUNDS.filter(sound => matchesCategories(sound, [])).length, SOUNDS.length);
   const imported = { id: 'custom-water', kind: 'custom', category: 'Water' };
   assert.equal([imported].filter(sound => matchesCategories(sound, ['Water', 'My sounds'])).length, 1);

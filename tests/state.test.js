@@ -27,3 +27,15 @@ test('saved mixes normalize data and do not alias the active mix', () => {
   assert.equal(result.saved[0].name, 'Evening');
   assert.equal(result.saved[0].mix.levels.rain, 30);
 });
+test('binaural settings survive saved mixes and older or invalid settings get a default', () => {
+  const mix = normalizeMix({ enabled: ['birds', 'binaural'], binauralBeat: 10, levels: { birds: 37 } });
+  const storage = { getItem: () => JSON.stringify({ mix, saved: [{ name: 'Headphones', mix }] }) };
+  const restored = readStore(storage);
+  assert.equal(restored.mix.binauralBeat, 10);
+  assert.equal(restored.saved[0].mix.binauralBeat, 10);
+  assert.equal(restored.mix.levels.birds, 37);
+  assert.deepEqual(restored.mix.enabled, ['birds', 'binaural']);
+  for (const value of [undefined, null, '10', -1, 100, NaN, Infinity]) {
+    assert.equal(normalizeMix({ binauralBeat: value }).binauralBeat, 6);
+  }
+});

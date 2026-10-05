@@ -29,7 +29,7 @@ async function importFile(page, file) {
  page.on('dialog', dialog=>dialog.type()==='prompt'?dialog.accept('Renamed mix'):dialog.accept());
  await page.goto(process.env.PREVIEW_URL || 'http://127.0.0.1:8080/');
  await page.waitForSelector('.sound-card:visible');
- assert.equal(await page.locator('.sound-card').count(),18);
+ assert.equal(await page.locator('.sound-card').count(),22);
  assert.equal(await page.evaluate(()=>window.__contexts.length),0);
  assert.equal(await page.locator('#player-notice').getAttribute('class'),'sr-only');
  assert.equal(await page.locator('.player-dock .player-summary').count(),0);
@@ -130,21 +130,21 @@ async function importFile(page, file) {
    {name:'notes.txt',mimeType:'text/plain',buffer:Buffer.from('not an audio recording')},
    {name:'fire',mimeType:'application/octet-stream',buffer:require('node:fs').readFileSync(require('node:path').resolve(__dirname, '../audio/fire.mp3'))}
  ]);
- await page.waitForFunction(()=>document.querySelectorAll('.sound-card').length===19);
+ await page.waitForFunction(()=>document.querySelectorAll('.sound-card').length===23);
  assert.match(await page.locator('#status').textContent(),/1 recording added.*notes.txt: not readable audio/);
  await importFile(page, require('node:path').resolve(__dirname, '../audio/fire.mp3'));
  await page.waitForFunction(()=>document.querySelector('#status').textContent.includes('already in your library'));
- assert.equal(await page.locator('.sound-card').count(),19);
+ assert.equal(await page.locator('.sound-card').count(),23);
  await importFile(page, {name:'invalid.wav',mimeType:'audio/wav',buffer:Buffer.from('not audio')});
  await page.waitForFunction(()=>!document.querySelector('#add-sounds').disabled);
- assert.equal(await page.locator('.sound-card').count(),19);
+ assert.equal(await page.locator('.sound-card').count(),23);
  assert.match(await page.locator('#status').textContent(),/0 recordings added.*invalid.wav: not readable audio/);
  for (const file of [
    {name:'photo.png',mimeType:'image/png',buffer:require('node:fs').readFileSync(require('node:path').resolve(__dirname, '../icons/icon-192.png'))},
    {name:'document.mp3',mimeType:'audio/mpeg',buffer:Buffer.from('%PDF-1.4\nThis is not audio.')}
  ]) {
    await importFile(page,file);
-   assert.equal(await page.locator('.sound-card').count(),19);
+   assert.equal(await page.locator('.sound-card').count(),23);
    assert.match(await page.locator('#status').textContent(),/0 recordings added.*not readable audio/);
  }
  await chooseCategory(page, 'My sounds');
@@ -153,7 +153,7 @@ async function importFile(page, file) {
  await page.locator('#open-mixer').click(); await page.locator('#mix-name').fill('With import'); await page.locator('#save-form button').click(); await page.locator('#mixer-dialog .close').click();
  await page.waitForFunction(()=>document.querySelector('#offline').textContent.includes('ready offline'));
  await page.reload(); await page.waitForSelector('.sound-card:visible');
- assert.equal(await page.locator('.sound-card').count(),19);
+ assert.equal(await page.locator('.sound-card').count(),23);
  assert.match(await page.locator('#play').textContent(),/Play mix/);
  assert.equal(await page.evaluate(()=>window.__contexts.length),0);
  await context.setOffline(true); await page.reload(); await page.waitForSelector('.sound-card:visible');
@@ -170,7 +170,7 @@ async function importFile(page, file) {
    }
    await ctx.close();return results;
  });
- assert.equal(decoded.length,12); for(const sound of decoded){assert.ok(sound.duration>5);assert.ok(sound.rms>.001);}
+ assert.equal(decoded.length,15); for(const sound of decoded){assert.ok(sound.duration>5);assert.ok(sound.rms>.001);}
  await chooseCategory(page, 'All sounds');
  await page.locator('#search').fill('ocean');assert.equal(await page.locator('.sound-card:visible').count(),2);
  await page.locator('#search').fill('unknown-sound');assert.equal(await page.locator('#empty').isVisible(),true);
@@ -186,7 +186,7 @@ async function importFile(page, file) {
  await page.clock.install();await page.locator('#play').click();await page.waitForFunction(()=>document.querySelector('#play').textContent.includes('Pause'));
  await page.clock.fastForward(901000);await page.waitForFunction(()=>document.querySelector('#status').textContent.includes('Sleep timer finished'));
  await chooseCategory(page, 'My sounds');await page.locator('.remove-sound').click();
- await page.waitForFunction(()=>document.querySelectorAll('.sound-card').length===18);
+ await page.waitForFunction(()=>document.querySelectorAll('.sound-card').length===22);
  await page.locator('#mixes-tab').click();await page.getByRole('button',{name:'With import',exact:true}).click();
  assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('openambience.v2')).mix.enabled.some(id=>id.startsWith('custom-'))),false);
  await page.getByRole('button',{name:'Delete Renamed mix',exact:true}).click();
@@ -194,6 +194,6 @@ async function importFile(page, file) {
  await page.locator('#library-tab').click(); await chooseCategory(page, 'All sounds');
  await page.setViewportSize({width:1440,height:1000});await page.screenshot({path:require('node:path').join(require('node:os').tmpdir(), 'openambience-desktop.png'),fullPage:true});
  assert.deepEqual(errors,[]);
- console.log(JSON.stringify({browser:await browser.version(),checks:['player touch targets at four widths','vertical volume touch/keyboard controls, visible percentage, Escape/Tab/outside dismissal, short landscape layout','mute and restore actual master gain','18 sounds','no autoplay','recording playback','per-layer and master levels','save/load/duplicate/rename/delete','multi-format validation','custom import and duplicate detection','persistence','offline reload/playback including imports','all 12 assets decoded offline and non-silent','search','320/390/768/1440px overflow','timer expiry','custom deletion updates saved mixes','no uncaught errors'],decoded},null,2));
+ console.log(JSON.stringify({browser:await browser.version(),checks:['player touch targets at four widths','vertical volume touch/keyboard controls, visible percentage, Escape/Tab/outside dismissal, short landscape layout','mute and restore actual master gain','22 sounds','no autoplay','recording playback','per-layer and master levels','save/load/duplicate/rename/delete','multi-format validation','custom import and duplicate detection','persistence','offline reload/playback including imports','all 15 assets decoded offline and non-silent','search','320/390/768/1440px overflow','timer expiry','custom deletion updates saved mixes','no uncaught errors'],decoded},null,2));
  await browser.close();
 })().catch(error=>{console.error(error);process.exit(1);});

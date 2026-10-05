@@ -9,7 +9,7 @@ Run `npm run check` and `npm test` on Node.js 22+. Tests cover input normalizati
 1. Serve with `npm start`. Load the app and confirm no audio starts automatically.
 2. Choose rain and brown noise. Play, vary each volume and master volume, then pause and resume. Listen for abrupt transitions.
 3. Save a named mix, change settings, and load it again. Reload and confirm the mix survives but playback remains paused. Delete the saved mix.
-4. Search for a sound and for a nonexistent term. Clear the search and confirm all eighteen return.
+4. Search for a sound and for a nonexistent term. Clear the search and confirm all twenty-two return.
 5. Set the sleep timer and confirm the displayed countdown, last-five-second fade, and stopped playback. Pause/resume should start a fresh selected duration. Change master volume mid-timer and confirm the fade still happens.
 6. Wait for service-worker installation, reload, go offline, and reload again. Play several layers while offline.
 7. Repeat at narrow mobile widths and 200% zoom; confirm controls remain visible and usable. Traverse controls with Tab and activate buttons with Enter/Space.
@@ -215,3 +215,16 @@ Run with the same external Playwright setup as the other optional browser checks
 ```sh
 PLAYWRIGHT_MODULE=/path/to/playwright CHROMIUM_EXECUTABLE=/path/to/chrome node scripts/update-browser-check.cjs
 ```
+
+
+## 0.5.0-alpha.1 sound expansion — 2026-10-05
+
+- Syntax checks and all six Node test files passed, including source/output checksum validation, category placement, the stable morning-bird ID, and saved/default/invalid binaural settings.
+- Chromium 153 library checks passed with 22 sounds and all 15 recordings decoded offline and non-silent. New decoded durations are 30s (tent rain), 60s (evening birds), and 60s (train carriage). The category/radio browser suite also passed.
+- `scripts/binaural-browser-check.cjs` renders all eight beat differences (2, 4, 6, 8, 10, 14, 20, 30 Hz) through the actual layer/master/compressor path using OfflineAudioContext. Spectral projections confirmed 200 Hz on the left, 200 Hz plus the selected difference on the right, balanced levels, finite samples, and cross-channel leakage below 0.00001 amplitude.
+- Live Chromium checks passed frequency changes without extra oscillators, pause/resume, stopped oscillators on deselection, named-mix save/load, selection persistence, reload without autoplay, offline binaural playback, and sleep-timer expiry. Reviewed the mobile card screenshot.
+- Firefox 140.16 ESR rendered the 200/206 Hz stereo pair with separate channels and passed existing volume and Linux MPRIS checks.
+- FFmpeg measurements of the encoded recordings: tent rain -32.30 LUFS / -5.37 dBTP; evening birds -25.42 LUFS / -12.58 dBTP; train carriage -25.45 LUFS / -9.24 dBTP. Tent rain preserves transient headroom at a lower integrated level. Decoded loop boundaries were inspected numerically; this does not establish perceived seamlessness.
+- Human audition for voices, handling noise, intrusive repetition, and relative loudness remains pending, as does physical Android/iOS validation of the new binaural layer. No listening or therapeutic-effect result is claimed.
+
+Use the existing external Playwright setup to run `node scripts/binaural-browser-check.cjs`. The Firefox check also covers stereo generation via `GECKODRIVER=/path/to/geckodriver node scripts/firefox-media-browser-check.cjs`.

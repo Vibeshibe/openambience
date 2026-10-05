@@ -1,10 +1,10 @@
 export const CATEGORIES = ['All sounds', 'Weather', 'Water', 'Wildlife', 'Indoors', 'Noise & textures', 'My sounds', 'Radio', 'In your mix'];
 export const CUSTOM_CATEGORIES = ['My sounds', 'Weather', 'Water', 'Wildlife', 'Indoors', 'Noise & textures'];
 const groups = {
-  Weather: ['rain-leaves', 'rain-glass', 'thunder', 'forest-wind'],
+  Weather: ['rain-leaves', 'rain-glass', 'rain-tent', 'thunder', 'forest-wind'],
   Water: ['ocean-waves', 'stream'],
-  Wildlife: ['birds', 'crickets', 'purr'],
-  Indoors: ['fire', 'cafe', 'fan'],
+  Wildlife: ['birds', 'birds-evening', 'crickets', 'purr'],
+  Indoors: ['fire', 'cafe', 'fan', 'train-carriage'],
 };
 export function categoryOf(sound) {
   if (sound.kind === 'radio') return 'Radio';

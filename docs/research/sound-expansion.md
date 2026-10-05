@@ -1,6 +1,6 @@
 # Sound expansion feasibility
 
-Checked 2026-10-05. This is a source and implementation shortlist, not an audition report or a shipped sound pack. No new audio has been downloaded or added to the application.
+Initial feasibility review: 2026-10-05. The shortlist below records the research stage. Implementation is now available on `dev` in 0.5.0-alpha.1: three new recording loops, the Morning birds rename, and adjustable binaural generation. Direct acquisition and licence checks succeeded for all three sources; see [asset preparation](../assets.md#050-alpha1-additions) and [validation](../testing.md). Human listening remains pending.
 
 ## Recording candidates
 
