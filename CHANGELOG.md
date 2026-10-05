@@ -2,6 +2,10 @@
 
 App releases use [Semantic Versioning](docs/versioning.md). Research checkpoints on `dev` may precede the next release.
 
+## Unreleased
+
+- Updated GitHub Actions to Node 24 compatible action releases, pinned the runner to Ubuntu 24.04, and added checks on both Node 22 and Node 24.
+
 ## 0.4.0-alpha.1 — 2026-10-05
 
 - Added optional Media Session play, pause, and stop controls with selected-sound names and app artwork.
