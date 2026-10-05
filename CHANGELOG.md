@@ -4,6 +4,7 @@ App releases use [Semantic Versioning](docs/versioning.md). Research checkpoints
 
 ## Unreleased
 
+- Plan one-file ZIP mix export/import with bundled custom recordings and restoration of settings and audio together; implementation remains future work.
 - Add Docker and Compose deployment with an unprivileged Nginx image, container smoke checks, and automatic amd64/arm64 image publishing to GitHub Container Registry.
 - Publish the site owner's Google Search Console HTML verification file.
 

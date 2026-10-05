@@ -95,7 +95,7 @@ Available in **0.5.1**:
 
 Recordings are edited, loudness-adjusted excerpts of creator-published MP3 previews under CC0 or CC BY 4.0, acquired directly from Freesound. They are not lossless originals. Attribution, source URLs, modifications, and checksums are in [audio/credits.json](audio/credits.json). Audio assets have separate licences from the MIT application code.
 
-Nothing is uploaded when you import a recording. Clearing browser site data removes custom sounds and saved mixes. Browsers can also evict local storage. Back up original recordings separately; mix export/import remains planned. Pausing cancels the current timer; resuming starts its selected duration again. Playback never starts automatically after reload.
+Nothing is uploaded when you import a recording. Clearing browser site data removes custom sounds and saved mixes. Browsers can also evict local storage. Back up original recordings separately; one-file ZIP export/import of mix settings and custom recordings remains planned. Pausing cancels the current timer; resuming starts its selected duration again. Playback never starts automatically after reload.
 
 ### Media controls
 
@@ -167,7 +167,7 @@ Increment the cache version in `sw.js` whenever shipping changed app files. A ne
 - Browser support for custom audio codecs varies. Custom recordings loop as supplied; trim or crossfade them in an audio editor for a smoother seam.
 - The engine limits decoded audio to 96 MiB and pauses with a message if a mix is too large. Six long imports may exceed this limit.
 - Bundled loops are short (roughly 30 seconds). Thunder includes a 30-second quiet interval between events.
-- Browser storage is local and may be cleared or evicted. Recipe export and cross-device sync are not included. Radio supports direct CORS-enabled HTTPS audio streams; playlists and station webpages are not supported.
+- Browser storage is local and may be cleared or evicted. ZIP mix export/import and cross-device sync are not included. Radio supports direct CORS-enabled HTTPS audio streams; playlists and station webpages are not supported.
 - The sleep timer uses the audio clock for fading and the wall clock for stopping; device suspension can delay UI updates.
 
 ## AI usage disclosure

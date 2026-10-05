@@ -1,8 +1,10 @@
 # Proposed scope: saved mixes and custom sounds
 
-> Implementation status (0.2.0-alpha.1): local imports, duplicate detection, removal, and saved-mix create/load/update/rename/duplicate/delete are available. Recipes remain in versioned localStorage; imported audio uses IndexedDB. Recipe export/import, missing-asset relinking, drag-and-drop, and storage-management UI below remain proposals.
+> Implementation status (0.5.1): local imports, duplicate detection, removal, and saved-mix create/load/update/rename/duplicate/delete are available. Recipes remain in versioned localStorage; imported audio uses IndexedDB. ZIP mix export/import, missing-asset relinking, drag-and-drop, and storage-management UI below remain proposals.
 
 Date: 2026-09-30. **Design proposal only; none of the new behavior below is implemented by this research change.** The immediate product focus is reusable personal mixes, an openly licensed sound catalog, and simple local-file imports. Inventory and source selection are in [research](research/ambiphone-sound-inventory.md).
+
+Export plan updated 2026-10-05: the first export/import feature should use one ZIP containing mix JSON and its custom recordings, restoring both in one operation.
 
 ## Current baseline and intended next step
 
@@ -15,13 +17,15 @@ The 0.1.0 starter supports six generated sound layers and up to 20 named mixes i
 | Add one or several local audio files using a file picker | Microphone recording, URL imports, and remote streaming |
 | Persist custom sounds and mix references offline | Automatic publishing of user imports |
 | Simple looping; optional event interval for intermittent effects | Radio playlists and exact Ambiphone mix-URL compatibility |
-| Export/import a mix recipe; clear missing-sound handling | Portable audio bundles until the local import path is reliable |
+| Export/import one ZIP with mix JSON and its custom recordings | Rendering a finished mix to WAV/MP3 |
 
 ## User flow
 
 **Build a mix:** pick sounds, adjust their levels, and press Save mix. Show a name field and a clear saved/unsaved state. Loading a mix restores its layers and settings without unexpectedly starting audio. For the first version, pause before switching mixes; decide separately whether seamless switching is worth adding.
 
 **Edit a mix:** distinguish Save changes from Save as new. Renaming changes the display label, not the mix ID. Duplicating creates a new mix ID with the same settings. Deleting a mix does not delete its sounds. Remove the starter's arbitrary 20-mix limit when moving to the new store, using actual storage constraints instead.
+
+**Export and import a mix:** Export downloads one ZIP containing the mix settings and all custom recordings it uses. Import accepts that same ZIP and restores the mix and recordings together, without manual extraction or separate audio-file selection. Show the restored mix ready to play, without starting playback automatically.
 
 **Add a sound:** Add sound opens the standard device file picker; support selecting multiple files and desktop drag-and-drop. Derive the default name from the filename. After validating and storing a file, show it in My sounds and make it available to any mix. Custom imports stay on the device. Optional creator/source/license fields should not block a private import.
 
@@ -89,9 +93,13 @@ Decode only needed layers, release unused buffers, and impose a documented durat
 
 ## Export, portability, and recovery
 
-**Recipe export (first phase):** small JSON file with layer settings and asset identities. This does not carry audio. On another device, match built-in IDs and custom content hashes; list unresolved custom sounds and allow the user to select their files. Never claim a recipe is fully portable just because its JSON imported successfully.
+**Single ZIP (first phase):** the normal export is a ZIP containing versioned mix JSON and every custom audio file referenced by that mix. Preserve the mix name, enabled layers, layer levels, master volume, timer and binaural settings, and custom sound names and categories. Include content hashes and available attribution metadata. JSON is part of the archive; users do not need to manage it separately. Unrelated recordings elsewhere in the user's library are not included.
 
-**Portable bundle (later):** an archive with recipe JSON, selected audio, content hashes, and an attribution manifest. Make inclusion of audio explicit. A private import does not prove permission to redistribute it. Built-in CC BY assets must retain credits; unverified custom rights should be clearly distinguished. Do not upload bundles automatically.
+**Restore together:** selecting the ZIP validates its contents, then restores the mix and custom recordings as one operation. Reuse identical audio by content hash and remap imported sound IDs to local IDs; preserve existing mixes and recording metadata. Repeated imports must not create duplicate audio blobs. A fresh browser with OpenAmbience available should not ask the user to locate the original custom files.
+
+**Built-in and online sources:** reference bundled sounds by stable ID and preserve generated-sound parameters, without copying the built-in library into every ZIP. Include radio station names and URLs, not recordings of their streams; radio still needs internet. Report unsupported built-in IDs or invalid station URLs explicitly instead of silently dropping layers. Exports remain local file downloads.
+
+**Incomplete or invalid archives:** validate the format version, archive paths, file count, total expanded size, audio limits, and content hashes before saving. A missing recording or a quota failure must not produce a partially restored mix or overwrite existing data. Explain the problem and leave the existing library intact. A successfully exported ZIP must contain all of its referenced custom audio; missing-sound recovery is an exceptional repair path.
 
 **Migration:** read the existing `openambience.v1` key, convert the six known procedural IDs through an explicit mapping, copy current and saved mixes to IndexedDB, verify the transaction, and retain the legacy value until migration is confirmed. Detect repeat migrations. Keep a recoverable record of unknown/missing IDs instead of discarding whole mixes.
 
@@ -103,7 +111,10 @@ Decode only needed layers, release unused buffers, and impose a documented durat
 4. Import a batch containing valid, corrupt, and unsupported files; report individual outcomes accurately.
 5. Simulate quota failure; no half-created sound or falsely successful save remains.
 6. Delete an in-use custom sound; show impacted mixes and preserve recoverable missing references.
-7. Export a recipe and import it on another device; explicitly request missing custom audio and match it by hash.
+7. Export a mix with built-in sounds and custom recordings as one ZIP, then import it in a fresh browser; restore its settings and custom audio without extracting files or locating originals. Confirm playback offline once the app and bundled library are cached.
 8. Update the service worker/app version; custom sounds and mixes survive.
 9. Migrate 0.1.0 data twice; preserve settings and avoid duplicates or autoplay.
 10. Test installed Android and iOS apps in airplane mode, after restart, after interruptions, and with a locked screen; record actual behavior.
+11. Import the same ZIP twice and import one whose sound IDs conflict with local IDs; reuse matching audio by hash without overwriting existing mixes or sound metadata.
+12. Reject corrupt, incomplete, oversized, unsafe-path, or unsupported-version ZIPs; simulate storage failure and verify that no partial import or loss of existing data remains.
+13. Round-trip binaural settings and radio station metadata; make the radio's internet requirement clear and do not autoplay after import.

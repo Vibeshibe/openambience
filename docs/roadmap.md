@@ -35,7 +35,7 @@
 
 The [saved mixes and custom sound proposal](saved-mixes-and-custom-sounds.md) describes the broader scope. The following remain future work:
 
-- [ ] Recipe export/import and missing-sound recovery.
+- [ ] One-file ZIP export/import containing mix JSON and all referenced custom recordings; restore settings and sounds together, with duplicate detection and clear errors for incomplete archives.
 - [ ] Drag-and-drop imports and storage-management controls.
 - [ ] Verify storage pressure, offline restart, installation, and playback on physical Android/iOS devices.
 - [ ] Long listening sessions for loop repetition, clicks, and relative loudness.
