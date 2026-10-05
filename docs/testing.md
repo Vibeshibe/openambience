@@ -194,3 +194,10 @@ Exact browser/OS versions, test duration, and a per-action/per-device checklist 
 - Chromium verified square 52px controls in Options / Play / Volume order, with Play centered at 320, 390, 768, and 1440px viewport widths. Reviewed mobile and desktop screenshots.
 - The percentage remains inside the popout; the speaker icon opens it and indicates mute state. Existing touch, keyboard, short-landscape, playback, actual master-gain mute/restore, and offline checks passed.
 - Tab moves from the slider to Mute, then leaves and closes the popout. Chromium and Firefox passed this flow, Escape restoration, and outside dismissal. Firefox system-media controls also passed.
+
+
+## 0.4.0-alpha.6 player cleanup — 2026-10-05
+
+- Chromium confirmed Options and Volume remain at least 44px, are smaller than Play, and share its vertical center at 320, 390, 768, and 1440px widths. Play remains horizontally centered.
+- Verified that the resting/playing dock has no visible routine message or summary, and selection-limit feedback can be dismissed. Reviewed the updated mobile popout and player screenshots.
+- Library/offline and Media Session browser checks passed, including volume/mute, keyboard dismissal, playback interruption, timer expiry/restart, and countdown updates after moving the summary into Mix options. Syntax checks passed.

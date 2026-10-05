@@ -31,6 +31,8 @@ async function importFile(page, file) {
  await page.waitForSelector('.sound-card:visible');
  assert.equal(await page.locator('.sound-card').count(),18);
  assert.equal(await page.evaluate(()=>window.__contexts.length),0);
+ assert.equal(await page.locator('#player-notice').getAttribute('class'),'sr-only');
+ assert.equal(await page.locator('.player-dock .player-summary').count(),0);
  for (const width of [320,390,768,1440]) {
    await page.setViewportSize({width,height:844});
    for (const selector of ['#play','#volume-toggle','#open-mixer']) {
@@ -41,6 +43,10 @@ async function importFile(page, file) {
    const play=await page.locator('#play').boundingBox(), options=await page.locator('#open-mixer').boundingBox(), volume=await page.locator('#volume-toggle').boundingBox();
    assert.ok(Math.abs(play.x+play.width/2-width/2)<1, `Play centered at ${width}`);
    assert.ok(options.x<play.x&&volume.x>play.x);
+   for (const side of [options,volume]) {
+     assert.ok(side.height<play.height);
+     assert.ok(Math.abs(side.y+side.height/2-play.y-play.height/2)<1, 'Side controls vertically centered');
+   }
    await page.locator('#volume-toggle').click();
    const slider=await page.locator('#master').boundingBox();assert.ok(slider.width>=44&&slider.height>=100);
    const panel=await page.locator('#volume-popout').boundingBox();
@@ -83,11 +89,15 @@ async function importFile(page, file) {
  await toggle('rain-leaves').click(); await toggle('brown').click();
  for(const id of ['rain-glass','thunder','forest-wind','stream']) await toggle(id).click();
  await toggle('fire').click();assert.match(await page.locator('#status').textContent(),/Six sounds/);
+ assert.equal(await page.locator('#dismiss-status').isVisible(),true);
+ await page.locator('#dismiss-status').click();
+ assert.equal(await page.locator('#player-notice').getAttribute('class'),'sr-only');
  assert.equal(await page.locator('.sound-card.active').count(),6);
  for(const id of ['rain-glass','thunder','forest-wind','stream']) await toggle(id).click();
  await page.locator('#play').click();
  await page.waitForFunction(()=>document.querySelector('#play').textContent.includes('Pause'));
  assert.equal(await page.evaluate(()=>window.__contexts[0].state),'running');
+ assert.equal(await page.locator('#player-notice').getAttribute('class'),'sr-only');
  await page.locator('#volume-rain-leaves').fill('27');
  await page.locator('#volume-toggle').click();
  await page.locator('#master').fill('35');

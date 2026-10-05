@@ -2,6 +2,14 @@
 
 App releases use [Semantic Versioning](docs/versioning.md). Research checkpoints on `dev` may precede the next release.
 
+## 0.4.0-alpha.6 — 2026-10-05
+
+Development preview on `dev`, simplifying the playback bar.
+
+- Reduced Options and Volume to 44px circles, vertically centered beside the 52px Play button.
+- Moved the selection count and countdown into Mix options, removing loose text from the resting player.
+- Keep routine playback feedback available to screen readers and other action messages in a dismissible notice above the controls.
+
 ## 0.4.0-alpha.5 — 2026-10-05
 
 Development preview on `dev`, refining the player layout.

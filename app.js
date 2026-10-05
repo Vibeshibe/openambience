@@ -9,7 +9,16 @@ const $ = selector => document.querySelector(selector);
 let storage, db;
 try { storage = window.localStorage; } catch {}
 let catalog = [...SOUNDS];
-const status = message => { $('#status').textContent = message; $('#dialog-status').textContent = message; };
+const status = (message, quiet = false) => {
+  $('#status').textContent = message; $('#dialog-status').textContent = message;
+  $('#player-notice').classList.toggle('sr-only', quiet);
+  $('#dismiss-status').hidden = quiet;
+};
+$('#dismiss-status').onclick = () => {
+  $('#player-notice').classList.add('sr-only');
+  $('#dismiss-status').hidden = true;
+  $('#play').focus({ preventScroll: true });
+};
 try { db = await openLibrary(); catalog.push(...await listSounds(db)); }
 catch { status('Local sound storage is unavailable. The built-in library still works.'); $('#add-sounds').disabled = true; $('#add-radio').disabled = true; }
 let { mix, saved } = readStore(storage, catalog);
@@ -238,13 +247,13 @@ async function play() {
     await updateAudio();
     if (!playing || revision !== playbackRevision) return;
     const minutes = Number($('#timer').value); deadline = minutes ? Date.now() + minutes * 60000 : 0;
-    scheduleTimer(); status('Settle in. Your mix is playing.');
+    scheduleTimer(); status('Settle in. Your mix is playing.', true);
   } catch (error) { if (revision === playbackRevision) { await pause(); status(`Could not play this mix. ${error.message}`); } }
   finally { busy = false; sync(); }
 }
 $('#play').onclick = async () => {
   if (busy) return;
-  if (playing) { await pause(); status('Paused. Your mix is ready whenever you are.'); }
+  if (playing) { await pause(); status('Paused. Your mix is ready whenever you are.', true); }
   else await play();
 };
 function setMasterVolume(value) { mix.master = value; sync(); void updateAudio(); }
@@ -258,7 +267,10 @@ function fitVolumePopout() {
 function setVolumeOpen(open, restoreFocus = false) {
   $('#volume-popout').hidden = !open;
   $('#volume-toggle').setAttribute('aria-expanded', String(open));
-  if (open) { fitVolumePopout(); $('#master').focus({ preventScroll: true }); }
+  if (open) {
+    $('#player-notice').classList.add('sr-only'); $('#dismiss-status').hidden = true;
+    fitVolumePopout(); $('#master').focus({ preventScroll: true });
+  }
   else if (restoreFocus) $('#volume-toggle').focus({ preventScroll: true });
 }
 $('#volume-toggle').onclick = () => setVolumeOpen($('#volume-popout').hidden);
@@ -434,7 +446,7 @@ if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('./sw.js').then(registration => {
     const check = async () => {
       let ready = false;
-      try { ready = Boolean(await caches.match(new URL('./audio/credits.json', location.href), { cacheName: 'openambience-shell-0.4.0-alpha.5' })); } catch {}
+      try { ready = Boolean(await caches.match(new URL('./audio/credits.json', location.href), { cacheName: 'openambience-shell-0.4.0-alpha.6' })); } catch {}
       $('#offline').textContent = ready && registration.active ? '● Library ready offline' : 'Preparing offline library…';
       $('#update').hidden = !registration.waiting;
     };

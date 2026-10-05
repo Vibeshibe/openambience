@@ -13,15 +13,19 @@ The three-dot icon communicates additional actions associated with the current m
 
 ## Icon behavior and accessibility
 
-The options button uses an original 24px SVG inside a 52×52px circular target, consistent with the player's simple icons. It keeps a visible keyboard focus indicator, the accessible name “Mix options,” a tooltip naming its actions, and an explicit relationship to the dialog. The dialog heading uses the same name. Native dialog behavior provides Escape dismissal and returns focus to the opener.
+The options button uses an original 24px SVG inside a 44×44px circular target, consistent with the player's simple icons. It keeps a visible keyboard focus indicator, the accessible name “Mix options,” a tooltip naming its actions, and an explicit relationship to the dialog. The dialog heading uses the same name. Native dialog behavior provides Escape dismissal and returns focus to the opener.
 
 This remains a dialog containing form controls, so it is announced as a dialog rather than an ARIA menu. Icon-only styling does not remove the control's accessible name. See the [WAI button pattern](https://www.w3.org/WAI/ARIA/apg/patterns/button/) and [accessible naming guidance](https://www.w3.org/WAI/ARIA/apg/practices/names-and-descriptions/). The navigation distinction is consistent with the [Material drawer pattern](https://api.flutter.dev/flutter/material/Drawer-class.html); choosing the contextual icon here is a project design decision.
 
 Use icon-only controls where their action is familiar and space is limited. Keep descriptive text for sound names, category navigation, saving, and destructive actions. Future application-wide settings should have a separate destination instead of accumulating unrelated controls in Mix options.
 
+## Player text and feedback
+
+The resting player shows only its three controls. Sound selection count and sleep countdown live in Mix options alongside the timer. Routine play/pause messages remain available to screen readers. Other action feedback appears in a bordered, dismissible notice above the player and is also copied into Mix options. Opening the volume popout clears the visible notice so it cannot cover the slider.
+
 ## Volume popout (development trial)
 
-The player contains three equally sized circular buttons in the order Options, Play, Volume. The group is centered, placing Play at the horizontal center of the screen. The speaker icon opens a compact panel above it, with a 30px percentage above a vertical slider. Keeping the value away from the thumb makes it easier to read during touch adjustment. Mute/unmute sits beneath the slider and restores the last audible level without pausing playback. The speaker icon reflects the muted state.
+The player contains three circular buttons in the order Options, Play, Volume. The group is centered, placing the 52px Play button at the horizontal center of the screen. Options and Volume use smaller 44px circles, aligned to the same vertical center. The speaker icon opens a compact panel above it, with a 30px percentage above a vertical slider. Keeping the value away from the thumb makes it easier to read during touch adjustment. Mute/unmute sits beneath the slider and restores the last audible level without pausing playback. The speaker icon reflects the muted state.
 
 The native range runs from zero at the bottom to 100 at the top. It has a 48px-wide interaction area; its height shrinks for short landscape screens. Opening focuses the slider. Arrow Up/Down adjust by one, Home/End select the limits, Escape closes and returns focus, and tapping elsewhere or moving focus out closes the panel. The speaker button exposes its expanded state and current percentage in its accessible name. This is a nonmodal group: Tab reaches Mute, then continues out of the panel.
 
