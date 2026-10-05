@@ -60,7 +60,7 @@ An alternative is `python3 -m http.server 8080 --bind 127.0.0.1` from this direc
 
 ## Features
 
-Available in **0.4.0-alpha.1**:
+Available in **0.4.0-alpha.2**:
 
 - Twelve recorded sounds: rain, rain on glass, thunder, forest wind, waves, stream, fireplace, birds, crickets, café, fan, and cat purring.
 - Six generated textures, including white, pink, and brown noise. Earlier saved mixes keep their original procedural sounds.
@@ -105,6 +105,7 @@ styles.css                 Responsive interface
 app.js                     UI, persistence, presets, timer, installation
 js/audio.js                Web Audio recordings, synthesis, and gain controls
 js/media-session.js        Optional system media controls and mix metadata
+js/media-transport.js      Silent local media element for browser audio focus
 js/catalog.js              Generated bundled recording catalog
 js/storage.js              IndexedDB storage for custom audio and station URLs
 js/categories.js           Category membership and filtering

@@ -120,11 +120,25 @@ PLAYWRIGHT_MODULE=/tmp/openambience-tools/node_modules/playwright node scripts/m
 
 The harness invokes the registered action callbacks and inspects the browser's native metadata/state. It does **not** establish OS notification visibility, hardware-key delivery, background survival, or physical lock-screen behavior. The simulated clock is installed before the app creates its timer interval.
 
-The user reported working media controls on Linux. Browser/version and individual control results were not recorded; Android/iOS validation remains pending.
+The initial informal Linux report was superseded by follow-up testing: the user reported missing controls on Linux/Firefox, Android/Chrome, and Android/Firefox. Safari playback was silenced by the iPhone silent switch. The callback-only tests above did not catch the missing persistent audio focus.
 
 On physical Android/iOS devices, start a mix with generated sounds only, then repeat with recordings, imports, and radio. Check notification artwork and names, hardware/lock-screen play/pause/stop, background timer expiry, incoming-call interruptions, and explicit resume. Confirm stop preserves the mix and that no unexpected sound returns after an interruption.
 
 Media Session is a progressive enhancement. The [specification](https://www.w3.org/TR/mediasession/) leaves media-session activation to the browser; Chrome's [implementation notes](https://developer.chrome.com/blog/media-session#implementation-notes) describe additional audio-focus limits for Web Audio. Setting metadata and handlers alone does not guarantee that a browser exposes OS controls for a Web Audio mix. Platform audio-focus/background integration remains part of device follow-up work.
+
+## 0.4.0-alpha.2 media-focus correction
+
+Syntax checks, all six Node test files, and the library/offline, radio, media-session, and Linux system-media browser suites passed with Chromium 153.0.8010.12. The radio harness now identifies stream elements by their CORS setting so it does not mistake the silent transport for a radio station.
+
+The previous Web Audio-only mixer produced `Ambient Active Playing` audio focus in Chromium 153. A MediaStream output experiment did not establish a persistent media session. A silent ten-second PCM media element feeding the existing Web Audio graph produces `Gain Active Playing { HasAudio } Controllable` instead. The element starts from the Play gesture, pauses with the mix, and releases its Blob URL on stop/reset. It generates no network requests and no audible samples.
+
+The Linux harness checks that persistent focus and sends Pause/Play/Stop through Chromium's actual MPRIS service on an isolated D-Bus session. It never sends commands to other desktop players:
+
+```sh
+PLAYWRIGHT_MODULE=/tmp/openambience-tools/node_modules/playwright node scripts/system-media-browser-check.cjs
+```
+
+Requires `dbus-daemon` and `gdbus`; set `CHROMIUM_EXECUTABLE` for an existing browser. This is stronger than invoking JavaScript callbacks, but it does not establish Firefox or physical Android/iOS compatibility. Re-test those devices on **v0.4.0-alpha.2**, including Safari with the silent switch on. Safari's optional Audio Session API is set to `playback`, following [WebKit's guidance](https://bugs.webkit.org/show_bug.cgi?id=237322#c6).
 
 ## Release checklist
 

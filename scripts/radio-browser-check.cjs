@@ -39,7 +39,7 @@ async function importFile(page, file) {
    const Native=window.AudioContext;
    window.AudioContext=class extends Native {
      constructor(...args){super(...args);window.__contexts.push(this);}
-     createMediaElementSource(media){const node=super.createMediaElementSource(media);const analyser=this.createAnalyser();node.connect(analyser);window.__radios.push(media);window.__analysers.push(analyser);return node;}
+     createMediaElementSource(media){const node=super.createMediaElementSource(media);if(media.crossOrigin==='anonymous'){const analyser=this.createAnalyser();node.connect(analyser);window.__radios.push(media);window.__analysers.push(analyser);}return node;}
    };
  });
  const page=await context.newPage();const errors=[];page.on('pageerror',error=>errors.push(error.message));page.on('dialog',dialog=>dialog.accept());

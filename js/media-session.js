@@ -16,6 +16,8 @@ export class MixMediaSession {
   sync(names, state) {
     if (!this.session) return;
     try { this.session.playbackState = state; } catch {}
+    // The transport's silent loop is not a ten-second seekable track.
+    try { this.session.setPositionState?.(state === 'none' ? undefined : { duration: Infinity, position: 0, playbackRate: 1 }); } catch {}
     const key = JSON.stringify(names);
     if (key === this.names) return;
     try {

@@ -2,8 +2,12 @@
 
 App releases use [Semantic Versioning](docs/versioning.md). Research checkpoints on `dev` may precede the next release.
 
-## Unreleased
+## 0.4.0-alpha.2 — 2026-10-05
 
+- Fixed missing system media controls by starting a silent local media element with the Web Audio mixer, establishing persistent browser audio focus even for generated-only mixes.
+- Request Safari's playback audio mode so the iPhone silent switch does not mute the mix; start both audio APIs directly from the Play gesture.
+- Pause the media element with the mixer and release its source on stop/reset. Hide its synthetic duration from media-session position metadata.
+- Added a Linux integration check that verifies persistent audio focus and sends actual MPRIS Pause/Play/Stop commands through a private D-Bus session.
 - Updated GitHub Actions to Node 24 compatible action releases, pinned the runner to Ubuntu 24.04, and added checks on both Node 22 and Node 24.
 
 ## 0.4.0-alpha.1 — 2026-10-05

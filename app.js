@@ -218,7 +218,7 @@ async function pause(stop = false) {
   ++playbackRevision; playing = false; deadline = 0;
   if (stop || !mix.enabled.length) sessionStarted = false;
   // Publish the pause immediately, including while a recording is decoding.
-  const pending = engine.pause();
+  const pending = engine.pause(stop || !mix.enabled.length);
   sync();
   try { await pending; } catch (error) { status(`Could not pause audio. ${error.message}`); }
 }
@@ -259,7 +259,7 @@ async function checkTimer() {
   if (!seconds) { await pause(); status('Sleep timer finished. Rest well.'); }
 }
 setInterval(checkTimer, 1000); document.addEventListener('visibilitychange', checkTimer);
-$('#reset').onclick = async () => { if (busy) return; await pause(); mix = normalize(); $('#timer').value = '0'; sync(); status('Mix cleared. A little space to start again.'); };
+$('#reset').onclick = async () => { if (busy) return; await pause(true); mix = normalize(); $('#timer').value = '0'; sync(); status('Mix cleared. A little space to start again.'); };
 for (const dialog of document.querySelectorAll('dialog')) {
   dialog.querySelector('.close').onclick = () => dialog.close();
   dialog.onclick = event => { if (event.target === dialog) { const bounds = dialog.getBoundingClientRect(); if (event.clientY < bounds.top || event.clientY > bounds.bottom || event.clientX < bounds.left || event.clientX > bounds.right) dialog.close(); } };
@@ -406,7 +406,7 @@ if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('./sw.js').then(registration => {
     const check = async () => {
       let ready = false;
-      try { ready = Boolean(await caches.match(new URL('./audio/credits.json', location.href), { cacheName: 'openambience-shell-0.4.0-alpha.1' })); } catch {}
+      try { ready = Boolean(await caches.match(new URL('./audio/credits.json', location.href), { cacheName: 'openambience-shell-0.4.0-alpha.2' })); } catch {}
       $('#offline').textContent = ready && registration.active ? '● Library ready offline' : 'Preparing offline library…';
       $('#update').hidden = !registration.waiting;
     };

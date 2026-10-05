@@ -1,4 +1,5 @@
 import { RadioLayer } from './radio.js';
+import { MediaTransport } from './media-transport.js';
 // Original procedural textures alongside locally served or imported recordings.
 export function noiseSamples(kind, length, random = Math.random) {
   const samples = new Float32Array(length);
@@ -35,12 +36,15 @@ export class AudioEngine {
     if (this.context) return;
     const Context = globalThis.AudioContext || globalThis.webkitAudioContext;
     if (!Context) throw new Error('This browser does not support Web Audio.');
+    // Safari otherwise treats Web Audio as ambient audio, subject to silent mode.
+    try { if (globalThis.navigator?.audioSession) navigator.audioSession.type = 'playback'; } catch {}
     this.context = new Context();
     this.context.addEventListener('statechange', () => this.onPlaybackState?.(this.context.state));
     this.master = this.context.createGain();
     this.master.gain.value = 0;
     const compressor = this.context.createDynamicsCompressor();
     this.master.connect(compressor).connect(this.context.destination);
+    this.transport = new MediaTransport(this.context, this.master, () => this.onPlaybackState?.('interrupted'));
   }
   remove(id) {
     const layer = this.layers.get(id);
@@ -120,13 +124,15 @@ export class AudioEngine {
   async play(mix) {
     this.initialize();
     const revision = ++this.revision;
-    await this.context.resume();
+    // Start both before yielding so iOS keeps the Play gesture for each API.
+    await Promise.all([this.transport?.play(), this.context.resume()]);
     if (revision !== this.revision) return;
     if (this.context.state !== 'running') throw new Error('Audio is paused by your browser. Try Play again.');
     await this.update(mix);
   }
-  async pause() {
+  async pause(release = false) {
     ++this.revision;
+    this.transport?.pause(release);
     for (const [id, layer] of this.layers) if (layer.radio) this.remove(id);
     if (this.context) await this.context.suspend();
   }

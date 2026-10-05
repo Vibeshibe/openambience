@@ -7,9 +7,16 @@ const assert = require('node:assert/strict');
     const context = await browser.newContext();
     await context.addInitScript(() => {
       window.__contexts = [];
+      window.__transports = [];
+      window.__audioSession = { type: 'auto' };
+      Object.defineProperty(navigator, 'audioSession', { value: window.__audioSession });
       const Native = window.AudioContext;
       window.AudioContext = class extends Native {
         constructor(...args) { super(...args); window.__contexts.push(this); }
+        createMediaElementSource(media) {
+          if (media.crossOrigin !== 'anonymous') window.__transports.push(media);
+          return super.createMediaElementSource(media);
+        }
         async decodeAudioData(...args) {
           if (window.__holdDecode) {
             window.__decodeStarted = true;
@@ -49,6 +56,10 @@ const assert = require('node:assert/strict');
     await toggle('brown');
     await page.locator('#play').click(); await ready();
     assert.equal((await session()).state, 'playing');
+    assert.deepEqual(await page.evaluate(() => ({
+      type: window.__audioSession.type, paused: window.__transports[0].paused,
+      muted: window.__transports[0].muted, duration: window.__transports[0].duration,
+    })), { type: 'playback', paused: false, muted: false, duration: 10 });
     assert.match((await session()).title, /Brown/);
     assert.equal((await session()).artist, 'OpenAmbience');
     for (const artwork of (await session()).artwork) assert.ok((await context.request.get(artwork.src)).ok());
@@ -58,6 +69,7 @@ const assert = require('node:assert/strict');
     assert.match((await session()).title, /White/);
     await action('pause'); await action('pause');
     assert.equal((await session()).state, 'paused');
+    assert.equal(await page.evaluate(() => window.__transports[0].paused), true);
     assert.equal(await page.evaluate(() => window.__contexts[0].state), 'suspended');
     await action('play'); await ready();
     await page.evaluate(() => window.__contexts[0].suspend());
@@ -67,6 +79,7 @@ const assert = require('node:assert/strict');
     await action('stop');
     assert.equal((await session()).state, 'none');
     assert.equal((await session()).title, null);
+    assert.equal(await page.evaluate(() => window.__transports[0].hasAttribute('src')), false);
     assert.equal(await page.locator('.sound-card.active').count(), 2);
     await action('play'); await ready();
     await toggle('white'); await toggle('brown');
