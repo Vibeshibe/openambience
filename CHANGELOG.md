@@ -2,6 +2,14 @@
 
 App releases use [Semantic Versioning](docs/versioning.md). Research checkpoints on `dev` may precede the next release.
 
+## 0.4.0-alpha.5 — 2026-10-05
+
+Development preview on `dev`, refining the player layout.
+
+- Centered Play between circular Mix options (left) and speaker (right) buttons, all with 52px targets.
+- The speaker opens the vertical volume popout; the percentage and mute/unmute action now live inside it.
+- Keep the speaker icon in sync with mute state and close the popout when keyboard focus leaves its controls.
+
 ## 0.4.0-alpha.4 — 2026-10-05
 
 Development preview on `dev` for volume-control feedback.

@@ -187,3 +187,10 @@ Exact browser/OS versions, test duration, and a per-action/per-device checklist 
 - Mute/unmute still changes the actual master gain and restores the previous volume. The library/offline and radio suites passed with the new controls.
 - Firefox 140.16 ESR passed native vertical pointer/keyboard adjustment, percentage updates, and Escape/Tab/outside dismissal. Linux system-media checks also passed in Firefox and Chromium.
 - Desktop/mobile Chromium and narrow Firefox screenshots were reviewed. Physical Android/iOS touch testing and feedback on the new layout remain pending; earlier media-control device confirmations apply to alpha.3.
+
+
+## 0.4.0-alpha.5 circular player preview — 2026-10-05
+
+- Chromium verified square 52px controls in Options / Play / Volume order, with Play centered at 320, 390, 768, and 1440px viewport widths. Reviewed mobile and desktop screenshots.
+- The percentage remains inside the popout; the speaker icon opens it and indicates mute state. Existing touch, keyboard, short-landscape, playback, actual master-gain mute/restore, and offline checks passed.
+- Tab moves from the slider to Mute, then leaves and closes the popout. Chromium and Firefox passed this flow, Escape restoration, and outside dismissal. Firefox system-media controls also passed.

@@ -33,16 +33,20 @@ async function importFile(page, file) {
  assert.equal(await page.evaluate(()=>window.__contexts.length),0);
  for (const width of [320,390,768,1440]) {
    await page.setViewportSize({width,height:844});
-   for (const selector of ['#play','#mute','#volume-toggle','#open-mixer']) {
+   for (const selector of ['#play','#volume-toggle','#open-mixer']) {
      const bounds=await page.locator(selector).boundingBox();
      assert.ok(bounds.width>=44&&bounds.height>=44&&bounds.y+bounds.height<=844, `${selector} touch target at ${width}`);
+     assert.equal(bounds.width,bounds.height);
    }
+   const play=await page.locator('#play').boundingBox(), options=await page.locator('#open-mixer').boundingBox(), volume=await page.locator('#volume-toggle').boundingBox();
+   assert.ok(Math.abs(play.x+play.width/2-width/2)<1, `Play centered at ${width}`);
+   assert.ok(options.x<play.x&&volume.x>play.x);
    await page.locator('#volume-toggle').click();
    const slider=await page.locator('#master').boundingBox();assert.ok(slider.width>=44&&slider.height>=100);
    const panel=await page.locator('#volume-popout').boundingBox();
    assert.ok(panel.x>=0&&panel.x+panel.width<=width&&panel.y>=0);
    assert.equal(await page.locator('#master').evaluate(element=>element===document.activeElement),true);
-   assert.equal(await page.locator('#master-value').textContent(),await page.locator('#volume-value').textContent());
+   assert.equal(await page.locator('#master-value').textContent(),`${await page.locator('#master').inputValue()}%`);
    if (width === 1440) await page.screenshot({path:'/tmp/openambience-volume-desktop.png'});
    await page.keyboard.press('Escape');
    assert.equal(await page.locator('#volume-toggle').evaluate(element=>element===document.activeElement),true);
@@ -59,7 +63,8 @@ async function importFile(page, file) {
  await page.keyboard.press('ArrowUp');assert.equal(Number(await page.locator('#master').inputValue()),previous);
  await page.keyboard.press('Home');assert.equal(await page.locator('#master').inputValue(),'0');
  await page.keyboard.press('End');assert.equal(await page.locator('#master').inputValue(),'100');
- assert.equal(await page.locator('#volume-value').textContent(),'100%');
+ assert.equal(await page.locator('#master-value').textContent(),'100%');
+ await page.keyboard.press('Tab');assert.equal(await page.locator('#mute').evaluate(element=>element===document.activeElement),true);
  await page.keyboard.press('Tab');assert.equal(await page.locator('#volume-popout').isVisible(),false);
  await page.locator('#volume-toggle').click();await page.locator('#volume-toggle').click();
  assert.equal(await page.locator('#volume-popout').isVisible(),false);

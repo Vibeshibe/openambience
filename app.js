@@ -68,7 +68,6 @@ function sync() {
   $('#master-value').value = `${mix.master}%`;
   $('#master').setAttribute('aria-valuetext', `${mix.master} percent`);
   $('#master').style.setProperty('--volume', `${mix.master}%`);
-  $('#volume-value').textContent = `${mix.master}%`;
   $('#volume-toggle').setAttribute('aria-label', `Volume: ${mix.master}%. Adjust volume`);
   const playLabel = busy ? 'Loading audio' : playing ? 'Pause mix' : 'Play mix';
   $('#play-label').textContent = playLabel;
@@ -81,9 +80,9 @@ function sync() {
   const muted = mix.master === 0;
   $('#mute').setAttribute('aria-pressed', String(muted));
   $('#mute').setAttribute('aria-label', muted ? 'Unmute volume' : 'Mute volume');
-  $('#mute').title = muted ? 'Unmute volume' : 'Mute volume';
-  $('#mute .volume-waves').toggleAttribute('hidden', muted);
-  $('#mute .volume-cross').toggleAttribute('hidden', !muted);
+  $('#mute').textContent = muted ? 'Unmute' : 'Mute';
+  $('#volume-toggle .volume-waves').toggleAttribute('hidden', muted);
+  $('#volume-toggle .volume-cross').toggleAttribute('hidden', !muted);
   $('#play').disabled = busy;
   $('#play').setAttribute('aria-pressed', String(playing));
   $('#layer-count').textContent = mix.enabled.length ? `${mix.enabled.length} sound${mix.enabled.length === 1 ? '' : 's'} selected` : 'Your quiet starts here';
@@ -266,8 +265,8 @@ $('#volume-toggle').onclick = () => setVolumeOpen($('#volume-popout').hidden);
 document.addEventListener('pointerdown', event => {
   if (!$('.volume-control').contains(event.target)) setVolumeOpen(false);
 });
-document.addEventListener('focusin', event => {
-  if (!$('.volume-control').contains(event.target)) setVolumeOpen(false);
+$('.volume-control').addEventListener('focusout', event => {
+  if (!$('.volume-control').contains(event.relatedTarget)) setVolumeOpen(false);
 });
 document.addEventListener('keydown', event => {
   if (event.key === 'Escape' && !$('#volume-popout').hidden) {
@@ -435,7 +434,7 @@ if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('./sw.js').then(registration => {
     const check = async () => {
       let ready = false;
-      try { ready = Boolean(await caches.match(new URL('./audio/credits.json', location.href), { cacheName: 'openambience-shell-0.4.0-alpha.4' })); } catch {}
+      try { ready = Boolean(await caches.match(new URL('./audio/credits.json', location.href), { cacheName: 'openambience-shell-0.4.0-alpha.5' })); } catch {}
       $('#offline').textContent = ready && registration.active ? '● Library ready offline' : 'Preparing offline library…';
       $('#update').hidden = !registration.waiting;
     };

@@ -4,16 +4,16 @@ OpenAmbience should make the frequent listening actions easy to reach and keep b
 
 ## Player hierarchy
 
-- **Primary action:** the prominent play/pause button controls playback immediately.
-- **Frequent adjustment:** the volume percentage and one-tap mute remain visible in the player. The percentage opens a vertical slider for adjustment.
-- **Secondary actions:** a three-dot **Mix options** button opens the current mix's sleep timer, save form, and clear action.
+- **Primary action:** the prominent play/pause button sits at the center of the player and controls playback immediately.
+- **Frequent adjustment:** a circular speaker button to the right of Play opens a vertical slider, large percentage, and mute/unmute action.
+- **Secondary actions:** a circular three-dot **Mix options** button to the left of Play opens the current mix's sleep timer, save form, and clear action.
 - **Navigation:** Sound library and My mixes remain visible. Category choices live in a collapsible Filters section; its header always identifies the active category or number of selected categories and current result count.
 
 The three-dot icon communicates additional actions associated with the current mix. A hamburger suggests a navigation drawer; placing one in the playback bar could imply hidden app destinations. A settings gear would suggest broader application preferences, and a sliders icon would suggest the mixing controls already visible in the library/player. The contextual options icon fits this panel's actual contents.
 
 ## Icon behavior and accessibility
 
-The options button uses an original 24px SVG inside a 48×48px target, consistent with the player's simple icons. It keeps a visible keyboard focus indicator, the accessible name “Mix options,” a tooltip naming its actions, and an explicit relationship to the dialog. The dialog heading uses the same name. Native dialog behavior provides Escape dismissal and returns focus to the opener.
+The options button uses an original 24px SVG inside a 52×52px circular target, consistent with the player's simple icons. It keeps a visible keyboard focus indicator, the accessible name “Mix options,” a tooltip naming its actions, and an explicit relationship to the dialog. The dialog heading uses the same name. Native dialog behavior provides Escape dismissal and returns focus to the opener.
 
 This remains a dialog containing form controls, so it is announced as a dialog rather than an ARIA menu. Icon-only styling does not remove the control's accessible name. See the [WAI button pattern](https://www.w3.org/WAI/ARIA/apg/patterns/button/) and [accessible naming guidance](https://www.w3.org/WAI/ARIA/apg/practices/names-and-descriptions/). The navigation distinction is consistent with the [Material drawer pattern](https://api.flutter.dev/flutter/material/Drawer-class.html); choosing the contextual icon here is a project design decision.
 
@@ -21,9 +21,9 @@ Use icon-only controls where their action is familiar and space is limited. Keep
 
 ## Volume popout (development trial)
 
-The player keeps the current volume visible in an 18px percentage button. Activating it opens a compact panel above the controls, with a 30px percentage above a vertical slider. Keeping the value away from the thumb makes it easier to read during touch adjustment. Mute remains a separate one-tap action and restores the last audible level without pausing playback.
+The player contains three equally sized circular buttons in the order Options, Play, Volume. The group is centered, placing Play at the horizontal center of the screen. The speaker icon opens a compact panel above it, with a 30px percentage above a vertical slider. Keeping the value away from the thumb makes it easier to read during touch adjustment. Mute/unmute sits beneath the slider and restores the last audible level without pausing playback. The speaker icon reflects the muted state.
 
-The native range runs from zero at the bottom to 100 at the top. It has a 48px-wide interaction area; its height shrinks for short landscape screens. Opening focuses the slider. Arrow Up/Down adjust by one, Home/End select the limits, Escape closes and returns focus, and tapping elsewhere or moving focus out closes the panel. The button exposes its expanded state and the slider announces the current percentage. This is a nonmodal group: Tab continues to the next player control.
+The native range runs from zero at the bottom to 100 at the top. It has a 48px-wide interaction area; its height shrinks for short landscape screens. Opening focuses the slider. Arrow Up/Down adjust by one, Home/End select the limits, Escape closes and returns focus, and tapping elsewhere or moving focus out closes the panel. The speaker button exposes its expanded state and current percentage in its accessible name. This is a nonmodal group: Tab reaches Mute, then continues out of the panel.
 
 ## Filters disclosure
 
