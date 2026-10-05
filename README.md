@@ -58,6 +58,27 @@ Open **http://localhost:8080**. Select some sounds or a preset, then press **Pla
 
 An alternative is `python3 -m http.server 8080 --bind 127.0.0.1` from this directory. Serve over HTTP locally or HTTPS when deployed; opening `index.html` through `file://` does not support modules and service workers reliably.
 
+## Docker deployment
+
+Prebuilt images are published to `ghcr.io/vibeshibe/openambience` for Linux amd64 and arm64. Once this change reaches `main`, use `latest`; while it is on `dev`, use the `dev` tag.
+
+```sh
+docker run -d --name openambience --restart unless-stopped \
+  -p 127.0.0.1:8080:8080 ghcr.io/vibeshibe/openambience:latest
+```
+
+Or, from this checkout, use Docker Compose:
+
+```sh
+docker compose up -d
+```
+
+Open **http://localhost:8080**. To try the development image, run `OPENAMBIENCE_IMAGE=ghcr.io/vibeshibe/openambience:dev docker compose up -d`. To build locally, run `docker compose -f compose.yaml -f compose.build.yaml up -d --build`.
+
+The container serves the app and bundled audio using Nginx as an unprivileged user. No server volume or database is needed: mixes and imported recordings stay in each browser. For remote access, put an HTTPS reverse proxy in front of port 8080; install and offline support require HTTPS except on localhost.
+
+See the [container deployment guide](docs/docker.md) for port settings, updates, image tags, and GitHub publishing setup.
+
 ## Features
 
 Available in **0.5.1**:

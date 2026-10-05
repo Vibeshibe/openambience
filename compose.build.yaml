@@ -1,0 +1,6 @@
+# Build from this checkout without pulling the published application image.
+services:
+  openambience:
+    image: openambience:local
+    build: .
+    pull_policy: build

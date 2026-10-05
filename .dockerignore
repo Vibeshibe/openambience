@@ -1,0 +1,17 @@
+# Only ship the application and its licensed assets to the builder.
+**
+!Dockerfile
+!docker/
+!docker/nginx.conf
+!index.html
+!styles.css
+!app.js
+!sw.js
+!manifest.webmanifest
+!LICENSE
+!js/
+!js/**
+!icons/
+!icons/**
+!audio/
+!audio/**

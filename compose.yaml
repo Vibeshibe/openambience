@@ -1,0 +1,13 @@
+services:
+  openambience:
+    image: ${OPENAMBIENCE_IMAGE:-ghcr.io/vibeshibe/openambience:latest}
+    ports:
+      - "${OPENAMBIENCE_BIND:-127.0.0.1}:${OPENAMBIENCE_PORT:-8080}:8080"
+    restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=16m
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true

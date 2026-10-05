@@ -36,4 +36,4 @@ An exported mix's `schemaVersion` is independent of the app version. Increment i
 4. Commit the release preparation on `dev`, push it, and promote it to `main`.
 5. Tag the released `main` commit as `vX.Y.Z` and push that tag. Never move a published release tag.
 
-No automated publishing, branch protection, or deployment is configured by this document.
+The [container workflow](../.github/workflows/container.yml) publishes tested images for pushes to `dev`, `main`, and version tags. `main` updates `latest`; version tags add versioned images. See [container deployment](docker.md). This document does not configure branch protection.

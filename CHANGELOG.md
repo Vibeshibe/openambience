@@ -4,6 +4,7 @@ App releases use [Semantic Versioning](docs/versioning.md). Research checkpoints
 
 ## Unreleased
 
+- Add Docker and Compose deployment with an unprivileged Nginx image, container smoke checks, and automatic amd64/arm64 image publishing to GitHub Container Registry.
 - Publish the site owner's Google Search Console HTML verification file.
 
 ## 0.5.1 — 2026-10-05
