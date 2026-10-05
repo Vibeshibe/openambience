@@ -76,7 +76,7 @@ export class AudioEngine {
       const sound = this.resolveSound(id);
       if (!sound) throw new Error('A sound is missing from this device.');
       if (sound.kind === 'binaural') {
-        this.layers.set(id, createBinauralLayer(this.context, this.master, mix.binauralBeat));
+        this.layers.set(id, createBinauralLayer(this.context, this.master, sound.beat ?? mix.binauralBeat));
         continue;
       }
       if (sound.kind === 'radio') {
@@ -123,7 +123,7 @@ export class AudioEngine {
     }
     if (revision !== this.revision) return;
     for (const [id, layer] of this.layers) {
-      layer.setBeat?.(mix.binauralBeat);
+      layer.setBeat?.(this.resolveSound(id)?.beat ?? mix.binauralBeat);
       layer.gain.gain.setTargetAtTime(mix.levels[id] / 100 / 3, this.context.currentTime, 0.06);
     }
     this.master.gain.cancelScheduledValues(this.context.currentTime);

@@ -3,7 +3,6 @@ import { CATEGORIES, FILTER_CATEGORIES, CUSTOM_CATEGORIES, categoryOf, matchesCa
 import { normalizeRadioUrl } from './js/radio.js';
 import { AudioEngine } from './js/audio.js';
 import { MixMediaSession } from './js/media-session.js';
-import { BINAURAL_BEATS } from './js/binaural.js';
 import { openLibrary, listSounds, putSound, deleteSound } from './js/storage.js';
 
 const $ = selector => document.querySelector(selector);
@@ -73,7 +72,7 @@ function sync() {
     card.querySelector('.indicator').textContent = enabled ? '✓' : '+';
     card.querySelector('input').value = mix.levels[id];
     card.querySelector('output').value = `${mix.levels[id]}%`;
-    if (id === 'binaural') card.querySelector('.binaural-beat').value = mix.binauralBeat;
+    if (id === 'binaural') card.querySelector('.sound-name').textContent = `Saved binaural ${mix.binauralBeat} Hz`;
   }
   $('#master').value = mix.master;
   $('#master-value').value = `${mix.master}%`;
@@ -99,13 +98,14 @@ function sync() {
   $('#layer-count').textContent = mix.enabled.length ? `${mix.enabled.length} sound${mix.enabled.length === 1 ? '' : 's'} selected` : 'Your quiet starts here';
   if (!deadline) $('#countdown').textContent = playing ? 'Playing your mix' : 'Ready when you are';
   $('#active-names').textContent = mix.enabled.map(id => catalog.find(sound => sound.id === id)?.name).join(' · ') || 'Choose sounds from the library first.';
-  $('#sound-total').textContent = catalog.length;
+  $('#sound-total').textContent = catalog.filter(sound => !sound.legacy || mix.enabled.includes(sound.id)).length;
   $('#mix-total').textContent = saved.length;
   filterSounds(); renderRadioStates(); persist();
 }
 function filterSounds() {
   const query = $('#search').value.trim().toLowerCase();
-  const matchesSearch = sound => `${sound.name} ${categoryOf(sound)}`.toLowerCase().includes(query);
+  const matchesSearch = sound => (!sound.legacy || mix.enabled.includes(sound.id))
+    && `${sound.name} ${categoryOf(sound)} ${sound.legacy ? mix.binauralBeat : ''}`.toLowerCase().includes(query);
   let count = 0;
   const visibleGroups = new Set();
   for (const card of $('#sounds').querySelectorAll('.sound-card')) {
@@ -145,7 +145,8 @@ function setCategoryFilters(names) {
 function renderSounds() {
   $('#sounds').replaceChildren();
   let previousGroup;
-  const ordered = [...catalog].sort((a, b) => CATEGORIES.indexOf(categoryOf(a)) - CATEGORIES.indexOf(categoryOf(b)));
+  const ordered = [...catalog].sort((a, b) => CATEGORIES.indexOf(categoryOf(a)) - CATEGORIES.indexOf(categoryOf(b))
+    || a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' }));
   for (const sound of ordered) {
     const group = categoryOf(sound);
     if (group !== previousGroup) {
@@ -178,13 +179,10 @@ function renderSounds() {
     slider.oninput = () => { mix.levels[sound.id] = Number(slider.value); sync(); void updateAudio(); };
     if (sound.kind === 'binaural') {
       card.querySelector('.sound-kind').textContent = 'GENERATED TONES';
-      const hint = document.createElement('p'); hint.className = 'hint'; hint.id = 'binaural-help'; hint.textContent = 'Use stereo headphones.';
-      const label = document.createElement('label'); label.className = 'field binaural-setting'; label.htmlFor = 'binaural-beat'; label.textContent = 'Beat difference';
-      const select = document.createElement('select'); select.id = 'binaural-beat'; select.className = 'binaural-beat';
-      select.setAttribute('aria-describedby', hint.id);
-      for (const beat of BINAURAL_BEATS) { const option = document.createElement('option'); option.value = beat; option.textContent = `${beat} Hz`; select.append(option); }
-      select.onchange = () => { mix.binauralBeat = Number(select.value); sync(); void updateAudio(); };
-      label.append(select); card.append(label, hint);
+      const hint = document.createElement('p'); hint.className = 'hint'; hint.textContent = 'Use stereo headphones.';
+      hint.id = `help-${sound.id}`;
+      card.querySelector('.sound-toggle').setAttribute('aria-describedby', hint.id);
+      card.append(hint);
     }
     if (sound.kind === 'radio') {
       const info = document.createElement('p'); info.className = 'radio-state hint'; info.setAttribute('role', 'status');
@@ -471,7 +469,7 @@ if ('serviceWorker' in navigator) {
     const check = async () => {
       renderUpdate();
       let ready = false;
-      try { ready = Boolean(await caches.match(new URL('./audio/credits.json', location.href), { cacheName: 'openambience-shell-0.5.0-alpha.1' })); } catch {}
+      try { ready = Boolean(await caches.match(new URL('./audio/credits.json', location.href), { cacheName: 'openambience-shell-0.5.0-alpha.2' })); } catch {}
       $('#offline').textContent = ready && registration.active ? '● Library ready offline' : 'Preparing offline library…';
     };
     void check();

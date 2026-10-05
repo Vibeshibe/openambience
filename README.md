@@ -34,7 +34,7 @@
 
 | Make it yours | What you can do |
 | --- | --- |
-| **22 built-in sounds** | Layer nature recordings, train ambience, noise textures, and binaural tones. |
+| **24 built-in sounds** | Layer nature recordings, train ambience, noise textures, and binaural tones. |
 | **Your own recordings** | Import audio, choose categories, and keep it on your device. |
 | **Saved mixes** | Return to your favourite combinations with a tap. |
 | **Offline listening** | Cache the bundled library and play imported sounds offline. |
@@ -60,17 +60,17 @@ An alternative is `python3 -m http.server 8080 --bind 127.0.0.1` from this direc
 
 ## Features
 
-Available in **0.5.0-alpha.1** (`dev` preview):
+Available in **0.5.0-alpha.2** (`dev` preview):
 
 - Fifteen recorded sounds: rain, rain on glass, rain on tent, thunder, forest wind, waves, stream, fireplace, morning birds, evening birds, crickets, café, fan, cat purring, and train carriage.
-- Six generated textures, including white, pink, and brown noise, plus binaural beats with a saved 2–30 Hz beat-difference selector. Use stereo headphones for the separate left/right tones. Earlier saved mixes keep their original sound IDs, including Birdsong, now labelled Morning birds.
-- A phone-friendly two-column library, search, a collapsible Filters panel with multi-select category checkboxes, counts, and a visible active-filter summary, grouped browsing, and a compact player with a mixer panel. Uploaded recordings appear beside built-in sounds in their assigned category, with a small **Uploaded** tag.
+- Six generated textures, including white, pink, and brown noise, plus a separate Binaural beats category with 2 Hz, 6 Hz, and 10 Hz preset cards. Use stereo headphones for the separate left/right tones. Earlier saved mixes preserve their beat frequencies and levels. Birdsong is now labelled Morning birds.
+- A phone-friendly two-column library, search, a collapsible Filters panel with multi-select category checkboxes, counts, and a visible active-filter summary, alphabetically sorted cards within categories, and a compact player with a mixer panel. Uploaded recordings appear beside built-in sounds in their assigned category, with a small **Uploaded** tag.
 - **＋ Radio** saves direct HTTPS radio-stream URLs locally. Compatible stations join the mixer and sleep timer; live playback needs internet and is never cached. See [radio compatibility](docs/internet-radio.md).
 - Up to six simultaneous layers, individual volume, and a sleep timer with a five-second fade. The persistent player centers three circular controls: **Mix options** on the left, play/pause in the middle, and a speaker button on the right. The speaker opens a vertical volume slider with a large percentage and mute/unmute; Mix options opens saving and timer controls.
 - Twenty named local mixes with load, update, rename, duplicate, and delete controls.
 - Choose files and a category in **Add sounds**, then select **Add to library**. A batch shares the chosen category; you can change each recording’s category afterward. **My sounds** still finds every imported recording. Supported formats depend on the browser; MP3 and WAV are good starting points. Files must be mono/stereo, at most 25 MB and two minutes long. Up to 30 imports; identical files are detected.
 - Offline caching of the app and the entire bundled library. Wait for **Library ready offline** before disconnecting. Imports are stored locally in IndexedDB; mix recipes use localStorage.
-- In-app sound credits and install support. When a new version is ready, a quiet notice offers **Update & reload** or **Later**. Later leaves a small **Update available** button; playback continues until you choose to update.
+- In-app sound credits and install support. When a new version is ready, a quiet notice offers **Update & reload** or **Later**. Later leaves a square notification button with a red reminder dot; playback continues until you choose to update.
 
 Recordings are edited, loudness-adjusted excerpts of creator-published MP3 previews under CC0 or CC BY 4.0, acquired directly from Freesound. They are not lossless originals. Attribution, source URLs, modifications, and checksums are in [audio/credits.json](audio/credits.json). Audio assets have separate licences from the MIT application code.
 

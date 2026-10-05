@@ -44,9 +44,9 @@ async function importFile(page, file) {
  });
  const page=await context.newPage();const errors=[];page.on('pageerror',error=>errors.push(error.message));page.on('dialog',dialog=>dialog.accept());
  await page.goto(process.env.PREVIEW_URL || 'http://127.0.0.1:8080/');await page.waitForSelector('.sound-card:visible');
- assert.equal(await page.locator('.sound-card').count(),22);
- assert.equal(await page.locator('#categories input').count(),8);
- for(const [category,count] of [['Weather',5],['Water',2],['Wildlife',4],['Indoors',4],['Noise & textures',7]]){
+ assert.equal(await page.locator('.sound-card').count(),25);
+ assert.equal(await page.locator('#categories input').count(),9);
+ for(const [category,count] of [['Weather',5],['Water',2],['Wildlife',4],['Indoors',4],['Noise & textures',6],['Binaural beats',3]]){
   await chooseCategory(page, category);
   assert.equal(await page.locator('.sound-card:visible').count(),count);
  }
@@ -76,12 +76,13 @@ async function importFile(page, file) {
  assert.match(await page.locator('#radio-form-status').textContent(),/already/);
  await page.locator('#radio-name').fill('Blocked station');await page.locator('#radio-url').fill('https://127.0.0.1:8443/blocked.mp3');await page.locator('#radio-form button').click();
  await page.waitForFunction(()=>document.querySelectorAll('[data-kind="radio"]').length===2);
- await page.locator('[data-kind="radio"] .sound-toggle').last().click();await page.locator('#play').click();
- await page.waitForFunction(()=>document.querySelectorAll('.radio-state')[1].textContent.includes('could not play'));
+ const blocked = page.locator('[data-kind="radio"]').filter({hasText:'Blocked station'});
+ await blocked.locator('.sound-toggle').click();await page.locator('#play').click();
+ await page.waitForFunction(()=>[...document.querySelectorAll('[data-kind="radio"]')].find(card=>card.querySelector('.sound-name').textContent==='Blocked station')?.querySelector('.radio-state').textContent.includes('could not play'));
  assert.equal(await page.locator('[data-sound="brown"]').getAttribute('class'),'sound-card active');
  assert.match(await page.locator('#play').textContent(),/Pause/);
  assert.equal(await page.evaluate(()=>window.__contexts[0].state),'running');
- await page.locator('[data-kind="radio"] .remove-sound').last().click();
+ await blocked.locator('.remove-sound').click();
  await page.waitForFunction(()=>document.querySelectorAll('[data-kind="radio"]').length===1);
  await context.setOffline(true);
  await page.waitForFunction(()=>document.querySelector('.radio-state').textContent.includes('Offline'));

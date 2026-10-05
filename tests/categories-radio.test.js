@@ -12,7 +12,7 @@ test('all bundled sounds have one browsable category without changing stable IDs
   assert.equal(categoryOf(SOUNDS.find(sound => sound.id === 'rain-tent')), 'Weather');
   assert.equal(categoryOf(SOUNDS.find(sound => sound.id === 'birds-evening')), 'Wildlife');
   assert.equal(categoryOf(SOUNDS.find(sound => sound.id === 'train-carriage')), 'Indoors');
-  assert.equal(categoryOf(SOUNDS.find(sound => sound.id === 'binaural')), 'Noise & textures');
+  assert.equal(categoryOf(SOUNDS.find(sound => sound.id === 'binaural')), 'Binaural beats');
 });
 test('imports stay discoverable in My sounds after assigning another category', () => {
   const sound = { id: 'custom-1', kind: 'custom', category: 'Water' };

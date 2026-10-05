@@ -68,6 +68,13 @@ const server = createServer(async (req, res) => {
     await page.locator('#defer-update').click();
     assert.equal(await page.locator('#update-notice').isVisible(), false);
     assert.equal(await page.locator('#show-update').isVisible(), true);
+    const notification=await page.getByRole('button', {name:'Update available',exact:true}).boundingBox();
+    assert.equal(notification.width,notification.height); assert.ok(notification.width>=44);
+    await page.emulateMedia({reducedMotion:'no-preference'});
+    assert.equal(await page.locator('.update-dot').evaluate(dot=>getComputedStyle(dot).animationName),'update-pulse');
+    await page.emulateMedia({reducedMotion:'reduce'});
+    assert.equal(await page.locator('.update-dot').evaluate(dot=>getComputedStyle(dot).animationName),'none');
+    await page.emulateMedia({reducedMotion:'no-preference'});
     assert.equal(await page.evaluate(() => navigator.mediaSession.playbackState), 'playing');
     assert.equal(await page.evaluate(() => document.activeElement.id), 'show-update');
     await page.evaluate(async () => (await navigator.serviceWorker.getRegistration()).update());
@@ -75,6 +82,7 @@ const server = createServer(async (req, res) => {
     await page.setViewportSize({ width: 320, height: 844 });
     await page.locator('#install').evaluate(button => { button.hidden = false; });
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true, 'Install and deferred update fit together');
+    await page.screenshot({path:'/tmp/openambience-update-notification.png'});
     await page.locator('#show-update').click();
     assert.equal(await page.locator('#update-notice').isVisible(), true);
     assert.equal(await page.evaluate(() => document.activeElement.id), 'update');

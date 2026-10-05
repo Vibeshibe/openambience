@@ -2,6 +2,15 @@
 
 App releases use [Semantic Versioning](docs/versioning.md). Research checkpoints on `dev` may precede the next release.
 
+## 0.5.0-alpha.2 — 2026-10-05
+
+Development preview on `dev`.
+
+- Give binaural beats their own category with three mobile-friendly preset cards (2, 6, and 10 Hz), replacing the dropdown. Preserve exact frequencies and levels in older saved mixes.
+- Sort sound cards alphabetically within each category, including imported sounds and radio stations.
+- Keep cards aligned at the top at their natural height, so the binaural controls do not stretch neighboring cards.
+- Replace the deferred update text link with a square bell button and a softly pulsing red dot. Reduced-motion preferences keep the dot still.
+
 ## 0.5.0-alpha.1 — 2026-10-05
 
 Development preview on `dev` for listening feedback.

@@ -17,7 +17,10 @@
   <header class="site-header">
     <a class="brand" href="./"><img src="./icons/icon.svg" width="34" height="34" alt="">openambience</a>
     <button id="install" class="quiet" hidden>Install</button>
-    <button id="show-update" class="text-button" aria-controls="update-notice" hidden>Update available</button>
+    <button id="show-update" class="quiet" aria-label="Update available" title="A new version is ready" aria-controls="update-notice" hidden>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg>
+      <span class="update-dot" aria-hidden="true"></span>
+    </button>
   </header>
   <main>
     <section id="update-notice" class="update-notice" aria-labelledby="update-title" hidden>
@@ -59,7 +62,7 @@
     </section>
     <noscript>Enable JavaScript to mix and play sounds.</noscript>
   </main>
-  <footer><span id="offline">Preparing offline library…</span><button id="show-credits" class="text-button">Sound credits</button><a class="repo-link" href="https://github.com/Vibeshibe/openambience" target="_blank" rel="noopener noreferrer" aria-label="OpenAmbience on GitHub (opens in a new tab)">GitHub <span aria-hidden="true">↗</span></a><span>v0.5.0-alpha.1 · No accounts. No tracking.</span></footer>
+  <footer><span id="offline">Preparing offline library…</span><button id="show-credits" class="text-button">Sound credits</button><a class="repo-link" href="https://github.com/Vibeshibe/openambience" target="_blank" rel="noopener noreferrer" aria-label="OpenAmbience on GitHub (opens in a new tab)">GitHub <span aria-hidden="true">↗</span></a><span>v0.5.0-alpha.2 · No accounts. No tracking.</span></footer>
   <div class="player-dock">
     <section class="player" aria-label="Playback controls">
       <button id="open-mixer" class="quiet" aria-haspopup="dialog" aria-controls="mixer-dialog" aria-label="Mix options" title="Mix options: sleep timer, save, or clear">

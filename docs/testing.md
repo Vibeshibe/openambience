@@ -228,3 +228,13 @@ PLAYWRIGHT_MODULE=/path/to/playwright CHROMIUM_EXECUTABLE=/path/to/chrome node s
 - Human audition for voices, handling noise, intrusive repetition, and relative loudness remains pending, as does physical Android/iOS validation of the new binaural layer. No listening or therapeutic-effect result is claimed.
 
 Use the existing external Playwright setup to run `node scripts/binaural-browser-check.cjs`. The Firefox check also covers stereo generation via `GECKODRIVER=/path/to/geckodriver node scripts/firefox-media-browser-check.cjs`.
+
+
+## 0.5.0-alpha.2 library and update refinements — 2026-10-05
+
+- Syntax checks and all six Node test files passed, including migration of older binaural settings to matching presets and preservation of other saved frequencies and volumes.
+- Chromium 153 library checks passed with 24 visible built-in cards: alphabetical ordering within categories, natural card heights, top alignment, and no overflow at 320, 390, 768, and 1440 pixels. All 15 recordings decoded offline; saved mixes, imports, player controls, and timer checks passed.
+- The binaural browser check passed for the three fixed preset cards, oscillator cleanup when switching, pause/resume, saved-mix restoration, offline playback, and timer expiry. Stereo rendering verified all eight supported differences, including older settings. An older 14 Hz mix retained its exact frequency and 37% layer level in the browser.
+- Category/radio checks passed with a separate Binaural beats category. Radio checks now locate stations by name because alphabetical sorting changes their position.
+- Real service-worker update checks passed: Later keeps playback running and shows the square bell button; reopening, explicit update, saved selection/volume, and other-tab playback remain intact. The red dot animates normally and stays still with reduced motion. Mobile and desktop screenshots were reviewed.
+- Physical-device testing of this revision and human listening to the new recordings remain pending.
