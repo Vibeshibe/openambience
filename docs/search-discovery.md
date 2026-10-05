@@ -12,6 +12,8 @@ There is intentionally no project-level `robots.txt`: crawlers read this file at
 
 ## Request indexing after publishing
 
+The site owner's verification file, `googleda261d29beb9c725.html`, is included at the project root. After deployment it is available at `https://vibeshibe.github.io/openambience/googleda261d29beb9c725.html`. Keep its contents unchanged and retain it after verification. Publishing the file does not itself complete verification or request indexing; finish those steps in the owner's Search Console account.
+
 1. Add `https://vibeshibe.github.io/openambience/` as a **URL-prefix property** in [Google Search Console](https://search.google.com/search-console/). Verification requires the site owner's Google account. Publish the HTML verification file or meta tag supplied by Google; never invent a token.
 2. Submit `https://vibeshibe.github.io/openambience/sitemap.xml` in the property's Sitemaps panel.
 3. Inspect the canonical homepage, test the live URL, and request indexing. Monitor the indexing result there. Google says crawling can take days to weeks and does not guarantee inclusion or ranking.

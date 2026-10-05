@@ -2,6 +2,10 @@
 
 App releases use [Semantic Versioning](docs/versioning.md). Research checkpoints on `dev` may precede the next release.
 
+## Unreleased
+
+- Publish the site owner's Google Search Console HTML verification file.
+
 ## 0.5.1 — 2026-10-05
 
 - Fix the offline footer checking an outdated cache name after a service-worker update. Ask the active worker to verify its complete cached library and report unavailable or incomplete storage explicitly.
