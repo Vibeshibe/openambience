@@ -444,16 +444,56 @@ window.addEventListener('beforeinstallprompt', event => { event.preventDefault()
 $('#install').onclick = async () => { await installPrompt?.prompt(); installPrompt = null; $('#install').hidden = true; };
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('./sw.js').then(registration => {
+    let dismissedUpdate, applyingUpdate = false;
+    const renderUpdate = () => {
+      const waiting = registration.waiting;
+      const deferred = waiting && waiting === dismissedUpdate;
+      $('#update-notice').hidden = !waiting || Boolean(deferred);
+      $('#show-update').hidden = !deferred;
+      $('#update').disabled = applyingUpdate;
+      $('#defer-update').disabled = applyingUpdate;
+      $('#update').textContent = applyingUpdate ? 'Updating…' : 'Update & reload';
+    };
     const check = async () => {
+      renderUpdate();
       let ready = false;
-      try { ready = Boolean(await caches.match(new URL('./audio/credits.json', location.href), { cacheName: 'openambience-shell-0.4.0-alpha.6' })); } catch {}
+      try { ready = Boolean(await caches.match(new URL('./audio/credits.json', location.href), { cacheName: 'openambience-shell-0.4.0-alpha.7' })); } catch {}
       $('#offline').textContent = ready && registration.active ? '● Library ready offline' : 'Preparing offline library…';
-      $('#update').hidden = !registration.waiting;
     };
     void check();
-    registration.addEventListener('updatefound', () => registration.installing?.addEventListener('statechange', event => { if (event.target.state === 'redundant') $('#offline').textContent = 'Offline download failed. Reconnect and reload to retry.'; else void check(); }));
+    const watchInstall = () => registration.installing?.addEventListener('statechange', event => {
+      if (event.target.state === 'redundant') $('#offline').textContent = 'Offline download failed. Reconnect and reload to retry.';
+      else void check();
+    });
+    watchInstall();
+    registration.addEventListener('updatefound', watchInstall);
     navigator.serviceWorker.ready.then(check);
-    $('#update').onclick = async () => { await pause(); registration.waiting?.postMessage({ type: 'SKIP_WAITING' }); navigator.serviceWorker.addEventListener('controllerchange', () => location.reload(), { once: true }); };
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (applyingUpdate) location.reload();
+      else void check();
+    });
+    $('#defer-update').onclick = () => {
+      dismissedUpdate = registration.waiting; renderUpdate();
+      if (!$('#show-update').hidden) $('#show-update').focus({ preventScroll: true });
+    };
+    $('#show-update').onclick = () => {
+      dismissedUpdate = undefined; renderUpdate();
+      if (!$('#update-notice').hidden) $('#update').focus();
+    };
+    $('#update').onclick = async () => {
+      const waiting = registration.waiting;
+      if (!waiting || applyingUpdate) { renderUpdate(); return; }
+      applyingUpdate = true; $('#update-feedback').textContent = ''; renderUpdate();
+      try {
+        await pause();
+        // Another tab may have activated it while audio was pausing.
+        if (registration.waiting !== waiting) { applyingUpdate = false; renderUpdate(); return; }
+        waiting.postMessage({ type: 'SKIP_WAITING' });
+      } catch {
+        applyingUpdate = false; renderUpdate();
+        $('#update-feedback').textContent = 'Could not update just now. Please try again when you’re ready.';
+      }
+    };
   }).catch(() => { $('#offline').textContent = 'Offline setup unavailable. Reconnect and reload to retry.'; });
 }
 renderSounds(); renderSaved(); sync();

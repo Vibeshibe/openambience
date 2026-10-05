@@ -60,7 +60,7 @@ An alternative is `python3 -m http.server 8080 --bind 127.0.0.1` from this direc
 
 ## Features
 
-Available in **0.4.0-alpha.6**:
+Available in **0.4.0-alpha.7** (`dev` preview):
 
 - Twelve recorded sounds: rain, rain on glass, thunder, forest wind, waves, stream, fireplace, birds, crickets, café, fan, and cat purring.
 - Six generated textures, including white, pink, and brown noise. Earlier saved mixes keep their original procedural sounds.
@@ -70,7 +70,7 @@ Available in **0.4.0-alpha.6**:
 - Twenty named local mixes with load, update, rename, duplicate, and delete controls.
 - Choose files and a category in **Add sounds**, then select **Add to library**. A batch shares the chosen category; you can change each recording’s category afterward. **My sounds** still finds every imported recording. Supported formats depend on the browser; MP3 and WAV are good starting points. Files must be mono/stereo, at most 25 MB and two minutes long. Up to 30 imports; identical files are detected.
 - Offline caching of the app and the entire bundled library. Wait for **Library ready offline** before disconnecting. Imports are stored locally in IndexedDB; mix recipes use localStorage.
-- In-app sound credits, install support, and an update button for future versions.
+- In-app sound credits and install support. When a new version is ready, a quiet notice offers **Update & reload** or **Later**. Later leaves a small **Update available** button; playback continues until you choose to update.
 
 Recordings are edited, loudness-adjusted excerpts of creator-published MP3 previews under CC0 or CC BY 4.0, acquired directly from Freesound. They are not lossless originals. Attribution, source URLs, modifications, and checksums are in [audio/credits.json](audio/credits.json). Audio assets have separate licences from the MIT application code.
 

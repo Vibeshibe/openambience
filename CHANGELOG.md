@@ -2,6 +2,15 @@
 
 App releases use [Semantic Versioning](docs/versioning.md). Research checkpoints on `dev` may precede the next release.
 
+## 0.4.0-alpha.7 — 2026-10-05
+
+Development preview on `dev` for a calmer update flow.
+
+- Show a quiet, nonmodal card below the header when an update is ready, with Update & reload and Later actions and a clear playback warning.
+- Later hides the card for the current visit and leaves a small Update available button to reopen it, without interrupting audio or taking focus on arrival.
+- Listen for activation before requesting it; only the tab choosing Update & reload pauses and reloads. Other tabs keep playing and remove stale update notices.
+- Added an integration check using real service-worker upgrades on an isolated local origin, covering deferral, persistence, layout, and two-tab playback.
+
 ## 0.4.0-alpha.6 — 2026-10-05
 
 Promoted to `main` with the vertical volume popout and refined playback controls.

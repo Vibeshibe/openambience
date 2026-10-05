@@ -44,3 +44,12 @@ Category describes a sound; the Uploaded tag identifies where it came from. An u
 The Add sounds dialog collects files and their category before import. Browsing a single assignable category suggests that choice; other views start at Uncategorized. The category applies to the batch and remains editable on each card. Successful imports reveal the chosen category and clear search so the new recordings are visible. Invalid or duplicate files leave an explanation in the dialog.
 
 The Uploaded badge means imported from the device, not sent to a server. The dialog and badge tooltip make local/offline storage explicit. Existing imported files receive the same tag automatically, using their saved metadata and stable IDs.
+
+
+## Updates without interruption
+
+A waiting update appears as a bordered green card below the header, using the app's normal colours. It has no modal backdrop, animation, or automatic focus change. The copy reads “A new version is ready” and “Update whenever you feel like it. We’re ready when you are.” The card explains that updating will pause audio.
+
+Update & reload pauses playback and activates the waiting version; the reloaded app keeps the saved selection and volume but does not autoplay. Later dismisses the card for the current visit and focuses a small Update available button in the header. That button reopens the card and focuses Update & reload. A different waiting update may show the card again.
+
+An update activated in another tab removes stale update notices without pausing or reloading this tab. First-time installation does not show an update card. Browser-managed activation after all old tabs close remains normal service-worker behavior.

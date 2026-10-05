@@ -17,9 +17,21 @@
   <header class="site-header">
     <a class="brand" href="./"><img src="./icons/icon.svg" width="34" height="34" alt="">openambience</a>
     <button id="install" class="quiet" hidden>Install</button>
-    <button id="update" class="quiet" hidden>Update app</button>
+    <button id="show-update" class="text-button" aria-controls="update-notice" hidden>Update available</button>
   </header>
   <main>
+    <section id="update-notice" class="update-notice" aria-labelledby="update-title" hidden>
+      <div class="update-copy">
+        <h2 id="update-title">A new version is ready</h2>
+        <p>Update whenever you feel like it. We’re ready when you are.</p>
+        <p id="update-help" class="hint">Updating will pause your audio.</p>
+        <p id="update-feedback" role="status" aria-live="polite"></p>
+      </div>
+      <div class="update-actions">
+        <button id="update" class="primary" aria-describedby="update-help">Update &amp; reload</button>
+        <button id="defer-update" class="quiet">Later</button>
+      </div>
+    </section>
     <section class="intro">
       <p class="eyebrow">YOUR OWN QUIET CORNER</p>
       <h1>Make room for <em>quiet.</em></h1>
@@ -47,7 +59,7 @@
     </section>
     <noscript>Enable JavaScript to mix and play sounds.</noscript>
   </main>
-  <footer><span id="offline">Preparing offline library…</span><button id="show-credits" class="text-button">Sound credits</button><a class="repo-link" href="https://github.com/Vibeshibe/openambience" target="_blank" rel="noopener noreferrer" aria-label="OpenAmbience on GitHub (opens in a new tab)">GitHub <span aria-hidden="true">↗</span></a><span>v0.4.0-alpha.6 · No accounts. No tracking.</span></footer>
+  <footer><span id="offline">Preparing offline library…</span><button id="show-credits" class="text-button">Sound credits</button><a class="repo-link" href="https://github.com/Vibeshibe/openambience" target="_blank" rel="noopener noreferrer" aria-label="OpenAmbience on GitHub (opens in a new tab)">GitHub <span aria-hidden="true">↗</span></a><span>v0.4.0-alpha.7 · No accounts. No tracking.</span></footer>
   <div class="player-dock">
     <section class="player" aria-label="Playback controls">
       <button id="open-mixer" class="quiet" aria-haspopup="dialog" aria-controls="mixer-dialog" aria-label="Mix options" title="Mix options: sleep timer, save, or clear">

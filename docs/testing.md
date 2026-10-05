@@ -201,3 +201,17 @@ Exact browser/OS versions, test duration, and a per-action/per-device checklist 
 - Chromium confirmed Options and Volume remain at least 44px, are smaller than Play, and share its vertical center at 320, 390, 768, and 1440px widths. Play remains horizontally centered.
 - Verified that the resting/playing dock has no visible routine message or summary, and selection-limit feedback can be dismissed. Reviewed the updated mobile popout and player screenshots.
 - Library/offline and Media Session browser checks passed, including volume/mute, keyboard dismissal, playback interruption, timer expiry/restart, and countdown updates after moving the summary into Mix options. Syntax checks passed.
+
+
+## 0.4.0-alpha.7 update notice — 2026-10-05
+
+- Added `scripts/update-browser-check.cjs`. It serves two revisions on an isolated local HTTP origin and installs actual service workers, without modifying the running preview or its caches.
+- Chromium 153 passed first-install suppression, waiting-update display without focus theft or interruption, Later/reopen without pausing, explicit update pause/reload, retained sound selection and volume, and no autoplay after reload.
+- A second playing tab kept its original page and audio when the first installed the update; its deferred update link disappeared after activation.
+- Verified 320/390/768/1440px layouts, at least 44px action targets, and a narrow header with both Install and Update available. Reviewed the mobile card screenshot. Physical-device and screen-reader confirmation remain pending.
+
+Run with the same external Playwright setup as the other optional browser checks:
+
+```sh
+PLAYWRIGHT_MODULE=/path/to/playwright CHROMIUM_EXECUTABLE=/path/to/chrome node scripts/update-browser-check.cjs
+```
