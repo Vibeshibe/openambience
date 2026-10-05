@@ -4,7 +4,7 @@ App releases use [Semantic Versioning](docs/versioning.md). Research checkpoints
 
 ## 0.5.0-alpha.2 — 2026-10-05
 
-Development preview on `dev`.
+Promoted to `main` with the expanded sound library, binaural presets, and update reminder.
 
 - Give binaural beats their own category with three mobile-friendly preset cards (2, 6, and 10 Hz), replacing the dropdown. Preserve exact frequencies and levels in older saved mixes.
 - Sort sound cards alphabetically within each category, including imported sounds and radio stations.
