@@ -1,7 +1,8 @@
 // Browsers do not consistently expose Web Audio alone to system media controls.
-// A silent, unmuted media element supplies persistent audio focus; the mix still
-// flows through the existing Web Audio graph. No network request is needed.
-export function silentWave() {
+// Firefox also requires non-silent decoded samples. The control track is silenced
+// by a dedicated zero-gain node BEFORE playback, so it never enters the mix.
+// The media element itself stays unmuted to retain media controls. No network I/O.
+export function transportWave() {
   const samples = 80000; // Ten seconds: Chrome requires media longer than five.
   const bytes = new Uint8Array(44 + samples);
   const view = new DataView(bytes.buffer);
@@ -14,7 +15,9 @@ export function silentWave() {
   view.setUint32(24, 8000, true); view.setUint32(28, 8000, true);
   view.setUint16(32, 1, true); view.setUint16(34, 8, true);
   text(36, 'data'); view.setUint32(40, samples, true);
-  bytes.fill(128, 44); // Unsigned 8-bit PCM silence, exactly zero after decoding.
+  for (let i = 0; i < samples; i++) {
+    bytes[44 + i] = 128 + Math.round(32 * Math.sin(2 * Math.PI * 440 * i / 8000));
+  }
   return new Blob([bytes], { type: 'audio/wav' });
 }
 
@@ -25,7 +28,9 @@ export class MediaTransport {
     this.media.preload = 'auto';
     this.media.setAttribute('playsinline', '');
     this.source = context.createMediaElementSource(this.media);
-    this.source.connect(destination);
+    this.silencer = context.createGain();
+    this.silencer.gain.value = 0;
+    this.source.connect(this.silencer).connect(destination);
     this.active = false;
     this.url = null;
     this.media.addEventListener('pause', () => {
@@ -37,7 +42,7 @@ export class MediaTransport {
   }
   play() {
     if (!this.url) {
-      this.url = URL.createObjectURL(silentWave());
+      this.url = URL.createObjectURL(transportWave());
       this.media.src = this.url;
     }
     this.active = true;

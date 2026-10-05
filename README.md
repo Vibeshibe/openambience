@@ -60,7 +60,7 @@ An alternative is `python3 -m http.server 8080 --bind 127.0.0.1` from this direc
 
 ## Features
 
-Available in **0.4.0-alpha.2**:
+Available in **0.4.0-alpha.3**:
 
 - Twelve recorded sounds: rain, rain on glass, thunder, forest wind, waves, stream, fireplace, birds, crickets, café, fan, and cat purring.
 - Six generated textures, including white, pink, and brown noise. Earlier saved mixes keep their original procedural sounds.
@@ -80,7 +80,7 @@ Nothing is uploaded when you import a recording. Clearing browser site data remo
 
 Media Session support exposes play, pause, and stop to supported browser and system media controls, with selected-sound names and app artwork. Stop keeps your selection and cancels the timer; the next play starts the selected timer duration again. Empty mixes clear the session. No seeking or track skipping is offered for looping mixes. Browsers without this API retain the in-app controls.
 
-Media Session does not guarantee background or locked-screen playback. Physical Android/iOS media controls and interruption recovery still need device testing. See the [validation checklist](docs/testing.md).
+Media controls have been reported working on iOS/Safari, iOS/Chrome, Android/Chrome, and Linux/Chrome. Firefox on Android needs retesting with the latest correction. Media Session does not guarantee background or locked-screen playback; interruption recovery and long sessions still need device testing. See the [validation checklist](docs/testing.md).
 
 ## Research and design
 

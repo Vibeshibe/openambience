@@ -140,6 +140,24 @@ PLAYWRIGHT_MODULE=/tmp/openambience-tools/node_modules/playwright node scripts/s
 
 Requires `dbus-daemon` and `gdbus`; set `CHROMIUM_EXECUTABLE` for an existing browser. This is stronger than invoking JavaScript callbacks, but it does not establish Firefox or physical Android/iOS compatibility. Re-test those devices on **v0.4.0-alpha.2**, including Safari with the silent switch on. Safari's optional Audio Session API is set to `playback`, following [WebKit's guidance](https://bugs.webkit.org/show_bug.cgi?id=237322#c6).
 
+## Device reports after 0.4.0-alpha.2
+
+The user reports working media controls on iOS/Safari, iOS/Chrome, Android/Chrome, and Linux/Chrome. Firefox on Android and Linux still lacked controls. Exact browser/OS versions and the individual controls tested were not supplied. This records those reports without treating them as a full background, interruption, or sleep-timer audit.
+
+## 0.4.0-alpha.3 Firefox correction
+
+Syntax checks and all six Node test files passed. Firefox 140.16.0 ESR passed the new native-control/output-silence harness using geckodriver 0.37.1. Chromium 153.0.8010.12 passed its native Linux media-control, media-session, library/offline, and controlled-radio suites.
+
+Firefox's [media-control activation logic](https://github.com/mozilla/gecko-dev/blob/master/dom/html/HTMLMediaElement.cpp) requires an audible decoded track; the all-silent alpha.2 transport did not create a Linux MPRIS service. The replacement has non-silent PCM samples routed through a dedicated gain of zero, established before playback. The media element remains unmuted; no control-track samples reach the audible mixer output. Browser detection is not required.
+
+The Linux Firefox harness uses the installed browser, Mozilla's [geckodriver](https://github.com/mozilla/geckodriver/releases), and an isolated D-Bus session. It verifies non-silent decoder input, exactly zero output after the silencer, and real OS Pause/Play/Stop commands without invoking the JavaScript action handlers directly:
+
+```sh
+GECKODRIVER=/path/to/geckodriver node scripts/firefox-media-browser-check.cjs
+```
+
+Set `FIREFOX_BINARY` for a browser other than `/usr/bin/firefox` and `PREVIEW_URL` for another server. Requires `dbus-daemon` and `gdbus`. Physical Firefox/Android still needs an alpha.3 retest; the Linux result cannot establish Android notification behavior.
+
 ## Release checklist
 
 - Increment the service-worker cache name after changing cached assets.
