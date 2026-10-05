@@ -80,7 +80,7 @@ Nothing is uploaded when you import a recording. Clearing browser site data remo
 
 Media Session support exposes play, pause, and stop to supported browser and system media controls, with selected-sound names and app artwork. Stop keeps your selection and cancels the timer; the next play starts the selected timer duration again. Empty mixes clear the session. No seeking or track skipping is offered for looping mixes. Browsers without this API retain the in-app controls.
 
-Media controls have been reported working on iOS/Safari, iOS/Chrome, Android/Chrome, and Linux/Chrome. Firefox on Android needs retesting with the latest correction. Media Session does not guarantee background or locked-screen playback; interruption recovery and long sessions still need device testing. See the [validation checklist](docs/testing.md).
+Media controls are confirmed by user testing on iOS/Safari, iOS/Chrome, Android/Chrome, Android/Firefox, Linux/Chrome, and Linux/Firefox. Lock-screen operation is also confirmed. Interruption recovery and long sessions remain separate validation items. See the [validation checklist](docs/testing.md).
 
 ## Research and design
 
@@ -141,7 +141,7 @@ Increment the cache version in `sw.js` whenever shipping changed app files. A ne
 
 ## Known limits
 
-- Background and lock-screen playback need real Android/iOS device validation; continuous overnight playback is not guaranteed.
+- Lock-screen operation has passed user testing. Interruption recovery, extended background sessions, and continuous overnight playback still need validation.
 - Browser support for custom audio codecs varies. Custom recordings loop as supplied; trim or crossfade them in an audio editor for a smoother seam.
 - The engine limits decoded audio to 96 MiB and pauses with a message if a mix is too large. Six long imports may exceed this limit.
 - Bundled loops are short (roughly 30 seconds). Thunder includes a 30-second quiet interval between events.

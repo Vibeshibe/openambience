@@ -6,7 +6,7 @@ App releases use [Semantic Versioning](docs/versioning.md). Research checkpoints
 
 - Fixed Firefox media-control activation by giving the control track non-silent decoded samples and routing them through a dedicated zero-gain node before they can reach the mix.
 - Added a Firefox/Linux integration check for real MPRIS Pause/Play/Stop commands and exact silence at the control track's output.
-- Recorded device reports for iOS/Safari, iOS/Chrome, Android/Chrome, and Linux/Chrome on alpha.2; Firefox/Android still needs retesting with alpha.3.
+- User testing confirmed media controls on iOS/Safari, iOS/Chrome, Android/Chrome, Android/Firefox, Linux/Chrome, and Linux/Firefox, plus lock-screen operation.
 
 ## 0.4.0-alpha.2 — 2026-10-05
 

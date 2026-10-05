@@ -26,14 +26,20 @@
 - [x] Failed/offline station isolation from local audio and no stream caching.
 - [x] Controlled HTTPS/CORS browser checks and an offline-compatible sync proposal.
 
+## 0.4.0-alpha.3 — Media controls
+
+- [x] Media Session metadata, play/pause/stop controls, and playback-state synchronization.
+- [x] Browser audio focus and Safari playback audio mode, including the Firefox activation correction.
+- [x] User-confirmed media controls on iOS/Safari, iOS/Chrome, Android/Chrome, Android/Firefox, Linux/Chrome, and Linux/Firefox.
+- [x] User-confirmed lock-screen operation. See the [device validation record](testing.md#device-confirmation-after-040-alpha3--2026-10-05).
+
 The [saved mixes and custom sound proposal](saved-mixes-and-custom-sounds.md) describes the broader scope. The following remain future work:
 
 - [ ] Recipe export/import and missing-sound recovery.
 - [ ] Drag-and-drop imports and storage-management controls.
 - [ ] Verify storage pressure, offline restart, installation, and playback on physical Android/iOS devices.
 - [ ] Long listening sessions for loop repetition, clicks, and relative loudness.
-- [x] Media Session metadata, play/pause/stop controls, and playback-state synchronization.
-- [ ] Verify background/lock-screen playback, physical media controls, and interruptions on Android/iOS.
+- [ ] Verify interruption recovery, extended background playback, and sleep-timer expiry while locked on Android/iOS.
 - [ ] Screen-reader and 200% zoom audits on desktop and mobile.
 - [ ] Improve pink-noise spectrum and generated nature textures.
 - [ ] Expand the recording catalog and support selective offline downloads.

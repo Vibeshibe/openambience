@@ -156,7 +156,21 @@ The Linux Firefox harness uses the installed browser, Mozilla's [geckodriver](ht
 GECKODRIVER=/path/to/geckodriver node scripts/firefox-media-browser-check.cjs
 ```
 
-Set `FIREFOX_BINARY` for a browser other than `/usr/bin/firefox` and `PREVIEW_URL` for another server. Requires `dbus-daemon` and `gdbus`. Physical Firefox/Android still needs an alpha.3 retest; the Linux result cannot establish Android notification behavior.
+Set `FIREFOX_BINARY` for a browser other than `/usr/bin/firefox` and `PREVIEW_URL` for another server. Requires `dbus-daemon` and `gdbus`. The automated Linux result alone does not establish Android notification behavior; the subsequent device retest is recorded below.
+
+## Device confirmation after 0.4.0-alpha.3 — 2026-10-05
+
+The user confirmed successful media controls on all previously tested clients:
+
+| Platform | Browsers | Media controls |
+| --- | --- | --- |
+| iOS | Safari, Chrome | Passed user testing |
+| Android | Chrome, Firefox | Passed user testing |
+| Linux | Chrome, Firefox | Passed user testing |
+
+The user also explicitly confirmed operation on lock screens. This supersedes the Firefox failures and outstanding device retest noted in the earlier release records.
+
+Exact browser/OS versions, test duration, and a per-action/per-device checklist were not recorded. Interruption recovery, extended background sessions, and sleep-timer expiry while locked remain separate tests; this confirmation does not claim those were exercised.
 
 ## Release checklist
 
