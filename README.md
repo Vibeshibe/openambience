@@ -60,7 +60,7 @@ An alternative is `python3 -m http.server 8080 --bind 127.0.0.1` from this direc
 
 ## Features
 
-Available in **0.3.0-alpha.8**:
+Available in **0.4.0-alpha.1**:
 
 - Twelve recorded sounds: rain, rain on glass, thunder, forest wind, waves, stream, fireplace, birds, crickets, café, fan, and cat purring.
 - Six generated textures, including white, pink, and brown noise. Earlier saved mixes keep their original procedural sounds.
@@ -75,6 +75,12 @@ Available in **0.3.0-alpha.8**:
 Recordings are edited, loudness-adjusted excerpts of creator-published MP3 previews under CC0 or CC BY 4.0, acquired directly from Freesound. They are not lossless originals. Attribution, source URLs, modifications, and checksums are in [audio/credits.json](audio/credits.json). Audio assets have separate licences from the MIT application code.
 
 Nothing is uploaded when you import a recording. Clearing browser site data removes custom sounds and saved mixes. Browsers can also evict local storage. Back up original recordings separately; mix export/import remains planned. Pausing cancels the current timer; resuming starts its selected duration again. Playback never starts automatically after reload.
+
+### Media controls
+
+Media Session support exposes play, pause, and stop to supported browser and system media controls, with selected-sound names and app artwork. Stop keeps your selection and cancels the timer; the next play starts the selected timer duration again. Empty mixes clear the session. No seeking or track skipping is offered for looping mixes. Browsers without this API retain the in-app controls.
+
+Media Session does not guarantee background or locked-screen playback. Physical Android/iOS media controls and interruption recovery still need device testing. See the [validation checklist](docs/testing.md).
 
 ## Research and design
 
@@ -98,6 +104,7 @@ index.html                 Accessible application shell
 styles.css                 Responsive interface
 app.js                     UI, persistence, presets, timer, installation
 js/audio.js                Web Audio recordings, synthesis, and gain controls
+js/media-session.js        Optional system media controls and mix metadata
 js/catalog.js              Generated bundled recording catalog
 js/storage.js              IndexedDB storage for custom audio and station URLs
 js/categories.js           Category membership and filtering
@@ -137,7 +144,7 @@ Increment the cache version in `sw.js` whenever shipping changed app files. A ne
 - Browser support for custom audio codecs varies. Custom recordings loop as supplied; trim or crossfade them in an audio editor for a smoother seam.
 - The engine limits decoded audio to 96 MiB and pauses with a message if a mix is too large. Six long imports may exceed this limit.
 - Bundled loops are short (roughly 30 seconds). Thunder includes a 30-second quiet interval between events.
-- Browser storage is local and may be cleared or evicted. Recipe export, cross-device sync and Media Session controls are not included. Radio supports direct CORS-enabled HTTPS audio streams; playlists and station webpages are not supported.
+- Browser storage is local and may be cleared or evicted. Recipe export and cross-device sync are not included. Radio supports direct CORS-enabled HTTPS audio streams; playlists and station webpages are not supported.
 - The sleep timer uses the audio clock for fading and the wall clock for stopping; device suspension can delay UI updates.
 
 ## AI usage disclosure

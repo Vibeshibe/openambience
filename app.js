@@ -2,6 +2,7 @@ import { SOUNDS, PRESETS, normalizeMix, presetMix, readStore } from './js/state.
 import { CATEGORIES, FILTER_CATEGORIES, CUSTOM_CATEGORIES, categoryOf, matchesCategory, matchesCategories, normalizeCategories, readCategoryFilters } from './js/categories.js';
 import { normalizeRadioUrl } from './js/radio.js';
 import { AudioEngine } from './js/audio.js';
+import { MixMediaSession } from './js/media-session.js';
 import { openLibrary, listSounds, putSound, deleteSound } from './js/storage.js';
 
 const $ = selector => document.querySelector(selector);
@@ -13,8 +14,16 @@ try { db = await openLibrary(); catalog.push(...await listSounds(db)); }
 catch { status('Local sound storage is unavailable. The built-in library still works.'); $('#add-sounds').disabled = true; $('#add-radio').disabled = true; }
 let { mix, saved } = readStore(storage, catalog);
 const radioStates = new Map();
-const engine = new AudioEngine(id => catalog.find(sound => sound.id === id), (id, state) => { radioStates.set(id, state); renderRadioStates(); });
+const engine = new AudioEngine(id => catalog.find(sound => sound.id === id),
+  (id, state) => { radioStates.set(id, state); renderRadioStates(); },
+  state => {
+    if (playing && state !== 'running') {
+      void pause(); status('Audio was interrupted. Press Play to resume your mix.');
+    }
+  });
 let playing = false, busy = false, deadline = 0, installPrompt;
+let playbackRevision = 0, sessionStarted = false;
+const mediaSession = new MixMediaSession({ play, pause: () => pause(), stop: () => pause(true) });
 let selectedCategories = readCategoryFilters(storage);
 let lastAudibleVolume = mix.master || 40;
 const symbols = { rain: '☂', thunder: 'ϟ', wind: '≋', ocean: '≈', water: '≋', fire: '♨', bird: '♪', moon: '☾', cup: '☕', fan: '✺', cat: '♧' };
@@ -28,6 +37,7 @@ function persist() {
 function scheduleTimer() { engine.scheduleSleep(deadline ? Math.max(0, (deadline - Date.now()) / 1000) : 0, mix.master); }
 let audioUpdating = false, audioDirty = false;
 async function updateAudio() {
+  if (!mix.enabled.length && busy) { await pause(true); return; }
   if (!playing) return;
   audioDirty = true;
   if (audioUpdating) return;
@@ -42,6 +52,10 @@ async function updateAudio() {
   finally { audioUpdating = false; }
 }
 function sync() {
+  if (!mix.enabled.length && playing) { void pause(true); return; }
+  if (!mix.enabled.length) sessionStarted = false;
+  mediaSession.sync(sessionStarted ? mix.enabled.map(id => catalog.find(sound => sound.id === id)?.name).filter(Boolean) : [],
+    playing ? 'playing' : sessionStarted && mix.enabled.length ? 'paused' : 'none');
   for (const card of $('#sounds').querySelectorAll('.sound-card')) {
     const id = card.dataset.sound, enabled = mix.enabled.includes(id);
     card.classList.toggle('active', enabled);
@@ -200,22 +214,35 @@ function showView(name) {
 }
 $('#library-tab').onclick = () => showView('library');
 $('#mixes-tab').onclick = () => showView('mixes');
-async function pause() { playing = false; deadline = 0; await engine.pause(); sync(); }
-$('#play').onclick = async () => {
-  if (busy) return;
-  if (!playing && !mix.enabled.length) { status('Choose a sound from the library first.'); return; }
+async function pause(stop = false) {
+  ++playbackRevision; playing = false; deadline = 0;
+  if (stop || !mix.enabled.length) sessionStarted = false;
+  // Publish the pause immediately, including while a recording is decoding.
+  const pending = engine.pause();
+  sync();
+  try { await pending; } catch (error) { status(`Could not pause audio. ${error.message}`); }
+}
+async function play() {
+  if (busy || playing) return;
+  if (!mix.enabled.length) { status('Choose a sound from the library first.'); return; }
+  const revision = ++playbackRevision;
   busy = true; sync();
   try {
-    if (playing) { await pause(); status('Paused. Your mix is ready whenever you are.'); }
-    else {
-      await engine.play(normalize(mix)); playing = true;
-      await updateAudio();
-      if (!playing) return;
-      const minutes = Number($('#timer').value); deadline = minutes ? Date.now() + minutes * 60000 : 0;
-      scheduleTimer(); status('Settle in. Your mix is playing.');
-    }
-  } catch (error) { await pause(); status(`Could not play this mix. ${error.message}`); }
+    await engine.play(normalize(mix));
+    if (revision !== playbackRevision) return;
+    if (engine.context.state !== 'running') throw new Error('Audio was interrupted. Try Play again.');
+    playing = true; sessionStarted = true;
+    await updateAudio();
+    if (!playing || revision !== playbackRevision) return;
+    const minutes = Number($('#timer').value); deadline = minutes ? Date.now() + minutes * 60000 : 0;
+    scheduleTimer(); status('Settle in. Your mix is playing.');
+  } catch (error) { if (revision === playbackRevision) { await pause(); status(`Could not play this mix. ${error.message}`); } }
   finally { busy = false; sync(); }
+}
+$('#play').onclick = async () => {
+  if (busy) return;
+  if (playing) { await pause(); status('Paused. Your mix is ready whenever you are.'); }
+  else await play();
 };
 function setMasterVolume(value) { mix.master = value; sync(); void updateAudio(); }
 $('#master').oninput = event => setMasterVolume(Number(event.target.value));
@@ -379,7 +406,7 @@ if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('./sw.js').then(registration => {
     const check = async () => {
       let ready = false;
-      try { ready = Boolean(await caches.match(new URL('./audio/credits.json', location.href), { cacheName: 'openambience-shell-0.3.0-alpha.8' })); } catch {}
+      try { ready = Boolean(await caches.match(new URL('./audio/credits.json', location.href), { cacheName: 'openambience-shell-0.4.0-alpha.1' })); } catch {}
       $('#offline').textContent = ready && registration.active ? '● Library ready offline' : 'Preparing offline library…';
       $('#update').hidden = !registration.waiting;
     };

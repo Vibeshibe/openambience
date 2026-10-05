@@ -32,7 +32,8 @@ The [saved mixes and custom sound proposal](saved-mixes-and-custom-sounds.md) de
 - [ ] Drag-and-drop imports and storage-management controls.
 - [ ] Verify storage pressure, offline restart, installation, and playback on physical Android/iOS devices.
 - [ ] Long listening sessions for loop repetition, clicks, and relative loudness.
-- [ ] Background/lock-screen playback, interruptions, and Media Session controls.
+- [x] Media Session metadata, play/pause/stop controls, and playback-state synchronization.
+- [ ] Verify background/lock-screen playback, physical media controls, and interruptions on Android/iOS.
 - [ ] Screen-reader and 200% zoom audits on desktop and mobile.
 - [ ] Improve pink-noise spectrum and generated nature textures.
 - [ ] Expand the recording catalog and support selective offline downloads.

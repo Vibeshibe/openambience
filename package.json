@@ -1,6 +1,6 @@
 {
   "name": "openambience",
-  "version": "0.3.0-alpha.8",
+  "version": "0.4.0-alpha.1",
   "private": true,
   "description": "An open-source, offline-capable ambient sound mixer.",
   "type": "module",
@@ -11,6 +11,6 @@
   "scripts": {
     "start": "node scripts/serve.js",
     "test": "node --test",
-    "check": "node --check app.js && node --check js/audio.js && node --check js/state.js && node --check sw.js && node --check scripts/serve.js && node --check js/catalog.js && node --check js/storage.js && node --check js/categories.js && node --check js/radio.js"
+    "check": "node --check app.js && node --check js/audio.js && node --check js/media-session.js && node --check js/state.js && node --check sw.js && node --check scripts/serve.js && node --check js/catalog.js && node --check js/storage.js && node --check js/categories.js && node --check js/radio.js"
   }
 }

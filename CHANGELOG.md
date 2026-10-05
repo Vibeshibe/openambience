@@ -2,6 +2,12 @@
 
 App releases use [Semantic Versioning](docs/versioning.md). Research checkpoints on `dev` may precede the next release.
 
+## 0.4.0-alpha.1 — 2026-10-05
+
+- Added optional Media Session play, pause, and stop controls with selected-sound names and app artwork.
+- Keep system playback state aligned with the mixer, sleep timer, empty selections, and browser audio interruptions. Stop preserves the mix and cancels the timer.
+- Prevent a pause during loading from restarting playback; include the new module in the offline cache.
+
 ## 0.3.0-alpha.8 — 2026-09-30
 
 - Removed the media-type picker hint so imports request general file browsing on mobile browsers.

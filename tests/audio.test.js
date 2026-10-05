@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { noiseSamples } from '../js/audio.js';
+import { AudioEngine, noiseSamples } from '../js/audio.js';
 
 function seededRandom() {
   let seed = 12345;
@@ -20,4 +20,18 @@ test('brown texture has less high-frequency variation than white noise', () => {
   const brown = noiseSamples('brown', 48000, seededRandom());
   const white = noiseSamples('white', 48000, seededRandom());
   assert.ok(roughness(brown) < roughness(white) / 10);
+});
+test('pause during context resume cancels pending layer creation', async () => {
+  const engine = new AudioEngine(() => {});
+  let resumed, updates = 0;
+  engine.context = {
+    state: 'running',
+    resume: () => new Promise(resolve => { resumed = resolve; }),
+    suspend: async () => {},
+  };
+  engine.update = async () => { updates++; };
+  const pending = engine.play({ enabled: ['brown'] });
+  await engine.pause();
+  resumed(); await pending;
+  assert.equal(updates, 0);
 });

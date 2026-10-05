@@ -23,9 +23,10 @@ export function noiseSamples(kind, length, random = Math.random) {
 }
 
 export class AudioEngine {
-  constructor(resolveSound, onSoundStatus) {
+  constructor(resolveSound, onSoundStatus, onPlaybackState) {
     this.resolveSound = resolveSound;
     this.onSoundStatus = onSoundStatus;
+    this.onPlaybackState = onPlaybackState;
     this.context = null;
     this.layers = new Map();
     this.revision = 0;
@@ -35,6 +36,7 @@ export class AudioEngine {
     const Context = globalThis.AudioContext || globalThis.webkitAudioContext;
     if (!Context) throw new Error('This browser does not support Web Audio.');
     this.context = new Context();
+    this.context.addEventListener('statechange', () => this.onPlaybackState?.(this.context.state));
     this.master = this.context.createGain();
     this.master.gain.value = 0;
     const compressor = this.context.createDynamicsCompressor();
@@ -117,7 +119,9 @@ export class AudioEngine {
   }
   async play(mix) {
     this.initialize();
+    const revision = ++this.revision;
     await this.context.resume();
+    if (revision !== this.revision) return;
     if (this.context.state !== 'running') throw new Error('Audio is paused by your browser. Try Play again.');
     await this.update(mix);
   }

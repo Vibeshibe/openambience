@@ -100,6 +100,32 @@ Syntax checks, all four Node test files, and the Chromium 153 library/offline su
 
 The file input now omits `accept` to request general file browsing instead of suggesting a media picker. Browser automation supplies files directly and cannot verify Android's native picker; that change still needs physical Android testing. The browser and operating system determine the final picker UI. See [MDN's file-type hint documentation](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Attributes/accept).
 
+## Recorded 0.4.0-alpha.1 validation — 2026-10-05
+
+Syntax checks and all five Node test files passed. Chromium 153.0.8010.12 passed the library/offline and controlled HTTPS radio suites, plus `scripts/media-session-browser-check.cjs`:
+
+- No autoplay on initial or offline reload; empty selections cannot start playback.
+- Native Media Session metadata, selected-sound updates, and resolvable app artwork.
+- Idempotent play/pause handlers, stop preserving the selection, and empty-mix cleanup.
+- Pause during delayed audio decoding, failed decoding, and explicit resume afterward.
+- A simulated AudioContext interruption updates the UI and session without automatically resuming.
+- Sleep expiry updates playback state; resume starts the chosen timer again; stop cancels it.
+- Offline reload/playback and working in-app controls with the Media Session API absent.
+
+Run the new harness with the same external Playwright setup described above:
+
+```sh
+PLAYWRIGHT_MODULE=/tmp/openambience-tools/node_modules/playwright node scripts/media-session-browser-check.cjs
+```
+
+The harness invokes the registered action callbacks and inspects the browser's native metadata/state. It does **not** establish OS notification visibility, hardware-key delivery, background survival, or physical lock-screen behavior. The simulated clock is installed before the app creates its timer interval.
+
+The user reported working media controls on Linux. Browser/version and individual control results were not recorded; Android/iOS validation remains pending.
+
+On physical Android/iOS devices, start a mix with generated sounds only, then repeat with recordings, imports, and radio. Check notification artwork and names, hardware/lock-screen play/pause/stop, background timer expiry, incoming-call interruptions, and explicit resume. Confirm stop preserves the mix and that no unexpected sound returns after an interruption.
+
+Media Session is a progressive enhancement. The [specification](https://www.w3.org/TR/mediasession/) leaves media-session activation to the browser; Chrome's [implementation notes](https://developer.chrome.com/blog/media-session#implementation-notes) describe additional audio-focus limits for Web Audio. Setting metadata and handlers alone does not guarantee that a browser exposes OS controls for a Web Audio mix. Platform audio-focus/background integration remains part of device follow-up work.
+
 ## Release checklist
 
 - Increment the service-worker cache name after changing cached assets.
