@@ -60,7 +60,7 @@ An alternative is `python3 -m http.server 8080 --bind 127.0.0.1` from this direc
 
 ## Features
 
-Available in **0.5.0-alpha.2**:
+Available in **0.5.1**:
 
 - Fifteen recorded sounds: rain, rain on glass, rain on tent, thunder, forest wind, waves, stream, fireplace, morning birds, evening birds, crickets, café, fan, cat purring, and train carriage.
 - Six generated textures, including white, pink, and brown noise, plus a separate Binaural beats category with 2 Hz, 6 Hz, and 10 Hz preset cards. Use stereo headphones for the separate left/right tones. Earlier saved mixes preserve their beat frequencies and levels. Birdsong is now labelled Morning birds.

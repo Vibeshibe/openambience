@@ -4,6 +4,14 @@
 
 Run `npm run check` and `npm test` on Node.js 22+. Tests cover input normalization, invalid and unavailable storage, independent saved-state snapshots, custom IDs, legacy migration, recording attribution/checksums, finite/non-silent audio buffers, loop endpoint continuity, and the relative smoothness of brown noise. They do not establish perceived audio quality or browser compatibility.
 
+## 0.5.1 offline status fix — 2026-10-05
+
+Syntax checks and all seven Node test files passed. New worker tests check readiness under a project subdirectory, missing recordings and shell files, stale caches, invalid catalog data, and storage errors.
+
+The Chromium 153 update harness passed fresh installation, a waiting update, explicit update/reload with saved selection and volume preserved, and a second tab continuing playback while checking the newly activated worker's cache. The updated app reloaded without a network connection, reported ready offline, and served a cached recording. Removing a recording from the active cache reported incomplete even with a complete stale cache present. Suppressing worker replies reported unavailable after the timeout. No page errors occurred. The harness also retained its update controls and responsive-layout checks.
+
+These are desktop Chromium checks. Physical-device checks remain separate.
+
 ## Browser checklist
 
 1. Serve with `npm start`. Load the app and confirm no audio starts automatically.

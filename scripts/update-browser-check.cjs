@@ -54,6 +54,7 @@ const server = createServer(async (req, res) => {
     release = 2;
     await page.evaluate(async () => (await navigator.serviceWorker.getRegistration()).update());
     await page.waitForSelector('#update-notice:visible');
+    await page.waitForFunction(() => document.querySelector('#offline').textContent.includes('ready offline'));
     assert.equal(await page.evaluate(() => document.activeElement.id), 'search', 'Update does not steal focus');
     assert.equal(await page.evaluate(() => navigator.mediaSession.playbackState), 'playing');
     assert.equal(await page.locator('html').getAttribute('data-release'), '1');
@@ -98,10 +99,38 @@ const server = createServer(async (req, res) => {
     assert.equal(await page.locator('#play').getAttribute('aria-pressed'), 'false', 'No autoplay after update');
     assert.equal(await page.locator('#update-notice').isVisible(), false);
     await other.waitForFunction(() => document.querySelector('#show-update').hidden);
+    await other.waitForFunction(() => document.querySelector('#offline').textContent.includes('ready offline'));
+    await page.waitForFunction(() => document.querySelector('#offline').textContent.includes('ready offline'));
     assert.equal(await other.locator('html').getAttribute('data-release'), '1', 'Other tab does not reload');
     assert.equal(await other.evaluate(() => navigator.mediaSession.playbackState), 'playing', 'Other tab keeps playing');
+    await context.setOffline(true);
+    await page.reload();
+    await page.waitForFunction(() => document.querySelector('#offline').textContent.includes('ready offline'));
+    assert.equal(await page.evaluate(async () => {
+      const response = await fetch('./audio/rain-leaves.mp3');
+      return response.ok && (await response.arrayBuffer()).byteLength > 0;
+    }), true, 'Updated shell and recording are available without the network');
+    await context.setOffline(false);
+    await page.evaluate(async () => {
+      // Keep a complete stale cache to ensure it cannot mask a missing active-cache file.
+      const names = await caches.keys();
+      const current = await caches.open(names.find(name => name.startsWith('openambience-shell-')));
+      const stale = await caches.open('openambience-shell-stale-check');
+      for (const request of await current.keys()) await stale.put(request, await current.match(request));
+      await current.delete('./audio/rain-leaves.mp3');
+    });
+    await page.reload();
+    await page.waitForFunction(() => document.querySelector('#offline').textContent.includes('Offline library incomplete'));
+    await page.evaluate(() => {
+      const postMessage = ServiceWorker.prototype.postMessage;
+      ServiceWorker.prototype.postMessage = function(message, ...args) {
+        if (message?.type !== 'OFFLINE_STATUS') return postMessage.call(this, message, ...args);
+      };
+      navigator.serviceWorker.dispatchEvent(new Event('controllerchange'));
+    });
+    await page.waitForFunction(() => document.querySelector('#offline').textContent.includes('Offline status unavailable'));
     assert.deepEqual(errors, []);
-    console.log(JSON.stringify({ browser: await browser.version(), checks: ['no notice on first install', 'real waiting update shown without stealing focus or interrupting playback', 'responsive card and header', 'Later and reopen preserve playback', 'explicit update pauses and reloads with mix/volume preserved', 'other tabs keep playing and remove stale update links', 'no page errors'] }, null, 2));
+    console.log(JSON.stringify({ browser: await browser.version(), checks: ['ready offline on first install', 'real waiting update shown without stealing focus or interrupting playback', 'responsive card and header', 'Later and reopen preserve playback', 'explicit update pauses and reloads with mix/volume preserved', 'other tabs keep playing and report the new worker cache ready', 'offline reload and cached recording after upgrade', 'incomplete active cache is not masked by a stale cache', 'unresponsive worker reports unavailable instead of preparing forever', 'no page errors'] }, null, 2));
   } finally {
     await browser?.close();
     await new Promise(resolve => server.close(resolve));

@@ -456,7 +456,7 @@ window.addEventListener('beforeinstallprompt', event => { event.preventDefault()
 $('#install').onclick = async () => { await installPrompt?.prompt(); installPrompt = null; $('#install').hidden = true; };
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('./sw.js').then(registration => {
-    let dismissedUpdate, applyingUpdate = false;
+    let dismissedUpdate, applyingUpdate = false, offlineCheck = 0;
     const renderUpdate = () => {
       const waiting = registration.waiting;
       const deferred = waiting && waiting === dismissedUpdate;
@@ -468,13 +468,26 @@ if ('serviceWorker' in navigator) {
     };
     const check = async () => {
       renderUpdate();
-      let ready = false;
-      try { ready = Boolean(await caches.match(new URL('./audio/credits.json', location.href), { cacheName: 'openambience-shell-0.5.0-alpha.2' })); } catch {}
-      $('#offline').textContent = ready && registration.active ? '● Library ready offline' : 'Preparing offline library…';
+      const attempt = ++offlineCheck;
+      const worker = navigator.serviceWorker.controller || registration.active;
+      if (!worker) return;
+      // Ask the worker serving this page; its cache version may differ from the page's.
+      const ready = await new Promise(resolve => {
+        const channel = new MessageChannel();
+        const finish = value => { clearTimeout(timeout); channel.port1.close(); channel.port2.close(); resolve(value); };
+        const timeout = setTimeout(() => finish(null), 5000);
+        channel.port1.onmessage = event => finish(event.data?.ready === true);
+        try { worker.postMessage({ type: 'OFFLINE_STATUS' }, [channel.port2]); }
+        catch { finish(null); }
+      });
+      if (attempt !== offlineCheck) return;
+      $('#offline').textContent = ready === true ? '● Library ready offline'
+        : ready === false ? 'Offline library incomplete. Reconnect and reload to retry.'
+          : 'Offline status unavailable. Reconnect and reload to retry.';
     };
     void check();
     const watchInstall = () => registration.installing?.addEventListener('statechange', event => {
-      if (event.target.state === 'redundant') $('#offline').textContent = 'Offline download failed. Reconnect and reload to retry.';
+      if (event.target.state === 'redundant') { offlineCheck++; $('#offline').textContent = 'Offline download failed. Reconnect and reload to retry.'; }
       else void check();
     });
     watchInstall();
@@ -507,5 +520,7 @@ if ('serviceWorker' in navigator) {
       }
     };
   }).catch(() => { $('#offline').textContent = 'Offline setup unavailable. Reconnect and reload to retry.'; });
+} else {
+  $('#offline').textContent = 'Offline listening is unavailable in this browser.';
 }
 renderSounds(); renderSaved(); sync();

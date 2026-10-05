@@ -1,4 +1,4 @@
-const CACHE = 'openambience-shell-0.5.0-alpha.2-1';
+const CACHE = 'openambience-shell-0.5.1';
 const FILES = ['./', './index.html', './styles.css', './app.js', './js/state.js', './js/audio.js', './js/binaural.js', './js/media-session.js', './js/media-transport.js', './js/catalog.js', './js/storage.js', './js/categories.js', './js/radio.js', './audio/credits.json', './manifest.webmanifest', './icons/icon.svg', './icons/icon-192.png', './icons/icon-512.png'];
 self.addEventListener('install', event => {
   event.waitUntil((async () => {
@@ -11,6 +11,24 @@ self.addEventListener('install', event => {
 });
 self.addEventListener('message', event => {
   if (event.data?.type === 'SKIP_WAITING') self.skipWaiting();
+  if (event.data?.type === 'OFFLINE_STATUS' && event.ports[0]) {
+    const port = event.ports[0];
+    event.waitUntil((async () => {
+      let ready = false;
+      try {
+        const cache = await caches.open(CACHE);
+        const response = await cache.match('./audio/credits.json');
+        if (response) {
+          const catalog = await response.json();
+          const cached = new Set((await cache.keys()).map(request => request.url));
+          ready = [...FILES, ...catalog.sounds.map(sound => sound.url)]
+            .every(path => cached.has(new URL(path, self.registration.scope).href));
+        }
+      } catch {}
+      port.postMessage({ ready });
+      port.close();
+    })());
+  }
 });
 self.addEventListener('activate', event => {
   event.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(key => key.startsWith('openambience-shell-') && key !== CACHE).map(key => caches.delete(key)))).then(() => self.clients.claim()));
