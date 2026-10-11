@@ -11,7 +11,7 @@ docker run -d --name openambience --restart unless-stopped \
   -p 127.0.0.1:8080:8080 ghcr.io/vibeshibe/openambience:latest
 ```
 
-Open http://localhost:8080. The `latest` tag first becomes available when the container workflow runs on `main`. Before that, use `ghcr.io/vibeshibe/openambience:dev`.
+Open http://localhost:8080. Use `latest` for the current stable build, `0.6.0` for that release, or `dev` for development builds.
 
 ## Compose
 
