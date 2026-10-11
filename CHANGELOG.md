@@ -4,6 +4,7 @@ App releases use [Semantic Versioning](docs/versioning.md). Research checkpoints
 
 ## Unreleased
 
+- Move the stereo-headphones reminder to a compact Binaural beats category tag and add short suggested listening uses to each binaural preset.
 - Expand Binaural beats to eight selectable presets: 2, 4, 6, 8, 10, 14, 20, and 30 Hz, including the requested 20 Hz Beta option. Add searchable Delta, Theta, Alpha, and Beta labels; migrate older saved frequencies to their matching cards without changing volume. Refresh the offline cache.
 - Plan one-file ZIP mix export/import with bundled custom recordings and restoration of settings and audio together; implementation remains future work.
 - Add Docker and Compose deployment with an unprivileged Nginx image, container smoke checks, and automatic amd64/arm64 image publishing to GitHub Container Registry.

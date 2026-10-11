@@ -1,9 +1,15 @@
 // Original stereo tone generation. Band labels describe frequency ranges only.
 export const BINAURAL_PRESETS = [
-  [2, 'Delta'], [4, 'Theta'], [6, 'Theta'], [8, 'Alpha'],
-  [10, 'Alpha'], [14, 'Beta'], [20, 'Beta'], [30, 'Beta'],
-].map(([beat, band]) => ({
-  id: `binaural-${beat}`, name: `Binaural ${beat} Hz`, kind: 'binaural', icon: '∿', beat, band,
+  [2, 'Delta', 'Try for winding down before sleep.'],
+  [4, 'Theta', 'Try for quiet meditation.'],
+  [6, 'Theta', 'Try for a relaxing pause.'],
+  [8, 'Alpha', 'Try for relaxed reading.'],
+  [10, 'Alpha', 'Try for calm focus.'],
+  [14, 'Beta', 'Try for steady study.'],
+  [20, 'Beta', 'Try for focused work.'],
+  [30, 'Beta', 'Try for an active work session.'],
+].map(([beat, band, description]) => ({
+  id: `binaural-${beat}`, name: `Binaural ${beat} Hz`, kind: 'binaural', icon: '∿', beat, band, description,
 }));
 export const BINAURAL_BEATS = BINAURAL_PRESETS.map(sound => sound.beat);
 export const normalizeBinauralBeat = value => BINAURAL_BEATS.includes(value) ? value : 6;

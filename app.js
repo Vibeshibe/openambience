@@ -105,13 +105,15 @@ function sync() {
 function filterSounds() {
   const query = $('#search').value.trim().toLowerCase();
   const matchesSearch = sound => (!sound.legacy || mix.enabled.includes(sound.id))
-    && `${sound.name} ${categoryOf(sound)} ${sound.band || ''} ${sound.legacy ? mix.binauralBeat : ''}`.toLowerCase().includes(query);
+    && `${sound.name} ${categoryOf(sound)} ${sound.band || ''} ${sound.description || ''} ${sound.legacy ? mix.binauralBeat : ''}`.toLowerCase().includes(query);
   let count = 0;
   const visibleGroups = new Set();
   for (const card of $('#sounds').querySelectorAll('.sound-card')) {
     const sound = catalog.find(item => item.id === card.dataset.sound);
     card.hidden = !matchesSearch(sound) || !matchesCategories(sound, selectedCategories, mix.enabled);
     if (!card.hidden) { count++; visibleGroups.add(categoryOf(sound)); }
+    if (sound.kind === 'binaural') card.querySelector('.sound-toggle').setAttribute('aria-describedby',
+      `${selectedCategories.length === 1 ? 'binaural-headphones' : 'binaural-group-headphones'} help-${sound.id}`);
   }
   for (const heading of $('#sounds').querySelectorAll('.sound-group-heading')) heading.hidden = selectedCategories.length === 1 || !visibleGroups.has(heading.dataset.category);
   for (const input of $('#categories').querySelectorAll('input')) {
@@ -127,6 +129,7 @@ function filterSounds() {
   $('#empty').textContent = query ? 'No sounds match your search and selected filters.' : category === 'Radio' ? 'Add a station using ＋ Radio. Your saved stations will appear here.' : category === 'My sounds' ? 'Choose ＋ Add sounds to import recordings from your device.' : category === 'In your mix' ? 'Select sounds from the library to build your mix.' : 'No sounds match the selected filters yet.';
   $('#visible-count').textContent = `${count} sound${count === 1 ? '' : 's'}`;
   $('#category-heading').textContent = category;
+  $('#binaural-headphones').hidden = selectedCategories.length !== 1 || !visibleGroups.has('Binaural beats');
   $('#radio-hint').hidden = !selectedCategories.includes('Radio');
 }
 function renderRadioStates() {
@@ -151,6 +154,10 @@ function renderSounds() {
     const group = categoryOf(sound);
     if (group !== previousGroup) {
       const heading = document.createElement('h3'); heading.className = 'sound-group-heading'; heading.dataset.category = group; heading.textContent = group;
+      if (group === 'Binaural beats') {
+        const tag = document.createElement('span'); tag.className = 'headphones-tag'; tag.id = 'binaural-group-headphones'; tag.textContent = 'Stereo headphones';
+        heading.append(tag);
+      }
       $('#sounds').append(heading); previousGroup = group;
     }
     const card = document.createElement('article');
@@ -179,10 +186,10 @@ function renderSounds() {
     slider.oninput = () => { mix.levels[sound.id] = Number(slider.value); sync(); void updateAudio(); };
     if (sound.kind === 'binaural') {
       card.querySelector('.sound-kind').textContent = sound.band ? `${sound.band.toUpperCase()} · GENERATED TONES` : 'GENERATED TONES';
-      const hint = document.createElement('p'); hint.className = 'hint'; hint.textContent = 'Use stereo headphones.';
-      hint.id = `help-${sound.id}`;
-      card.querySelector('.sound-toggle').setAttribute('aria-describedby', hint.id);
-      card.append(hint);
+      const description = document.createElement('p'); description.className = 'sound-description';
+      description.textContent = sound.description || 'Your saved listening setting.';
+      description.id = `help-${sound.id}`;
+      card.querySelector('.sound-kind').after(description);
     }
     if (sound.kind === 'radio') {
       const info = document.createElement('p'); info.className = 'radio-state hint'; info.setAttribute('role', 'status');

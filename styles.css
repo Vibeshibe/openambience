@@ -194,6 +194,23 @@ input::placeholder {
   color:var(--muted);
   font-size:12px;
 }
+.category-title, .sound-group-heading {
+  display:flex;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:8px;
+}
+.headphones-tag {
+  display:inline-block;
+  padding:3px 8px;
+  border:1px solid var(--line);
+  border-radius:999px;
+  color:var(--muted);
+  font-size:11px;
+  font-weight:400;
+  line-height:1.4;
+  white-space:nowrap;
+}
 .sound-grid {
   display:grid;
   align-items:start;
@@ -260,6 +277,12 @@ input::placeholder {
   font-size:11px;
   color:var(--muted);
   margin:5px 0 12px;
+}
+.sound-description {
+  margin:0 0 12px;
+  color:var(--muted);
+  font-size:12px;
+  line-height:1.45;
 }
 .volume-label {
   display:flex;

@@ -254,3 +254,9 @@ Use the existing external Playwright setup to run `node scripts/binaural-browser
 - Live browser checks passed switching to 20 Hz, oscillator cleanup, pause/resume, named-mix restoration, offline reload and playback, no autoplay, sleep-timer expiry, and migration of a saved 14 Hz layer at 37% volume.
 - The general browser suite passed with 29 visible built-in sounds, including layouts at 320/390/768/1440px, imports and duplicate detection, saved mixes, all 15 recordings decoded offline, and deletion of imported recordings. Reviewed the mobile binaural card screenshot.
 - These checks establish signal generation and application behavior; physical-device listening for the expanded presets remains pending.
+
+## Binaural category reminder and descriptions — 2026-10-11
+
+- Syntax checks, all 26 Node tests, and the existing Chromium binaural and general browser suites passed after replacing the per-card headphones hint with listening suggestions.
+- Browser inspection confirmed exactly one visible Stereo headphones tag in all-sounds, single-category, and multiple-category views, and no tag when search hides every binaural card. Each visible binaural toggle references the visible shared tag and its own description.
+- Description searches for sleep and focus returned the corresponding presets. The filtered binaural view had no horizontal overflow at 320/390/768/1440px; reviewed its 390px screenshot.
