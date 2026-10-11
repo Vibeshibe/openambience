@@ -8,7 +8,7 @@ export const SOUNDS = [...RECORDINGS,
   { id: 'pink', name: 'Pink noise', icon: '∿', description: 'A softer texture for settling in.' },
   { id: 'brown', name: 'Brown noise', icon: '⌁', description: 'Low and warm, with room to think.' },
   ...BINAURAL_PRESETS,
-  // Only shown while an older mix uses a beat outside the three presets.
+  // Compatibility fallback for catalogs without a matching fixed preset.
   { id: 'binaural', name: 'Saved binaural beats', kind: 'binaural', icon: '∿', legacy: true },
 ];
 export const PRESETS = [

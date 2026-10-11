@@ -105,7 +105,7 @@ function sync() {
 function filterSounds() {
   const query = $('#search').value.trim().toLowerCase();
   const matchesSearch = sound => (!sound.legacy || mix.enabled.includes(sound.id))
-    && `${sound.name} ${categoryOf(sound)} ${sound.legacy ? mix.binauralBeat : ''}`.toLowerCase().includes(query);
+    && `${sound.name} ${categoryOf(sound)} ${sound.band || ''} ${sound.legacy ? mix.binauralBeat : ''}`.toLowerCase().includes(query);
   let count = 0;
   const visibleGroups = new Set();
   for (const card of $('#sounds').querySelectorAll('.sound-card')) {
@@ -178,7 +178,7 @@ function renderSounds() {
     };
     slider.oninput = () => { mix.levels[sound.id] = Number(slider.value); sync(); void updateAudio(); };
     if (sound.kind === 'binaural') {
-      card.querySelector('.sound-kind').textContent = 'GENERATED TONES';
+      card.querySelector('.sound-kind').textContent = sound.band ? `${sound.band.toUpperCase()} · GENERATED TONES` : 'GENERATED TONES';
       const hint = document.createElement('p'); hint.className = 'hint'; hint.textContent = 'Use stereo headphones.';
       hint.id = `help-${sound.id}`;
       card.querySelector('.sound-toggle').setAttribute('aria-describedby', hint.id);

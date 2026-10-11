@@ -14,6 +14,8 @@ The recordings were acquired directly from the creators' public high-quality MP3
 | Imported audio | User-selected local files | Determined by the user’s source | Stored locally; never shipped or uploaded |
 | Sound glyphs | Unicode characters rendered by system fonts | No bundled font asset | Appearance varies with installed fonts |
 
+The binaural library exposes 2, 4, 6, 8, 10, 14, 20, and 30 Hz differences using the existing original sine-wave generator; no additional recordings are distributed. Delta, Theta, Alpha, and Beta are frequency-band labels, with boundary conventions varying between sources. The 20 Hz preset is labelled Beta. See the frequency ranges in [this EEG study](https://pubmed.ncbi.nlm.nih.gov/39557128/) and the [beta/delta sleep study](https://pubmed.ncbi.nlm.nih.gov/1519011/). These labels describe the selected tone difference and do not establish a corresponding brain response or therapeutic effect.
+
 Ambiphone is referenced only for analysis and inspiration. Its name and linked content are not covered by this repository's license.
 
 For each future recording, record the title, creator, original source URL, exact license/version, required attribution, retrieval date, modifications, duration, and checksum. A freely accessible download alone is insufficient provenance. Keep recording licenses separate from the code license.

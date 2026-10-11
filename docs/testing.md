@@ -246,3 +246,11 @@ Use the existing external Playwright setup to run `node scripts/binaural-browser
 - Category/radio checks passed with a separate Binaural beats category. Radio checks now locate stations by name because alphabetical sorting changes their position.
 - Real service-worker update checks passed: Later keeps playback running and shows the square bell button; reopening, explicit update, saved selection/volume, and other-tab playback remain intact. The red dot animates normally and stays still with reduced motion. Mobile and desktop screenshots were reviewed.
 - Physical-device testing of this revision and human listening to the new recordings remain pending.
+
+## Expanded binaural presets — 2026-10-11
+
+- Syntax checks and all 26 Node tests passed. Older single-card mixes at all eight supported frequencies migrate to the matching preset with their saved level; an already-selected preset keeps its own level when an older reference is also present.
+- Chromium 156.0.8078.4 verified eight visible preset cards and search by Delta, Theta, Alpha, and Beta. OfflineAudioContext measurements through the audio engine confirmed isolated 200 Hz left and 200 Hz plus the selected difference right signals for 2, 4, 6, 8, 10, 14, 20, and 30 Hz.
+- Live browser checks passed switching to 20 Hz, oscillator cleanup, pause/resume, named-mix restoration, offline reload and playback, no autoplay, sleep-timer expiry, and migration of a saved 14 Hz layer at 37% volume.
+- The general browser suite passed with 29 visible built-in sounds, including layouts at 320/390/768/1440px, imports and duplicate detection, saved mixes, all 15 recordings decoded offline, and deletion of imported recordings. Reviewed the mobile binaural card screenshot.
+- These checks establish signal generation and application behavior; physical-device listening for the expanded presets remains pending.

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { normalizeMix, readStore, presetMix } from '../js/state.js';
+import { SOUNDS, normalizeMix, readStore, presetMix } from '../js/state.js';
 
 test('untrusted mix values cannot add unknown layers or invalid volumes', () => {
   const mix = normalizeMix({ master: 300, enabled: ['rain', 'rain', 'missing'], levels: { rain: -10, brown: 'loud', white: NaN } });
@@ -43,11 +43,15 @@ test('binaural settings survive saved mixes and older or invalid settings get a 
 });
 
 test('older beat differences remain exact and preset tones retain independent levels', () => {
-  for (const beat of [4, 8, 14, 20, 30]) {
-    const mix = normalizeMix({ enabled: ['binaural'], binauralBeat: beat, levels: { binaural: 37 } });
-    assert.deepEqual(mix.enabled, ['binaural']);
+  for (const beat of [2, 4, 6, 8, 10, 14, 20, 30]) {
+    // Older stores contain default levels for preset IDs even when not selected.
+    const old = { enabled: ['binaural'], binauralBeat: beat, levels: { binaural: 37, [`binaural-${beat}`]: 50 } };
+    const restored = readStore({ getItem: () => JSON.stringify({ mix: old, saved: [{ name: 'Legacy', mix: old }] }) });
+    const mix = restored.mix;
+    assert.deepEqual(mix.enabled, [`binaural-${beat}`]);
     assert.equal(mix.binauralBeat, beat);
-    assert.equal(normalizeMix(mix).levels.binaural, 37);
+    assert.equal(normalizeMix(mix).levels[`binaural-${beat}`], 37);
+    assert.deepEqual(restored.saved[0].mix, mix);
   }
   const mix = normalizeMix({ enabled: ['binaural-2', 'binaural-10'], levels: { 'binaural-2': 21, 'binaural-10': 43 } });
   assert.deepEqual(normalizeMix(mix), mix);
@@ -55,4 +59,20 @@ test('older beat differences remain exact and preset tones retain independent le
   assert.equal(mix.levels['binaural-10'], 43);
   const older = { ...mix, enabled: ['binaural'], binauralBeat: 2, levels: { ...mix.levels, binaural: 17 } };
   assert.equal(normalizeMix(older).levels['binaural-2'], 17);
+});
+
+test('new Beta presets persist independently and keep their own levels during migration', () => {
+  const mix = normalizeMix({ enabled: ['binaural-14', 'binaural-20', 'binaural-30'],
+    levels: { 'binaural-14': 21, 'binaural-20': 37, 'binaural-30': 43 } });
+  const restored = readStore({ getItem: () => JSON.stringify({ mix, saved: [{ name: 'Beta mix', mix }] }) });
+  assert.deepEqual(restored.mix.enabled, ['binaural-14', 'binaural-20', 'binaural-30']);
+  assert.deepEqual(restored.saved[0].mix, mix);
+  const migrated = normalizeMix({ ...mix, enabled: ['binaural', 'binaural-20'], binauralBeat: 20,
+    levels: { ...mix.levels, binaural: 80 } });
+  assert.deepEqual(migrated.enabled, ['binaural-20']);
+  assert.equal(migrated.levels['binaural-20'], 37);
+  const catalog = SOUNDS.filter(sound => sound.id !== 'binaural-20');
+  const fallback = normalizeMix({ enabled: ['binaural'], binauralBeat: 20, levels: { binaural: 37 } }, catalog);
+  assert.deepEqual(fallback.enabled, ['binaural']);
+  assert.equal(fallback.levels.binaural, 37);
 });

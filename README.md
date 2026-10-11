@@ -34,7 +34,7 @@
 
 | Make it yours | What you can do |
 | --- | --- |
-| **24 built-in sounds** | Layer nature recordings, train ambience, noise textures, and binaural tones. |
+| **29 built-in sounds** | Layer nature recordings, train ambience, noise textures, and binaural tones. |
 | **Your own recordings** | Import audio, choose categories, and keep it on your device. |
 | **Saved mixes** | Return to your favourite combinations with a tap. |
 | **Offline listening** | Cache the bundled library and play imported sounds offline. |
@@ -81,10 +81,10 @@ See the [container deployment guide](docs/docker.md) for port settings, updates,
 
 ## Features
 
-Available in **0.5.1**:
+Available on **dev** (based on **0.5.1**):
 
 - Fifteen recorded sounds: rain, rain on glass, rain on tent, thunder, forest wind, waves, stream, fireplace, morning birds, evening birds, crickets, café, fan, cat purring, and train carriage.
-- Six generated textures, including white, pink, and brown noise, plus a separate Binaural beats category with 2 Hz, 6 Hz, and 10 Hz preset cards. Use stereo headphones for the separate left/right tones. Earlier saved mixes preserve their beat frequencies and levels. Birdsong is now labelled Morning birds.
+- Six generated textures, including white, pink, and brown noise, plus a separate Binaural beats category with eight preset cards: Delta (2 Hz), Theta (4 and 6 Hz), Alpha (8 and 10 Hz), and Beta (14, 20, and 30 Hz). Frequencies describe the difference between the left and right tones. Use stereo headphones for the separate left/right tones. Earlier saved mixes preserve their beat frequencies and levels. Birdsong is now labelled Morning birds.
 - A phone-friendly two-column library, search, a collapsible Filters panel with multi-select category checkboxes, counts, and a visible active-filter summary, alphabetically sorted cards within categories, and a compact player with a mixer panel. Uploaded recordings appear beside built-in sounds in their assigned category, with a small **Uploaded** tag.
 - **＋ Radio** saves direct HTTPS radio-stream URLs locally. Compatible stations join the mixer and sleep timer; live playback needs internet and is never cached. See [radio compatibility](docs/internet-radio.md).
 - Up to six simultaneous layers, individual volume, and a sleep timer with a five-second fade. The persistent player centers three circular controls: **Mix options** on the left, play/pause in the middle, and a speaker button on the right. The speaker opens a vertical volume slider with a large percentage and mute/unmute; Mix options opens saving and timer controls.

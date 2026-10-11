@@ -60,36 +60,45 @@ const assert = require('node:assert/strict');
       assert.ok(result.leftLeak < .00001 && result.rightLeak < .00001, JSON.stringify(result));
     }
     const toggle = id => page.locator(`[data-sound="${id}"] .sound-toggle`);
-    assert.equal(await page.locator('[data-kind="binaural"]:visible').count(), 3);
+    assert.equal(await page.locator('[data-kind="binaural"]:visible').count(), 8);
     assert.equal(await page.locator('[data-kind="binaural"] select').count(), 0);
+    for (const [band, beats] of [['Delta', [2]], ['Theta', [4, 6]], ['Alpha', [8, 10]], ['Beta', [14, 20, 30]]]) {
+      await page.locator('#search').fill(band);
+      assert.equal(await page.locator('.sound-card:visible').count(), beats.length);
+      for (const beat of beats) {
+        assert.equal(await page.locator(`[data-sound="binaural-${beat}"]`).isVisible(), true);
+        assert.match(await page.locator(`[data-sound="binaural-${beat}"] .sound-kind`).textContent(), new RegExp(band, 'i'));
+      }
+    }
+    await page.locator('#search').fill('');
     await toggle('binaural-6').click(); await toggle('brown').click();
     await page.locator('#play').click();
     await page.waitForFunction(() => navigator.mediaSession.playbackState === 'playing');
     await page.waitForFunction(() => window.__tones.some(tone => !tone.__stopped && Math.abs(tone.frequency.value - 206) < .01));
-    await toggle('binaural-6').click(); await toggle('binaural-10').click();
-    await page.waitForFunction(() => window.__tones.some(tone => !tone.__stopped && Math.abs(tone.frequency.value - 210) < .01));
+    await toggle('binaural-6').click(); await toggle('binaural-20').click();
+    await page.waitForFunction(() => window.__tones.some(tone => !tone.__stopped && Math.abs(tone.frequency.value - 220) < .01));
     assert.equal(await page.evaluate(() => window.__tones.filter(tone => !tone.__stopped).length), 2, 'Switching presets cleans up previous oscillators');
     await page.locator('#play').click();
     assert.equal(await page.evaluate(() => window.__contexts[0].state), 'suspended');
     await page.locator('#play').click();
     await page.waitForFunction(() => window.__contexts[0].state === 'running');
-    await toggle('binaural-10').click();
+    await toggle('binaural-20').click();
     await page.waitForFunction(() => window.__tones.every(tone => tone.__stopped));
-    await toggle('binaural-10').click();
+    await toggle('binaural-20').click();
     await page.waitForFunction(() => window.__tones.filter(tone => !tone.__stopped).length === 2);
     await page.locator('#open-mixer').click(); await page.locator('#mix-name').fill('Headphones');
     await page.locator('#save-form button').click(); await page.locator('#mixer-dialog .close').click();
-    await toggle('binaural-10').click(); await toggle('binaural-2').click();
+    await toggle('binaural-20').click(); await toggle('binaural-2').click();
     await page.locator('#mixes-tab').click();
     await page.getByRole('button', { name: 'Headphones', exact: true }).click();
-    assert.equal(await toggle('binaural-10').getAttribute('aria-pressed'), 'true');
+    assert.equal(await toggle('binaural-20').getAttribute('aria-pressed'), 'true');
     assert.equal(await toggle('binaural-2').getAttribute('aria-pressed'), 'false');
     await page.locator('#library-tab').click();
     await page.locator('[data-sound="binaural-2"]').scrollIntoViewIfNeeded();
     await page.screenshot({ path: '/tmp/openambience-binaural-mobile.png' });
     await page.waitForFunction(() => document.querySelector('#offline').textContent.includes('ready offline'));
     await page.reload(); await page.waitForSelector('[data-sound="binaural-6"]');
-    assert.equal(await toggle('binaural-10').getAttribute('aria-pressed'), 'true');
+    assert.equal(await toggle('binaural-20').getAttribute('aria-pressed'), 'true');
     assert.equal(await toggle('binaural-2').getAttribute('aria-pressed'), 'false');
     assert.equal(await page.evaluate(() => window.__contexts.length), 0);
     await context.setOffline(true);
@@ -106,16 +115,16 @@ const assert = require('node:assert/strict');
       schemaVersion: 2, mix: { enabled: ['binaural'], binauralBeat: 14, levels: { binaural: 37 }, master: 40 }, saved: []
     })));
     await page.reload();
-    await page.waitForSelector('[data-sound="binaural"]');
-    assert.equal(await page.locator('[data-sound="binaural"] .sound-name').textContent(), 'Saved binaural 14 Hz');
-    assert.equal(await page.locator('#volume-binaural').inputValue(), '37');
-    assert.equal(await page.locator('[data-kind="binaural"]:visible').count(), 4);
+    await page.waitForSelector('[data-sound="binaural-14"]');
+    assert.equal(await page.locator('[data-sound="binaural-14"] .sound-name').textContent(), 'Binaural 14 Hz');
+    assert.equal(await page.locator('#volume-binaural-14').inputValue(), '37');
+    assert.equal(await page.locator('[data-kind="binaural"]:visible').count(), 8);
     await page.locator('#play').click();
     await page.waitForFunction(() => window.__tones.some(tone => !tone.__stopped && Math.abs(tone.frequency.value - 214) < .01));
-    await toggle('binaural').click();
+    await toggle('binaural-14').click();
     await page.waitForFunction(() => window.__contexts[0].state === 'suspended');
     assert.equal(await page.locator('[data-sound="binaural"]').isVisible(), false);
     assert.deepEqual(errors, []);
-    console.log(JSON.stringify({ browser: await browser.version(), spectra, checks: ['all beat presets rendered through the master compressor with isolated stereo frequencies', 'three preset cards without dropdowns', 'preset switching cleans up oscillators', 'legacy saved frequencies and levels preserved', 'pause/resume and oscillator cleanup', 'saved mix and offline reload preserve beat selection without autoplay', 'offline playback and sleep timer', 'no page errors'] }, null, 2));
+    console.log(JSON.stringify({ browser: await browser.version(), spectra, checks: ['all beat presets rendered through the master compressor with isolated stereo frequencies', 'eight preset cards with searchable frequency bands', 'preset switching cleans up oscillators', 'legacy saved frequencies and levels preserved', 'pause/resume and oscillator cleanup', 'saved mix and offline reload preserve beat selection without autoplay', 'offline playback and sleep timer', 'no page errors'] }, null, 2));
   } finally { await browser.close(); }
 })().catch(error => { console.error(error); process.exitCode = 1; });
