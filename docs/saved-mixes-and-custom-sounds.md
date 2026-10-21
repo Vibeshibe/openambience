@@ -1,6 +1,6 @@
 # Proposed scope: saved mixes and custom sounds
 
-> Implementation status (0.5.1): local imports, duplicate detection, removal, and saved-mix create/load/update/rename/duplicate/delete are available. Recipes remain in versioned localStorage; imported audio uses IndexedDB. ZIP mix export/import, missing-asset relinking, drag-and-drop, and storage-management UI below remain proposals.
+> Implementation status (`dev`, after 0.6.0): local imports, duplicate detection, removal, saved-mix create/load/update/rename/duplicate/delete, versioned links, and single-ZIP download/restore are available. Recipes and audio now use IndexedDB with atomic ZIP restore and legacy localStorage migration. See [the implemented portability contract](mix-portability.md). Missing-asset relinking, drag-and-drop, and storage-management UI remain proposals. The historical design below also includes broader future ideas, such as removing the 20-mix limit.
 
 Date: 2026-09-30. **Design proposal only; none of the new behavior below is implemented by this research change.** The immediate product focus is reusable personal mixes, an openly licensed sound catalog, and simple local-file imports. Inventory and source selection are in [research](research/ambiphone-sound-inventory.md).
 

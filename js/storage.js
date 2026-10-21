@@ -2,12 +2,14 @@
 export function openLibrary() {
   return new Promise((resolve, reject) => {
     const request = indexedDB.open('openambience', 2);
+    let blocked = false;
     request.onupgradeneeded = () => {
       if (!request.result.objectStoreNames.contains('sounds')) request.result.createObjectStore('sounds', { keyPath: 'id' });
       request.result.createObjectStore('state');
     };
-    request.onblocked = () => reject(new Error('Close other OpenAmbience tabs and reload to update local storage.'));
+    request.onblocked = () => { blocked = true; reject(new Error('Close other OpenAmbience tabs and reload to update local storage.')); };
     request.onsuccess = () => {
+      if (blocked) { request.result.close(); return; }
       request.result.onversionchange = () => request.result.close();
       resolve(request.result);
     };
@@ -43,7 +45,14 @@ export function commitLibraryState(db, state, sounds = []) {
     tx.oncomplete = () => resolve();
     tx.onerror = () => reject(tx.error || new Error('Could not save the mix.'));
     tx.onabort = () => reject(tx.error || new Error('Could not save the mix.'));
-    for (const sound of sounds) tx.objectStore('sounds').add(sound);
-    tx.objectStore('state').put(state, 'current');
+    try {
+      for (const sound of sounds) tx.objectStore('sounds').add(sound);
+      tx.objectStore('state').put(state, 'current');
+    } catch (error) {
+      // Synchronous clone/quota failures do not automatically abort a transaction.
+      // Discard earlier add requests as well as the failed settings write.
+      try { tx.abort(); } catch {}
+      reject(error);
+    }
   });
 }

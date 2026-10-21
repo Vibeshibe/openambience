@@ -66,14 +66,14 @@ async function importFile(page, file) {
    assert.ok(panel.x>=0&&panel.x+panel.width<=width&&panel.y>=0);
    assert.equal(await page.locator('#master').evaluate(element=>element===document.activeElement),true);
    assert.equal(await page.locator('#master-value').textContent(),`${await page.locator('#master').inputValue()}%`);
-   if (width === 1440) await page.screenshot({path:'/tmp/openambience-volume-desktop.png'});
+   if (width === 1440) await page.screenshot({path:require('node:path').join(require('node:os').tmpdir(), 'openambience-volume-desktop.png')});
    await page.keyboard.press('Escape');
    assert.equal(await page.locator('#volume-toggle').evaluate(element=>element===document.activeElement),true);
    assert.equal(await page.locator('#volume-popout').isVisible(),false);
    assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
    if(width===1440){
      await page.locator('[data-category="Noise & textures"]').scrollIntoViewIfNeeded();
-     await page.screenshot({path:'/tmp/openambience-sorted-desktop.png'});
+     await page.screenshot({path:require('node:path').join(require('node:os').tmpdir(), 'openambience-sorted-desktop.png')});
    }
  }
  await page.setViewportSize({width:320,height:844});
@@ -100,7 +100,7 @@ async function importFile(page, file) {
  await page.setViewportSize({width:390,height:844});
  await page.locator('#volume-toggle').click();
  await page.locator('#master').fill('40');
- await page.screenshot({path:'/tmp/openambience-volume-mobile.png'});
+ await page.screenshot({path:require('node:path').join(require('node:os').tmpdir(), 'openambience-volume-mobile.png')});
  await page.keyboard.press('Escape');
  const toggle = id=>page.locator(`[data-sound="${id}"] .sound-toggle`);
  await toggle('rain-leaves').click(); await toggle('brown').click();
@@ -205,7 +205,7 @@ async function importFile(page, file) {
  await chooseCategory(page, 'My sounds');await page.locator('.remove-sound').click();
  await page.waitForFunction(()=>document.querySelectorAll('.sound-card').length===30);
  await page.locator('#mixes-tab').click();await page.getByRole('button',{name:'With import',exact:true}).click();
- assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('openambience.v2')).mix.enabled.some(id=>id.startsWith('custom-'))),false);
+ assert.equal(await page.evaluate(async()=>{const {openLibrary,readLibraryState}=await import('./js/storage.js');const db=await openLibrary();try{return (await readLibraryState(db)).mix.enabled.some(id=>id.startsWith('custom-'));}finally{db.close();}}),false);
  await page.getByRole('button',{name:'Delete Renamed mix',exact:true}).click();
  assert.equal(await page.locator('.saved-item').count(),2);
  await page.locator('#library-tab').click(); await chooseCategory(page, 'All sounds');

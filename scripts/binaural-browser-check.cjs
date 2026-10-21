@@ -95,7 +95,7 @@ const assert = require('node:assert/strict');
     assert.equal(await toggle('binaural-2').getAttribute('aria-pressed'), 'false');
     await page.locator('#library-tab').click();
     await page.locator('[data-sound="binaural-2"]').scrollIntoViewIfNeeded();
-    await page.screenshot({ path: '/tmp/openambience-binaural-mobile.png' });
+    await page.screenshot({ path: require('node:path').join(require('node:os').tmpdir(), 'openambience-binaural-mobile.png') });
     await page.waitForFunction(() => document.querySelector('#offline').textContent.includes('ready offline'));
     await page.reload(); await page.waitForSelector('[data-sound="binaural-6"]');
     assert.equal(await toggle('binaural-20').getAttribute('aria-pressed'), 'true');
@@ -111,9 +111,13 @@ const assert = require('node:assert/strict');
     await page.waitForFunction(() => window.__contexts[0].state === 'suspended');
     assert.match(await page.locator('#status').textContent(), /Sleep timer finished/);
     await context.setOffline(false);
-    await page.evaluate(() => localStorage.setItem('openambience.v2', JSON.stringify({
-      schemaVersion: 2, mix: { enabled: ['binaural'], binauralBeat: 14, levels: { binaural: 37 }, master: 40 }, saved: []
-    })));
+    // Exercise an old recipe through the same normalizer as current snapshots.
+    await page.evaluate(async () => {
+      const { openLibrary, commitLibraryState } = await import('./js/storage.js');
+      const db = await openLibrary();
+      try { await commitLibraryState(db, { schemaVersion: 2, mix: { enabled: ['binaural'], binauralBeat: 14, levels: { binaural: 37 }, master: 40 }, saved: [] }); }
+      finally { db.close(); }
+    });
     await page.reload();
     await page.waitForSelector('[data-sound="binaural-14"]');
     assert.equal(await page.locator('[data-sound="binaural-14"] .sound-name').textContent(), 'Binaural 14 Hz');

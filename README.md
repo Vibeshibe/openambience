@@ -81,6 +81,8 @@ See the [container deployment guide](docs/docker.md) for port settings, updates,
 
 ## Features
 
+New on **dev** after 0.6.0: versioned mix links, single-ZIP download/restore including custom recordings, and saved sleep-timer settings. Use **Mix options → Share / download mix**, or **Share / download** beside a saved mix. Restore from **My mixes → Import mix ZIP**. Links and archives show a preview before loading; playback starts only with Play. See [mix portability](docs/mix-portability.md).
+
 Available in **0.6.0**:
 
 - Fifteen recorded sounds: rain, rain on glass, rain on tent, thunder, forest wind, waves, stream, fireplace, morning birds, evening birds, crickets, café, fan, cat purring, and train carriage.
@@ -90,12 +92,12 @@ Available in **0.6.0**:
 - Up to six simultaneous layers, individual volume, and a sleep timer with a five-second fade. The persistent player centers three circular controls: **Mix options** on the left, play/pause in the middle, and a speaker button on the right. The speaker opens a vertical volume slider with a large percentage and mute/unmute; Mix options opens saving and timer controls.
 - Twenty named local mixes with load, update, rename, duplicate, and delete controls.
 - Choose files and a category in **Add sounds**, then select **Add to library**. A batch shares the chosen category; you can change each recording’s category afterward. **My sounds** still finds every imported recording. Supported formats depend on the browser; MP3 and WAV are good starting points. Files must be mono/stereo, at most 25 MB and two minutes long. Up to 30 imports; identical files are detected.
-- Offline caching of the app and the entire bundled library. Wait for **Library ready offline** before disconnecting. Imports are stored locally in IndexedDB; mix recipes use localStorage.
+- Offline caching of the app and the entire bundled library. Wait for **Library ready offline** before disconnecting. Imports are stored locally in IndexedDB. On dev, mix recipes also use IndexedDB so ZIP restores commit together; existing localStorage recipes migrate automatically.
 - In-app sound credits and install support. When a new version is ready, a quiet notice offers **Update & reload** or **Later**. Later leaves a square notification button with a red reminder dot; playback continues until you choose to update.
 
 Recordings are edited, loudness-adjusted excerpts of creator-published MP3 previews under CC0 or CC BY 4.0, acquired directly from Freesound. They are not lossless originals. Attribution, source URLs, modifications, and checksums are in [audio/credits.json](audio/credits.json). Audio assets have separate licences from the MIT application code.
 
-Nothing is uploaded when you import a recording. Clearing browser site data removes custom sounds and saved mixes. Browsers can also evict local storage. Back up original recordings separately; one-file ZIP export/import of mix settings and custom recordings remains planned. Pausing cancels the current timer; resuming starts its selected duration again. Playback never starts automatically after reload.
+Nothing is uploaded when you import a recording. Clearing browser site data removes custom sounds and saved mixes. Browsers can also evict local storage. On dev, download a mix ZIP to back up its settings and referenced custom recordings together. Pausing cancels the current timer; resuming starts its selected duration again. Playback never starts automatically after reload.
 
 ### Media controls
 
@@ -129,7 +131,9 @@ js/audio.js                Web Audio recordings, synthesis, and gain controls
 js/media-session.js        Optional system media controls and mix metadata
 js/media-transport.js      Silent local media element for browser audio focus
 js/catalog.js              Generated bundled recording catalog
-js/storage.js              IndexedDB storage for custom audio and station URLs
+js/storage.js              IndexedDB storage and atomic mix restoration
+js/portable-mix.js         Versioned mix links and ZIP import/export
+js/zip.js                  Bounded ZIP reading and writing
 js/categories.js           Category membership and filtering
 js/radio.js                Stream URL validation and radio playback lifecycle
 audio/                     Bundled MP3s and their attribution register
@@ -167,7 +171,7 @@ Increment the cache version in `sw.js` whenever shipping changed app files. A ne
 - Browser support for custom audio codecs varies. Custom recordings loop as supplied; trim or crossfade them in an audio editor for a smoother seam.
 - The engine limits decoded audio to 96 MiB and pauses with a message if a mix is too large. Six long imports may exceed this limit.
 - Bundled loops are short (roughly 30 seconds). Thunder includes a 30-second quiet interval between events.
-- Browser storage is local and may be cleared or evicted. ZIP mix export/import and cross-device sync are not included. Radio supports direct CORS-enabled HTTPS audio streams; playlists and station webpages are not supported.
+- Browser storage is local and may be cleared or evicted. Dev includes ZIP mix backups; automatic cross-device sync remains planned. Radio supports direct CORS-enabled HTTPS audio streams; playlists and station webpages are not supported.
 - The sleep timer uses the audio clock for fading and the wall clock for stopping; device suspension can delay UI updates.
 
 ## AI usage disclosure

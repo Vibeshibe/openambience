@@ -64,7 +64,7 @@ const server = createServer(async (req, res) => {
       for (const selector of ['#update', '#defer-update']) {
         const box = await page.locator(selector).boundingBox(); assert.ok(box.width >= 44 && box.height >= 44);
       }
-      if (width === 390) await page.screenshot({ path: '/tmp/openambience-update-mobile.png' });
+      if (width === 390) await page.screenshot({ path: require('node:path').join(require('node:os').tmpdir(), 'openambience-update-mobile.png') });
     }
     await page.locator('#defer-update').click();
     assert.equal(await page.locator('#update-notice').isVisible(), false);
@@ -83,7 +83,7 @@ const server = createServer(async (req, res) => {
     await page.setViewportSize({ width: 320, height: 844 });
     await page.locator('#install').evaluate(button => { button.hidden = false; });
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true, 'Install and deferred update fit together');
-    await page.screenshot({path:'/tmp/openambience-update-notification.png'});
+    await page.screenshot({path:require('node:path').join(require('node:os').tmpdir(), 'openambience-update-notification.png')});
     await page.locator('#show-update').click();
     assert.equal(await page.locator('#update-notice').isVisible(), true);
     assert.equal(await page.evaluate(() => document.activeElement.id), 'update');

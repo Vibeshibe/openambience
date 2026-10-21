@@ -4,6 +4,22 @@
 
 Run `npm run check` and `npm test` on Node.js 22+. Tests cover input normalization, invalid and unavailable storage, independent saved-state snapshots, custom IDs, legacy migration, recording attribution/checksums, finite/non-silent audio buffers, loop endpoint continuity, and the relative smoothness of brown noise. They do not establish perceived audio quality or browser compatibility.
 
+## Mix portability on dev — 2026-10-21
+
+Syntax checks and all 35 Node tests passed, including on Node 22.23.3. Portable-format coverage includes Unicode fragment links, unsupported versions and malformed settings, custom bytes and credit metadata, missing files, invalid radio URLs, SHA-256 reuse, ID remapping, library limits, unsafe/duplicate paths, CRC corruption, truncated ZIPs and bounded DEFLATE expansion.
+
+The Chromium 156.0.8078.4 portability harness passed saved-mix sharing, preview before loading, no autoplay, timer and level restoration, Unicode names, a real ZIP download, import into a fresh browser profile, legacy localStorage migration, repeated import without duplicate sounds, and preservation of existing recording categories. It also passed a forced IndexedDB transaction abort and a simulated synchronous quota failure with neither new sounds nor a new recipe left behind. Offline reload, imported-audio playback with radio selected, and ZIP download worked after caching. Sharing dialogs fit 320/390/768/1440px widths; the mobile sharing screenshot was reviewed. No page errors occurred.
+
+The existing full library, binaural, and service-worker update browser suites also passed after adapting persistence assertions to IndexedDB. They cover playback, saved-mix actions, imports and duplicate detection, category/search behavior, all fifteen bundled assets decoded offline, timer expiry, all eight binaural frequencies, legacy binaural levels, and update/reload with mix and volume preserved.
+
+Run the new harness with the same isolated Playwright setup described below:
+
+```sh
+PLAYWRIGHT_MODULE=/tmp/openambience-tools/node_modules/playwright node scripts/portable-mix-browser-check.cjs
+```
+
+`CHROMIUM_EXECUTABLE` and `PREVIEW_URL` are optional. The harness uses disposable browser profiles and the system temporary directory for screenshots. The project has no new runtime or development dependencies. Physical Android/iOS ZIP download/picker behavior, actual storage exhaustion, long listening, and assistive technology remain manual checks; desktop browser emulation does not establish those results.
+
 ## 0.5.1 offline status fix — 2026-10-05
 
 Syntax checks and all seven Node test files passed. New worker tests check readiness under a project subdirectory, missing recordings and shell files, stale caches, invalid catalog data, and storage errors.

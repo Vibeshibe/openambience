@@ -4,10 +4,12 @@
 
 - Imported recordings: the `sounds` object store in the `openambience` IndexedDB database, including the original file blob, stable ID, content hash, name, and category.
 - Radio entries: station name, stable ID, and HTTPS URL in the same IndexedDB store. Live audio is not downloaded or cached.
-- Current and named mixes: `openambience.v2` in localStorage; recipes refer to stable sound IDs.
+- Current and named mixes: the `state` object store in IndexedDB database version 2. Existing `openambience.v2` / `openambience.v1` localStorage recipes migrate on first load, with original values retained. Recipes refer to stable sound IDs.
 - Built-in audio and app files: a versioned service-worker cache.
 
 This storage belongs to the site's origin and browser profile on that device. Using a different browser or host/port does not share that data. No audio or mix is currently uploaded. Radio playback connects directly to the selected station.
+
+On `dev`, [mix links and ZIP backups](mix-portability.md) transfer selected mixes between browsers. A ZIP includes referenced custom recordings and restores settings and audio atomically; links carry built-in and radio settings. Neither requires a sync provider.
 
 Browser-managed storage can be cleared by the user or evicted under storage pressure. Persistence can be requested with the Storage API but is not a backup or a guarantee that the user cannot delete data. See [MDN: storage quotas and eviction](https://developer.mozilla.org/en-US/docs/Web/API/Storage_API/Storage_quotas_and_eviction_criteria).
 

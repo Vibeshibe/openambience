@@ -331,7 +331,7 @@ $('#open-mixer').onclick = openMixer; $('#save-current').onclick = openMixer;
 for (const preset of PRESETS) {
   const button = document.createElement('button'); button.className = 'preset'; button.textContent = preset.name;
   const note = document.createElement('small'); note.textContent = preset.note; button.append(note);
-  button.onclick = () => { mix = { ...presetMix(preset.levels), master: mix.master, binauralBeat: mix.binauralBeat }; mix = normalize(mix); sync(); void updateAudio(); status(`${preset.name} selected.`); };
+  button.onclick = () => { mix = { ...presetMix(preset.levels), master: mix.master, binauralBeat: mix.binauralBeat, timerMinutes: mix.timerMinutes }; mix = normalize(mix); sync(); void updateAudio(); status(`${preset.name} selected.`); };
   $('#presets').append(button);
 }
 function renderSaved() {
@@ -339,7 +339,10 @@ function renderSaved() {
   saved.forEach((item, index) => {
     const group = document.createElement('article'); group.className = 'saved-item';
     const button = document.createElement('button'); button.className = 'load-mix'; button.textContent = item.name;
-    button.onclick = () => { mix = normalize(item.mix); sync(); void updateAudio(); status(`${item.name} loaded.`); };
+    button.onclick = () => {
+      mix = normalize(item.mix); deadline = playing && mix.timerMinutes ? Date.now() + mix.timerMinutes * 60000 : 0;
+      sync(); void updateAudio(); status(`${item.name} loaded.`);
+    };
     group.append(button);
     for (const action of ['Update', 'Rename', 'Duplicate', 'Share / download', 'Delete']) {
       const control = document.createElement('button'); control.textContent = action; control.setAttribute('aria-label', `${action} ${item.name}`);
