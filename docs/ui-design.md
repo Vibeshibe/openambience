@@ -33,6 +33,8 @@ Save, details, confirmation, sharing and restore dialogs share a 460px desktop w
 
 The resting player shows only its three controls. Sound selection count and sleep countdown live in Mix options alongside the timer. Routine play/pause messages remain available to screen readers. Other action feedback appears in a bordered, dismissible notice above the player and is also copied into Mix options. Opening the volume popout clears the visible notice so it cannot cover the slider.
 
+Saving a mix shows a compact, content-sized confirmation with a checkmark and a 44px close target. It fades out after five seconds, waiting while the pointer or keyboard focus is inside the notice. Reduced-motion preferences skip the animation. Other notices retain their existing persistent behavior.
+
 ## Volume popout
 
 The player contains three circular buttons in the order Options, Play, Volume. The group is centered, placing the 52px Play button at the horizontal center of the screen. Options and Volume use smaller 44px circles, aligned to the same vertical center. The speaker icon opens a compact panel above it, with a 30px percentage above a vertical slider. Keeping the value away from the thumb makes it easier to read during touch adjustment. Mute/unmute sits beneath the slider and restores the last audible level without pausing playback. The speaker icon reflects the muted state.

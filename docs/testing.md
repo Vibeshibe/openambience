@@ -22,6 +22,8 @@ PLAYWRIGHT_MODULE=/tmp/openambience-tools/node_modules/playwright node scripts/p
 
 ### Mix UI refinement — 2026-10-21
 
+The post-save confirmation was also checked at 320/390/1440px with short and 40-character names, automatic dismissal, keyboard interaction and manual dismissal. Its compact mobile screenshot was reviewed; syntax checks passed. Success feedback waits while hovered or focused before fading out; error notices remain persistent.
+
 Syntax checks and all 35 Node 22 tests passed. Chromium 156 passed the focused `scripts/mix-ui-browser-check.cjs` harness at 320×568, 390×844, 768×900, 1440×1000, and 740×360. It checks viewport and horizontal-content bounds, reachable dialog actions, 44px button targets, 40-character unbroken names, sharing feedback, save/rename/copy/replace/delete, cancellation before deletion, and keyboard focus after editing. Mobile save/options/share/details/delete screenshots and the desktop saved-card layout were reviewed. The library, binaural and portable-mix browser harnesses also passed with the new dialog entry points, including offline ZIP restore and download. No page errors occurred. These checks do not establish physical-device keyboard or screen-reader behavior.
 
 ```sh

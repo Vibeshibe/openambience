@@ -10,14 +10,31 @@ const $ = selector => document.querySelector(selector);
 let storage, db;
 try { storage = window.localStorage; } catch {}
 let catalog = [...SOUNDS];
-const status = (message, quiet = false) => {
+let statusTimeout;
+function hideNotice() {
+  $('#player-notice').classList.add('sr-only');
+  $('#player-notice').classList.remove('notice-leaving');
+  $('#dismiss-status').hidden = true;
+  clearTimeout(statusTimeout);
+}
+function dismissSuccess() {
+  // Give keyboard and pointer users time to finish interacting with the notice.
+  if ($('#player-notice').matches(':hover, :focus-within')) { statusTimeout = setTimeout(dismissSuccess, 1000); return; }
+  $('#player-notice').classList.add('notice-leaving');
+  statusTimeout = setTimeout(hideNotice, 180);
+}
+const status = (message, quiet = false, tone = 'notice') => {
+  clearTimeout(statusTimeout);
+  $('#player-notice').classList.remove('notice-leaving');
   $('#status').textContent = message; $('#dialog-status').textContent = message;
+  $('#player-notice').dataset.tone = tone;
+  $('#notice-icon').hidden = tone !== 'success';
   $('#player-notice').classList.toggle('sr-only', quiet);
   $('#dismiss-status').hidden = quiet;
+  if (!quiet && tone === 'success') statusTimeout = setTimeout(dismissSuccess, 5000);
 };
 $('#dismiss-status').onclick = () => {
-  $('#player-notice').classList.add('sr-only');
-  $('#dismiss-status').hidden = true;
+  hideNotice();
   $('#play').focus({ preventScroll: true });
 };
 let storedState;
@@ -424,7 +441,7 @@ $('#save-form').onsubmit = event => {
   if (!name || !mix.enabled.length) { $('#save-status').textContent = 'Choose sounds and give your mix a name first.'; return; }
   if (saved.length >= 20) { $('#save-status').textContent = 'You have 20 saved mixes. Delete one to make room.'; return; }
   saved.push({ name: name.slice(0, 40), mix: normalize(mix) }); $('#save-dialog').close();
-  renderSaved(); sync(); $('#mix-name').value = ''; status(`Saved “${name}” on this device.`);
+  renderSaved(); sync(); $('#mix-name').value = ''; status(`Saved “${name}”.`, false, 'success');
 };
 
 let transferMix, pendingRestore;
