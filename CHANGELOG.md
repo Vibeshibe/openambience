@@ -4,7 +4,9 @@ App releases use [Semantic Versioning](docs/versioning.md). Research checkpoints
 
 ## Unreleased
 
-- Plan one-file ZIP mix export/import with bundled custom recordings and restoration of settings and audio together; implementation remains future work.
+- Add versioned mix links with a preview before loading, including sound levels, master volume, sleep timer, binaural presets and radio station metadata. Mixes with local recordings use ZIP downloads.
+- Add one-file ZIP download and restore of mix settings and referenced custom recordings, with hash-based reuse, ID remapping, audio validation and explicit incomplete-archive errors.
+- Persist mix state alongside recordings in IndexedDB so ZIP restore commits settings and audio together. Migrate existing localStorage recipes without deleting the original data. Saved mixes now retain their selected sleep-timer duration.
 
 ## 0.6.0 — 2026-10-11
 

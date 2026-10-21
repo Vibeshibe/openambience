@@ -1,9 +1,16 @@
 // Audio stays on this device. Metadata and blobs commit in one transaction.
 export function openLibrary() {
   return new Promise((resolve, reject) => {
-    const request = indexedDB.open('openambience', 1);
-    request.onupgradeneeded = () => request.result.createObjectStore('sounds', { keyPath: 'id' });
-    request.onsuccess = () => resolve(request.result);
+    const request = indexedDB.open('openambience', 2);
+    request.onupgradeneeded = () => {
+      if (!request.result.objectStoreNames.contains('sounds')) request.result.createObjectStore('sounds', { keyPath: 'id' });
+      request.result.createObjectStore('state');
+    };
+    request.onblocked = () => reject(new Error('Close other OpenAmbience tabs and reload to update local storage.'));
+    request.onsuccess = () => {
+      request.result.onversionchange = () => request.result.close();
+      resolve(request.result);
+    };
     request.onerror = () => reject(request.error);
   });
 }
@@ -19,3 +26,24 @@ export function libraryAction(db, mode, action) {
 export const listSounds = db => libraryAction(db, 'readonly', store => store.getAll());
 export const putSound = (db, sound) => libraryAction(db, 'readwrite', store => store.put(sound));
 export const deleteSound = (db, id) => libraryAction(db, 'readwrite', store => store.delete(id));
+
+export function readLibraryState(db) {
+  return new Promise((resolve, reject) => {
+    const request = db.transaction('state').objectStore('state').get('current');
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
+  });
+}
+
+// The recipe and every new recording either commit together or all roll back.
+// add() deliberately refuses to overwrite an existing library ID.
+export function commitLibraryState(db, state, sounds = []) {
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(['sounds', 'state'], 'readwrite');
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => reject(tx.error || new Error('Could not save the mix.'));
+    tx.onabort = () => reject(tx.error || new Error('Could not save the mix.'));
+    for (const sound of sounds) tx.objectStore('sounds').add(sound);
+    tx.objectStore('state').put(state, 'current');
+  });
+}

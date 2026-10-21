@@ -3,7 +3,8 @@ import { CATEGORIES, FILTER_CATEGORIES, CUSTOM_CATEGORIES, categoryOf, matchesCa
 import { normalizeRadioUrl } from './js/radio.js';
 import { AudioEngine } from './js/audio.js';
 import { MixMediaSession } from './js/media-session.js';
-import { openLibrary, listSounds, putSound, deleteSound } from './js/storage.js';
+import { openLibrary, listSounds, putSound, deleteSound, readLibraryState, commitLibraryState } from './js/storage.js';
+import { makeRecipe, mixLink, recipeFromHash, exportMixZip, importMixZip, prepareRestore } from './js/portable-mix.js';
 
 const $ = selector => document.querySelector(selector);
 let storage, db;
@@ -19,9 +20,10 @@ $('#dismiss-status').onclick = () => {
   $('#dismiss-status').hidden = true;
   $('#play').focus({ preventScroll: true });
 };
-try { db = await openLibrary(); catalog.push(...await listSounds(db)); }
-catch { status('Local sound storage is unavailable. The built-in library still works.'); $('#add-sounds').disabled = true; $('#add-radio').disabled = true; }
-let { mix, saved } = readStore(storage, catalog);
+let storedState;
+try { db = await openLibrary(); catalog.push(...await listSounds(db)); storedState = await readLibraryState(db); }
+catch (error) { db = undefined; status(`Local storage is unavailable. ${error.message}`); $('#add-sounds').disabled = true; $('#add-radio').disabled = true; }
+let { mix, saved } = readStore(storedState ? { getItem: () => JSON.stringify(storedState) } : storage, catalog);
 const radioStates = new Map();
 const engine = new AudioEngine(id => catalog.find(sound => sound.id === id),
   (id, state) => { radioStates.set(id, state); renderRadioStates(); },
@@ -40,8 +42,9 @@ const normalize = value => normalizeMix(value, catalog);
 function persist() {
   // Do not overwrite recipes with custom IDs if their database could not load.
   if (!db) return;
-  try { storage.setItem('openambience.v2', JSON.stringify({ schemaVersion: 2, mix, saved })); }
-  catch { status('Browser storage is full or blocked. Changes will only last for this visit.'); }
+  void commitLibraryState(db, { schemaVersion: 2, mix, saved }).catch(() => {
+    status('Browser storage is full or blocked. Changes will only last for this visit.');
+  });
 }
 function scheduleTimer() { engine.scheduleSleep(deadline ? Math.max(0, (deadline - Date.now()) / 1000) : 0, mix.master); }
 let audioUpdating = false, audioDirty = false;
@@ -75,6 +78,7 @@ function sync() {
     if (id === 'binaural') card.querySelector('.sound-name').textContent = `Saved binaural ${mix.binauralBeat} Hz`;
   }
   $('#master').value = mix.master;
+  $('#timer').value = String(mix.timerMinutes);
   $('#master-value').value = `${mix.master}%`;
   $('#master').setAttribute('aria-valuetext', `${mix.master} percent`);
   $('#master').style.setProperty('--volume', `${mix.master}%`);
@@ -305,7 +309,7 @@ document.addEventListener('keydown', event => {
 window.addEventListener('resize', () => { if (!$('#volume-popout').hidden) fitVolumePopout(); });
 new ResizeObserver(() => { if (!$('#volume-popout').hidden) fitVolumePopout(); }).observe($('.player-dock'));
 $('#timer').onchange = () => {
-  const minutes = Number($('#timer').value); deadline = playing && minutes ? Date.now() + minutes * 60000 : 0;
+  const minutes = Number($('#timer').value); mix.timerMinutes = minutes; deadline = playing && minutes ? Date.now() + minutes * 60000 : 0;
   scheduleTimer(); sync();
   status(minutes ? `Timer set for ${minutes} minutes${playing ? '.' : ', starting when you press play.'}` : 'Sleep timer off.');
 };
@@ -318,8 +322,9 @@ async function checkTimer() {
 setInterval(checkTimer, 1000); document.addEventListener('visibilitychange', checkTimer);
 $('#reset').onclick = async () => { if (busy) return; await pause(true); mix = normalize(); $('#timer').value = '0'; sync(); status('Mix cleared. A little space to start again.'); };
 for (const dialog of document.querySelectorAll('dialog')) {
-  dialog.querySelector('.close').onclick = () => dialog.close();
-  dialog.onclick = event => { if (event.target === dialog) { const bounds = dialog.getBoundingClientRect(); if (event.clientY < bounds.top || event.clientY > bounds.bottom || event.clientX < bounds.left || event.clientX > bounds.right) dialog.close(); } };
+  dialog.querySelector('.close').onclick = () => { if (!dialog.dataset.busy) dialog.close(); };
+  dialog.addEventListener('cancel', event => { if (dialog.dataset.busy) event.preventDefault(); });
+  dialog.onclick = event => { if (event.target === dialog && !dialog.dataset.busy) { const bounds = dialog.getBoundingClientRect(); if (event.clientY < bounds.top || event.clientY > bounds.bottom || event.clientX < bounds.left || event.clientX > bounds.right) dialog.close(); } };
 }
 const openMixer = () => { $('#dialog-status').textContent = ''; $('#mixer-dialog').showModal(); };
 $('#open-mixer').onclick = openMixer; $('#save-current').onclick = openMixer;
@@ -336,9 +341,10 @@ function renderSaved() {
     const button = document.createElement('button'); button.className = 'load-mix'; button.textContent = item.name;
     button.onclick = () => { mix = normalize(item.mix); sync(); void updateAudio(); status(`${item.name} loaded.`); };
     group.append(button);
-    for (const action of ['Update', 'Rename', 'Duplicate', 'Delete']) {
+    for (const action of ['Update', 'Rename', 'Duplicate', 'Share / download', 'Delete']) {
       const control = document.createElement('button'); control.textContent = action; control.setAttribute('aria-label', `${action} ${item.name}`);
       control.onclick = () => {
+        if (action === 'Share / download') { openTransfer(item); return; }
         if (action === 'Update') { if (!mix.enabled.length) { status('Select sounds before updating a mix.'); return; } if (!confirm(`Replace “${item.name}” with your current selection?`)) return; item.mix = normalize(mix); }
         if (action === 'Rename') { const name = prompt('Name this mix', item.name)?.trim(); if (!name) return; item.name = name.slice(0, 40); }
         if (action === 'Duplicate') { if (saved.length >= 20) { status('You have 20 saved mixes. Delete one first.'); return; } saved.push({ name: `${item.name} copy`.slice(0, 40), mix: normalize(item.mix) }); }
@@ -356,6 +362,112 @@ $('#save-form').onsubmit = event => {
   if (saved.length >= 20) { status('You have 20 saved mixes. Delete one to make room.'); return; }
   saved.push({ name: name.slice(0, 40), mix: normalize(mix) }); renderSaved(); sync(); $('#mix-name').value = ''; status(`Saved “${name}” on this device.`);
 };
+
+let transferMix, pendingRestore;
+function openTransfer(item = { name: $('#mix-name').value.trim() || 'My mix', mix }) {
+  if (!item.mix.enabled.length) { status('Choose sounds before sharing or downloading a mix.'); return; }
+  transferMix = normalize(item.mix);
+  $('#transfer-name').value = item.name;
+  $('#share-link').value = ''; $('#share-link-field').hidden = true;
+  $('#transfer-status').textContent = '';
+  const custom = transferMix.enabled.some(id => catalog.find(sound => sound.id === id)?.kind === 'custom');
+  $('#create-link').disabled = custom;
+  $('#transfer-help').textContent = custom
+    ? 'This mix uses your recordings. Its ZIP includes the audio and settings so you can restore them together on another device.'
+    : 'Copy a link to share this mix, or download a ZIP to keep a backup. Links include station names and URLs; radio needs internet.';
+  $('#mixer-dialog').close(); $('#transfer-dialog').showModal();
+}
+$('#share-current').onclick = () => openTransfer();
+$('#create-link').onclick = async () => {
+  try {
+    const link = mixLink(makeRecipe($('#transfer-name').value.trim(), transferMix, catalog), location.href);
+    $('#share-link').value = link; $('#share-link-field').hidden = false;
+    try { await navigator.clipboard.writeText(link); $('#transfer-status').textContent = 'Link copied. Opening it shows a mix preview; playback starts with Play.'; }
+    catch { $('#share-link').focus(); $('#share-link').select(); $('#transfer-status').textContent = 'Copy the selected link to share this mix.'; }
+  } catch (error) { $('#transfer-status').textContent = error.message; }
+};
+$('#download-mix').onclick = async () => {
+  const button = $('#download-mix'); button.disabled = true;
+  $('#transfer-dialog').dataset.busy = 'true'; $('#transfer-status').textContent = 'Preparing your mix download…';
+  try {
+    const recipe = makeRecipe($('#transfer-name').value.trim(), transferMix, catalog);
+    const blob = await exportMixZip(recipe, catalog), url = URL.createObjectURL(blob);
+    const anchor = document.createElement('a'); anchor.href = url;
+    anchor.download = `${recipe.name.replace(/[^\p{L}\p{N}_-]+/gu, '-').slice(0, 60) || 'openambience-mix'}.openambience.zip`;
+    document.body.append(anchor); anchor.click(); anchor.remove(); setTimeout(() => URL.revokeObjectURL(url), 60000);
+    $('#transfer-status').textContent = 'ZIP ready. It contains this mix’s settings and all its uploaded recordings. Use Import mix ZIP to restore it.';
+  } catch (error) { $('#transfer-status').textContent = error.message; }
+  finally { button.disabled = false; delete $('#transfer-dialog').dataset.busy; }
+};
+function previewRestore(recipe, files, save) {
+  pendingRestore = { recipe, files };
+  $('#restore-preview').hidden = false;
+  $('#restore-name').textContent = recipe.name;
+  $('#restore-summary').textContent = `${recipe.mix.enabled.length} sounds · Volume ${recipe.mix.master}% · ${recipe.mix.timerMinutes ? `${recipe.mix.timerMinutes} minute timer` : 'No timer'}`;
+  $('#restore-sounds').replaceChildren(...recipe.mix.enabled.map(id => {
+    const item = document.createElement('li'), sound = recipe.sounds.find(sound => sound.id === id) || SOUNDS.find(sound => sound.id === id);
+    item.textContent = `${sound.name} · ${recipe.mix.levels[id]}%${sound.kind === 'radio' ? ' · Radio, internet required' : sound.kind === 'custom' ? ' · Recording included' : ''}`;
+    return item;
+  }));
+  $('#restore-save').checked = save;
+  $('#restore-mix').disabled = !db;
+  $('#restore-status').textContent = db ? 'Load when you’re ready. Your current playback will pause.' : 'Local storage is unavailable. Reload with storage enabled to restore this mix.';
+}
+$('#import-mix').onclick = () => {
+  pendingRestore = undefined; $('#mix-zip').value = ''; $('#restore-preview').hidden = true;
+  $('#restore-status').textContent = ''; $('#restore-file-field').hidden = false;
+  $('#restore-dialog').showModal();
+};
+$('#mix-zip').onchange = async () => {
+  const file = $('#mix-zip').files[0]; if (!file) return;
+  pendingRestore = undefined; $('#restore-preview').hidden = true;
+  $('#restore-dialog').dataset.busy = 'true'; $('#mix-zip').disabled = true;
+  $('#restore-status').textContent = 'Checking your mix ZIP…';
+  try { const { recipe, files } = await importMixZip(file); previewRestore(recipe, files, true); }
+  catch (error) { $('#restore-status').textContent = error.message; }
+  finally { delete $('#restore-dialog').dataset.busy; $('#mix-zip').disabled = false; }
+};
+$('#restore-mix').onclick = async () => {
+  if (!pendingRestore || !db || $('#restore-dialog').dataset.busy) return;
+  const { recipe, files } = pendingRestore, save = $('#restore-save').checked;
+  $('#restore-dialog').dataset.busy = 'true'; $('#restore-mix').disabled = true; $('#mix-zip').disabled = true;
+  $('#restore-status').textContent = 'Checking recordings and restoring your mix…';
+  let decoder;
+  try {
+    if (save && saved.length >= 20) throw new Error('You have 20 saved mixes. Uncheck Save on this device to load, or delete a saved mix first.');
+    const currentCatalog = [...SOUNDS, ...await listSounds(db)];
+    const prepared = await prepareRestore(recipe, files, currentCatalog, async blob => {
+      if (await inspectDuration(blob) > 120) throw new Error('A recording exceeds two minutes.');
+      if (!decoder) { const Context = globalThis.AudioContext || globalThis.webkitAudioContext; decoder = new Context(); await decoder.suspend(); }
+      let buffer;
+      try { buffer = await decoder.decodeAudioData(await blob.arrayBuffer()); }
+      catch { throw new Error('A recording cannot be decoded in this browser. Try a browser that supports its audio format.'); }
+      if (!Number.isFinite(buffer.duration) || buffer.duration <= 0 || buffer.duration > 120 || buffer.numberOfChannels > 2) throw new Error('Recordings must be mono/stereo and at most two minutes long.');
+      return buffer.duration;
+    });
+    await pause(true);
+    const nextSaved = save ? [...saved, { name: recipe.name, mix: prepared.mix }] : saved;
+    await commitLibraryState(db, { schemaVersion: 2, mix: prepared.mix, saved: nextSaved }, prepared.additions);
+    catalog = [...currentCatalog, ...prepared.additions]; mix = prepared.mix; saved = nextSaved;
+    renderSounds(); renderSaved(); $('#search').value = ''; setCategoryFilters(['In your mix']); showView('library'); sync();
+    $('#restore-dialog').close(); pendingRestore = undefined;
+    status(`“${recipe.name}” restored${save ? ' and saved on this device' : ''}. Press Play when you’re ready.`);
+  } catch (error) { $('#restore-status').textContent = `Could not restore this mix. ${error.message} Your library and saved mixes have been kept.`; }
+  finally {
+    if (decoder) await decoder.close().catch(() => {});
+    delete $('#restore-dialog').dataset.busy; $('#restore-mix').disabled = false; $('#mix-zip').disabled = false;
+  }
+};
+function previewLink() {
+  try {
+    const recipe = recipeFromHash(location.hash); if (!recipe) return;
+    if ($('#restore-dialog').dataset.busy) { status('Finish the current import, then open the shared link again.'); return; }
+    $('#restore-file-field').hidden = true; previewRestore(recipe, undefined, false);
+    for (const dialog of document.querySelectorAll('dialog[open]')) dialog.close();
+    $('#restore-dialog').showModal();
+  } catch (error) { status(error.message); }
+}
+window.addEventListener('hashchange', previewLink);
 $('#add-radio').onclick = () => { $('#radio-form-status').textContent = ''; $('#radio-dialog').showModal(); };
 $('#radio-form').onsubmit = async event => {
   event.preventDefault();
@@ -531,3 +643,4 @@ if ('serviceWorker' in navigator) {
   $('#offline').textContent = 'Offline listening is unavailable in this browser.';
 }
 renderSounds(); renderSaved(); sync();
+previewLink();

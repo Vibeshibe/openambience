@@ -26,6 +26,7 @@ export function normalizeMix(raw = {}, catalog = SOUNDS) {
   return {
     master: percent(raw.master, 40),
     binauralBeat,
+    timerMinutes: [0, 15, 30, 60].includes(raw.timerMinutes) ? raw.timerMinutes : 0,
     levels: Object.fromEntries(catalog.map(({ id }) => [id, percent(migrateLevel && id === replacement ? raw.levels?.binaural : raw.levels?.[id], 50)])),
     enabled: catalog.filter(({ id }) => enabled.includes(id)).map(({ id }) => id).slice(0, 6),
   };

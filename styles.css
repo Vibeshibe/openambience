@@ -733,3 +733,8 @@ form .primary {
 #import-status { color:var(--muted); font-size:13px; overflow-wrap:anywhere; }
 
 .credit p { overflow-wrap:anywhere; }
+.mix-actions { display:flex; flex-wrap:wrap; gap:8px; margin:14px 0; }
+.restore-save { display:flex; align-items:center; gap:10px; margin:16px 0; }
+.restore-save input { width:20px; height:20px; accent-color:var(--accent); }
+#transfer-status, #restore-status, #restore-sounds { overflow-wrap:anywhere; }
+#mix-zip, #share-link { min-width:0; max-width:100%; }
