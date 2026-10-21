@@ -4,6 +4,10 @@
 
 Run `npm run check` and `npm test` on Node.js 22+. Tests cover input normalization, invalid and unavailable storage, independent saved-state snapshots, custom IDs, legacy migration, recording attribution/checksums, finite/non-silent audio buffers, loop endpoint continuity, and the relative smoothness of brown noise. They do not establish perceived audio quality or browser compatibility.
 
+## 0.8.1 ZIP drop area and sound indicators — 2026-10-21
+
+Syntax checks and all 39 Node 22 tests passed. Chromium 156 checked ZIP drops onto the page, the restore dialog's labelled drop area and its native file input, including replacing a preview, retaining the filename, resetting on reopen and requiring Load mix before restoring. The dialog fits 320, 390, 768 and 1440px widths with a long filename; its mobile screenshot was reviewed. Sound-card plus geometry is centered within half a pixel at those widths, and selection swaps the plus for a check. The library, storage, portable-mix, mix UI and service-worker upgrade suites passed without page errors, including offline import/playback and ZIP picker imports.
+
 ## 0.8.0 imports and storage — 2026-10-21
 
 Syntax checks and all 39 Node 22 tests passed. New unit coverage checks ZIP classification, mixed/oversized batches, immutable reference removal, duplicate mix names, inactive levels, size formatting and partial/failing storage APIs.

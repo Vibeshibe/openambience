@@ -12,16 +12,16 @@ function wav(frequency) {
   for (let i = 0; i < 8000; i++) bytes.writeInt16LE(Math.round(Math.sin(i * frequency * 2 * Math.PI / 8000) * 1000), 44 + i * 2);
   return bytes;
 }
-async function drop(page, files, directory = false) {
+async function drop(page, files, directory = false, target = 'body') {
   const transfer = await page.evaluateHandle(({ files, directory }) => {
     const data = new DataTransfer();
     for (const file of files) data.items.add(new File([Uint8Array.from(atob(file.bytes), char => char.charCodeAt(0))], file.name, { type: file.type }));
     if (directory) Object.defineProperty(data, 'items', { value: [{ kind:'file', webkitGetAsEntry: () => ({ isDirectory:true }) }] });
     return data;
   }, { files: files.map(file => ({ ...file, bytes: file.bytes.toString('base64') })), directory });
-  await page.dispatchEvent('body', 'dragenter', { dataTransfer: transfer });
+  await page.dispatchEvent(target, 'dragenter', { dataTransfer: transfer });
   assert.equal(await page.locator('#file-drop-overlay').isVisible(), true);
-  await page.dispatchEvent('body', 'drop', { dataTransfer: transfer }); await transfer.dispose();
+  await page.dispatchEvent(target, 'drop', { dataTransfer: transfer }); await transfer.dispose();
   assert.equal(await page.locator('#file-drop-overlay').isVisible(), false);
 }
 async function snapshot(page) {
@@ -108,6 +108,24 @@ async function snapshot(page) {
     assert.equal(await page.locator('dialog[open]').count(),0);
     await drop(page,[first],true); assert.match(await page.locator('#status').textContent(),/rather than folders/);
     await drop(page,[archive]); await page.waitForFunction(() => !document.querySelector('#restore-preview').hidden);
+    assert.equal(await page.locator('#mix-zip').evaluate(element => element.files[0]?.name), archive.name);
+    await page.locator('#restore-dialog .close').click(); await page.locator('#mixes-tab').click(); await page.locator('#import-mix').click();
+    assert.match(await page.locator('#restore-file-field').textContent(), /Choose or drop a mix ZIP/);
+    assert.equal(await page.locator('#restore-preview').isHidden(), true);
+    assert.equal(await page.locator('#mix-zip').inputValue(), '');
+    await drop(page,[archive],false,'#restore-file-field'); await page.waitForFunction(() => !document.querySelector('#restore-preview').hidden);
+    const replacement = { ...archive, name:'A very long replacement mix filename for checking the mobile ZIP drop area.zip' };
+    await drop(page,[replacement],false,'#mix-zip'); await page.waitForFunction(() => !document.querySelector('#restore-preview').hidden);
+    assert.equal(await page.locator('#mix-zip').evaluate(element => element.files[0]?.name), replacement.name);
+    assert.equal(await page.locator('#play').getAttribute('aria-label'), 'Play mix');
+    for (const width of [320,390,768,1440]) {
+      await page.setViewportSize({width,height:844});
+      const dialog = page.locator('#restore-dialog'), box = await dialog.boundingBox();
+      assert.equal(await dialog.evaluate(element => element.scrollWidth <= element.clientWidth), true);
+      assert.ok(box.x >= 0 && box.y >= 0 && box.x + box.width <= width + 1 && box.y + box.height <= 845);
+      if (width === 390) await page.screenshot({path:path.join(os.tmpdir(), 'openambience-zip-drop-mobile.png')});
+    }
+    await page.setViewportSize({width:390,height:844});
     await page.locator('#restore-mix').click(); await page.waitForFunction(() => !document.querySelector('#restore-dialog').open);
     // A different tab's newly added reference makes the old preview invalid.
     await page.locator('#manage-storage').click(); await page.getByRole('button',{name:'Remove recording My river',exact:true}).click();

@@ -4,6 +4,11 @@ App releases use [Semantic Versioning](docs/versioning.md). Research checkpoints
 
 ## Unreleased
 
+## 0.8.1 — 2026-10-21
+
+- Give mix ZIP imports a visible drop area, matching audio imports, with a styled file picker and the dropped filename retained for review.
+- Center sound-card add icons with SVG geometry and use a matching check icon for selected sounds.
+
 ## 0.8.0 — 2026-10-21
 
 - Add drag-and-drop audio and mix ZIP import using the same review and validation flows as file pickers. Reject folders and mixed audio/ZIP batches without importing them.

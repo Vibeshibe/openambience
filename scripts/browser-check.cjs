@@ -45,6 +45,13 @@ async function importFile(page, file) {
  for(const names of groups) assert.deepEqual(names,[...names].sort((a,b)=>a.localeCompare(b,undefined,{numeric:true,sensitivity:'base'})));
  for (const width of [320,390,768,1440]) {
    await page.setViewportSize({width,height:844});
+   const indicator = await page.locator('[data-sound="brown"] .indicator').evaluate(element => {
+     const circle = element.getBoundingClientRect(), plus = element.querySelector('.indicator-add');
+     const box = plus.getBBox(), point = new DOMPoint(box.x + box.width / 2, box.y + box.height / 2).matrixTransform(plus.getScreenCTM());
+     return { dx: point.x - circle.x - circle.width / 2, dy: point.y - circle.y - circle.height / 2, check: getComputedStyle(element.querySelector('.indicator-check')).display };
+   });
+   assert.ok(Math.abs(indicator.dx) < .5 && Math.abs(indicator.dy) < .5, `Add icon centered at ${width}`);
+   assert.equal(indicator.check, 'none');
    const binaural=await page.locator('[data-sound="binaural-6"]').boundingBox(), brown=await page.locator('[data-sound="brown"]').boundingBox();
    assert.ok(brown.height<binaural.height-15, 'Short cards keep their natural height');
    assert.ok(Math.abs(brown.y-(await page.locator('[data-sound="ocean"]').boundingBox()).y)<1, 'Cards align at the top');
@@ -104,6 +111,8 @@ async function importFile(page, file) {
  await page.keyboard.press('Escape');
  const toggle = id=>page.locator(`[data-sound="${id}"] .sound-toggle`);
  await toggle('rain-leaves').click(); await toggle('brown').click();
+ assert.equal(await page.locator('[data-sound="brown"] .indicator-add').evaluate(element => getComputedStyle(element).display), 'none');
+ assert.notEqual(await page.locator('[data-sound="brown"] .indicator-check').evaluate(element => getComputedStyle(element).display), 'none');
  for(const id of ['rain-glass','thunder','forest-wind','stream']) await toggle(id).click();
  await toggle('fire').click();assert.match(await page.locator('#status').textContent(),/Six sounds/);
  assert.equal(await page.locator('#dismiss-status').isVisible(),true);

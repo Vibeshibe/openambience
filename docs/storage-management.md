@@ -6,7 +6,7 @@ Available in 0.8.0. Files stay in the current site's browser storage; these acti
 
 Drop one or several audio recordings anywhere in the app. A drop indicator appears, then **Add your sounds** opens with the filenames and a category selector. Choose **Add to library** to validate and store them. Dropping does not immediately add recordings or start playback. The existing file picker uses the same routing and validation. The selected category applies to the batch.
 
-Drop one mix ZIP to open the existing restore preview, then choose **Load mix**. There is no extraction step. ZIP detection uses the filename, MIME type, or standard ZIP signature. Audio is still validated by reading metadata and decoding, rather than trusting its name or MIME type. See [the portable mix format](mix-portability.md).
+Drop one mix ZIP anywhere, or use the **Choose or drop a mix ZIP** area in **Import mix ZIP**, to open the restore preview. The picker shows the dropped filename. Choose **Load mix** when ready. There is no extraction step. ZIP detection uses the filename, MIME type, or standard ZIP signature. Audio is still validated by reading metadata and decoding, rather than trusting its name or MIME type. See [the portable mix format](mix-portability.md).
 
 Folders, multiple ZIPs and batches mixing ZIPs with audio are rejected with an explanation. File drags are handled without navigating away; dragging ordinary text or links keeps normal browser behavior. Imports in progress cannot be replaced by another drop. Other open editing/storage dialogs ask you to close them before importing. The normal picker remains available on phones and browsers without desktop drag-and-drop.
 

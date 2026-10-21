@@ -80,7 +80,7 @@
     </section>
     <noscript>Enable JavaScript to mix and play sounds.</noscript>
   </main>
-  <footer><span id="offline">Preparing offline library…</span><button id="manage-storage" class="text-button">Manage storage</button><button id="show-credits" class="text-button">Sound credits</button><a class="repo-link" href="https://github.com/Vibeshibe/openambience" target="_blank" rel="noopener noreferrer" aria-label="OpenAmbience on GitHub (opens in a new tab)">GitHub <span aria-hidden="true">↗</span></a><span>v0.8.0 · No accounts. No tracking.</span></footer>
+  <footer><span id="offline">Preparing offline library…</span><button id="manage-storage" class="text-button">Manage storage</button><button id="show-credits" class="text-button">Sound credits</button><a class="repo-link" href="https://github.com/Vibeshibe/openambience" target="_blank" rel="noopener noreferrer" aria-label="OpenAmbience on GitHub (opens in a new tab)">GitHub <span aria-hidden="true">↗</span></a><span>v0.8.1 · No accounts. No tracking.</span></footer>
   <div class="player-dock">
     <section class="player" aria-label="Playback controls">
       <button id="open-mixer" class="quiet" aria-haspopup="dialog" aria-controls="mixer-dialog" aria-label="Mix options" title="Mix options: sleep timer, save, or clear">
@@ -149,7 +149,7 @@
   </dialog>
   <dialog id="restore-dialog" class="mix-dialog" aria-labelledby="restore-title">
     <div class="dialog-heading"><h2 id="restore-title">Restore a mix</h2><button class="close quiet" aria-label="Close mix restore">✕</button></div>
-    <label id="restore-file-field" class="field" for="mix-zip">Mix ZIP<input id="mix-zip" type="file" accept=".zip,application/zip" aria-describedby="restore-file-help"></label>
+    <label id="restore-file-field" class="field file-drop-zone" for="mix-zip">Choose or drop a mix ZIP<input id="mix-zip" type="file" accept=".zip,application/zip" aria-describedby="restore-file-help"></label>
     <p id="restore-file-help" class="hint">Restore settings and uploaded recordings together. Matching recordings and stations are reused. Playback starts only with Play.</p>
     <div id="restore-preview" hidden><h3 id="restore-name"></h3><p id="restore-summary"></p><ul id="restore-sounds"></ul>
       <label class="restore-save"><input id="restore-save" type="checkbox">Save on this device</label>

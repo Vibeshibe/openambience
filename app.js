@@ -71,7 +71,6 @@ function sync() {
     const id = card.dataset.sound, enabled = mix.enabled.includes(id);
     card.classList.toggle('active', enabled);
     card.querySelector('.sound-toggle').setAttribute('aria-pressed', String(enabled));
-    card.querySelector('.indicator').textContent = enabled ? '✓' : '+';
     card.querySelector('input').value = mix.levels[id];
     card.querySelector('output').value = `${mix.levels[id]}%`;
     if (id === 'binaural') card.querySelector('.sound-name').textContent = `Saved binaural ${mix.binauralBeat} Hz`;
@@ -167,7 +166,7 @@ function renderSounds() {
     const card = document.createElement('article');
     card.className = 'sound-card'; card.dataset.sound = sound.id; card.dataset.kind = sound.kind || 'generated';
     // The template contains only project-owned markup. Names use textContent.
-    card.innerHTML = '<button class="sound-toggle" aria-pressed="false"><span class="sound-icon" aria-hidden="true"></span><span class="sound-name"></span><span class="indicator" aria-hidden="true">+</span></button><p class="sound-kind"></p><label class="volume-label"><span>Volume</span><output>50%</output></label><input type="range" min="0" max="100" value="50">';
+    card.innerHTML = '<button class="sound-toggle" aria-pressed="false"><span class="sound-icon" aria-hidden="true"></span><span class="sound-name"></span><span class="indicator" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path class="indicator-add" d="M12 5v14M5 12h14"/><path class="indicator-check" d="m5 12 4 4L19 6"/></svg></span></button><p class="sound-kind"></p><label class="volume-label"><span>Volume</span><output>50%</output></label><input type="range" min="0" max="100" value="50">';
     card.querySelector('.sound-name').textContent = sound.name;
     card.querySelector('.sound-icon').textContent = sound.kind === 'radio' ? '◉' : symbols[sound.icon] || sound.icon || '♫';
     card.querySelector('.sound-kind').textContent = sound.kind === 'radio' ? 'INTERNET RADIO · ONLINE ONLY' : sound.kind === 'custom' ? 'ON THIS DEVICE' : sound.kind === 'recording' ? (sound.mode === 'event' ? 'RECORDING · OCCASIONAL' : 'FIELD RECORDING') : 'GENERATED TEXTURE';
@@ -682,7 +681,12 @@ async function routeImportFiles(files) {
   $('#import-submit').disabled = true;
   try {
     const input = await classifyFiles(files);
-    if (input.kind === 'zip') { $('#upload-dialog').close(); openMixImport(); await inspectMixFile(input.file); }
+    if (input.kind === 'zip') {
+      $('#upload-dialog').close(); openMixImport();
+      const selection = new DataTransfer(); selection.items.add(input.file);
+      $('#mix-zip').files = selection.files;
+      await inspectMixFile(input.file);
+    }
     else {
       pendingRestore = undefined; $('#restore-dialog').close();
       if ($('#upload-dialog').open) { selectAudioFiles(input.files); $('#import-status').textContent = ''; }
