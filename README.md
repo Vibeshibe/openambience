@@ -133,6 +133,7 @@ js/media-transport.js      Silent local media element for browser audio focus
 js/catalog.js              Generated bundled recording catalog
 js/storage.js              IndexedDB storage and atomic mix restoration
 js/portable-mix.js         Versioned mix links and ZIP import/export
+js/feedback.js             Shared success/status notices and dismissal lifecycle
 js/zip.js                  Bounded ZIP reading and writing
 js/categories.js           Category membership and filtering
 js/radio.js                Stream URL validation and radio playback lifecycle

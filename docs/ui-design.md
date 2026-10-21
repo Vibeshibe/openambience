@@ -33,7 +33,9 @@ Save, details, confirmation, sharing and restore dialogs share a 460px desktop w
 
 The resting player shows only its three controls. Sound selection count and sleep countdown live in Mix options alongside the timer. Routine play/pause messages remain available to screen readers. Other action feedback appears in a bordered, dismissible notice above the player and is also copied into Mix options. Opening the volume popout clears the visible notice so it cannot cover the slider.
 
-Saving or loading a saved mix shows a compact, content-sized confirmation with a checkmark and a 44px close target. It fades out after five seconds, waiting while the pointer or keyboard focus is inside the notice. Reduced-motion preferences skip the animation. Other notices retain their existing persistent behavior.
+All mix success feedback uses one shared nonmodal component in `js/feedback.js`: presets, saved mixes, saves, copies, renames, updates, deletions and link/ZIP restoration. Successes show a compact, content-sized confirmation with a checkmark and a 44px close target. They fade out after five seconds. Hover or keyboard focus pauses dismissal; leaving restarts the delay. Reduced-motion preferences skip the animation. Status/error messages remain persistent and cancel any pending success dismissal. Manual dismissal returns focus to the action that opened the notice when it is still available, or to Play. Opening the volume popout hides the notice and cancels its timer through the same component.
+
+Preset and saved-mix selection share `loadMix` in `app.js`, including normalization, playback updates, countdown display and the success announcement. Presets retain current master volume and timer settings, including an active countdown; saved mixes load their own settings and restart their selected timer duration if already playing. Link and ZIP restoration commit storage atomically before announcing through the same feedback component. Loading feedback does not open a blocking dialog.
 
 ## Volume popout
 

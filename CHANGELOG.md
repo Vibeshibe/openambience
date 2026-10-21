@@ -4,6 +4,7 @@ App releases use [Semantic Versioning](docs/versioning.md). Research checkpoints
 
 ## Unreleased
 
+- Consolidate mix success feedback in one shared notification component for presets, saved mixes, saves, edits and imports. Presets and saved mixes use the same loading function. Keep consistent compact sizing, expiry, interaction pauses, focus restoration and error-message persistence.
 ## 0.7.0 — 2026-10-21
 
 - Make save and saved-mix loading confirmations compact, with a success icon, aligned dismissal control, and a five-second fade that waits while hovered or keyboard-focused.

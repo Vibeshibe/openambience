@@ -32,6 +32,8 @@ async function importZip(page, buffer) {
 async function completeRestore(page) {
   await page.locator('#restore-mix').click();
   await page.waitForFunction(() => !document.querySelector('#restore-dialog').open);
+  assert.equal(await page.locator('#player-notice').getAttribute('data-tone'), 'success');
+  assert.equal(await page.locator('#notice-icon').isVisible(), true);
 }
 (async () => {
   const browser = await chromium.launch({ executablePath: process.env.CHROMIUM_EXECUTABLE, headless: true });

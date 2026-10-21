@@ -4,6 +4,16 @@
 
 Run `npm run check` and `npm test` on Node.js 22+. Tests cover input normalization, invalid and unavailable storage, independent saved-state snapshots, custom IDs, legacy migration, recording attribution/checksums, finite/non-silent audio buffers, loop endpoint continuity, and the relative smoothness of brown noise. They do not establish perceived audio quality or browser compatibility.
 
+## Shared mix feedback — 2026-10-21
+
+Syntax checks and all 35 Node 22 tests passed. The dedicated Chromium 156 `scripts/feedback-browser-check.cjs` harness passed all three presets, saved loads, saves/copies/renames/updates/deletes, reuse of the same notice DOM node, 320/390/1440px bounds with 40-character names, automatic dismissal, hover/focus pause and resumption, focus restoration, replacement during a fade, persistent warnings replacing a success, and hiding feedback when opening volume controls. It also confirms presets preserve an active countdown and saved loads restart their saved duration with an immediate display refresh. The preset popup screenshot was reviewed.
+
+The full library browser harness passed, and the portable-mix harness passed offline download/playback and link/ZIP restore with assertions that restores use shared success feedback. No page errors occurred. Physical mobile and screen-reader checks remain separate.
+
+```sh
+PLAYWRIGHT_MODULE=/tmp/openambience-tools/node_modules/playwright node scripts/feedback-browser-check.cjs
+```
+
 ## Mix portability on dev — 2026-10-21
 
 Syntax checks and all 35 Node tests passed, including on Node 22.23.3. Portable-format coverage includes Unicode fragment links, unsupported versions and malformed settings, custom bytes and credit metadata, missing files, invalid radio URLs, SHA-256 reuse, ID remapping, library limits, unsafe/duplicate paths, CRC corruption, truncated ZIPs and bounded DEFLATE expansion.

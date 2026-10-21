@@ -5,38 +5,17 @@ import { AudioEngine } from './js/audio.js';
 import { MixMediaSession } from './js/media-session.js';
 import { openLibrary, listSounds, putSound, deleteSound, readLibraryState, commitLibraryState } from './js/storage.js';
 import { makeRecipe, mixLink, recipeFromHash, exportMixZip, importMixZip, prepareRestore } from './js/portable-mix.js';
+import { createFeedback } from './js/feedback.js';
 
 const $ = selector => document.querySelector(selector);
 let storage, db;
 try { storage = window.localStorage; } catch {}
 let catalog = [...SOUNDS];
-let statusTimeout;
-function hideNotice() {
-  $('#player-notice').classList.add('sr-only');
-  $('#player-notice').classList.remove('notice-leaving');
-  $('#dismiss-status').hidden = true;
-  clearTimeout(statusTimeout);
+const feedback = createFeedback($('#player-notice'), { mirror: $('#dialog-status'), fallbackFocus: $('#play') });
+const status = (message, quiet = false) => feedback.status(message, { quiet });
+function announceMix(action, name, detail = '') {
+  feedback.success(`${action} “${name}”.${detail ? ` ${detail}` : ''}`);
 }
-function dismissSuccess() {
-  // Give keyboard and pointer users time to finish interacting with the notice.
-  if ($('#player-notice').matches(':hover, :focus-within')) { statusTimeout = setTimeout(dismissSuccess, 1000); return; }
-  $('#player-notice').classList.add('notice-leaving');
-  statusTimeout = setTimeout(hideNotice, 180);
-}
-const status = (message, quiet = false, tone = 'notice') => {
-  clearTimeout(statusTimeout);
-  $('#player-notice').classList.remove('notice-leaving');
-  $('#status').textContent = message; $('#dialog-status').textContent = message;
-  $('#player-notice').dataset.tone = tone;
-  $('#notice-icon').hidden = tone !== 'success';
-  $('#player-notice').classList.toggle('sr-only', quiet);
-  $('#dismiss-status').hidden = quiet;
-  if (!quiet && tone === 'success') statusTimeout = setTimeout(dismissSuccess, 5000);
-};
-$('#dismiss-status').onclick = () => {
-  hideNotice();
-  $('#play').focus({ preventScroll: true });
-};
 let storedState;
 try { db = await openLibrary(); catalog.push(...await listSounds(db)); storedState = await readLibraryState(db); }
 catch (error) { db = undefined; status(`Local storage is unavailable. ${error.message}`); $('#add-sounds').disabled = true; $('#add-radio').disabled = true; }
@@ -307,7 +286,7 @@ function setVolumeOpen(open, restoreFocus = false) {
   $('#volume-popout').hidden = !open;
   $('#volume-toggle').setAttribute('aria-expanded', String(open));
   if (open) {
-    $('#player-notice').classList.add('sr-only'); $('#dismiss-status').hidden = true;
+    feedback.hide();
     fitVolumePopout(); $('#master').focus({ preventScroll: true });
   }
   else if (restoreFocus) $('#volume-toggle').focus({ preventScroll: true });
@@ -338,7 +317,7 @@ async function checkTimer() {
   if (!seconds) { await pause(); status('Sleep timer finished. Rest well.'); }
 }
 setInterval(checkTimer, 1000); document.addEventListener('visibilitychange', checkTimer);
-$('#reset').onclick = async () => { if (busy) return; await pause(true); mix = normalize(); $('#timer').value = '0'; sync(); status('Mix cleared. A little space to start again.'); };
+$('#reset').onclick = async () => { if (busy) return; await pause(true); mix = normalize(); $('#timer').value = '0'; sync(); feedback.success('Mix cleared. A little space to start again.'); };
 for (const dialog of document.querySelectorAll('dialog')) {
   dialog.querySelector('.close').onclick = () => { if (!dialog.dataset.busy) dialog.close(); };
   dialog.addEventListener('cancel', event => { if (dialog.dataset.busy) event.preventDefault(); });
@@ -354,10 +333,15 @@ function openSave() {
 }
 $('#open-mixer').onclick = openMixer;
 $('#save-current').onclick = openSave; $('#open-save').onclick = openSave;
+function loadMix(rawMix, name, { restartTimer = true } = {}) {
+  mix = normalize(rawMix);
+  if (restartTimer) deadline = playing && mix.timerMinutes ? Date.now() + mix.timerMinutes * 60000 : 0;
+  sync(); void checkTimer(); announceMix('Loaded', name); void updateAudio();
+}
 for (const preset of PRESETS) {
   const button = document.createElement('button'); button.className = 'preset'; button.textContent = preset.name;
   const note = document.createElement('small'); note.textContent = preset.note; button.append(note);
-  button.onclick = () => { mix = { ...presetMix(preset.levels), master: mix.master, binauralBeat: mix.binauralBeat, timerMinutes: mix.timerMinutes }; mix = normalize(mix); sync(); void updateAudio(); status(`${preset.name} selected.`); };
+  button.onclick = () => loadMix({ ...presetMix(preset.levels), master: mix.master, binauralBeat: mix.binauralBeat, timerMinutes: mix.timerMinutes }, preset.name, { restartTimer: false });
   $('#presets').append(button);
 }
 function renderSaved() {
@@ -366,10 +350,7 @@ function renderSaved() {
     const group = document.createElement('article'); group.className = 'saved-item';
     const heading = document.createElement('h3');
     const button = document.createElement('button'); button.className = 'load-mix'; button.textContent = item.name; button.title = `Load ${item.name}`;
-    const load = () => {
-      mix = normalize(item.mix); deadline = playing && mix.timerMinutes ? Date.now() + mix.timerMinutes * 60000 : 0;
-      sync(); void updateAudio(); status(`Loaded “${item.name}”.`, false, 'success');
-    };
+    const load = () => loadMix(item.mix, item.name);
     button.onclick = load; heading.append(button);
     const description = document.createElement('p'); description.className = 'saved-description';
     description.textContent = item.mix.enabled.map(id => catalog.find(sound => sound.id === id)?.name).filter(Boolean).join(' · ') || 'No sounds selected';
@@ -399,13 +380,13 @@ $('#rename-form').onsubmit = event => {
   event.preventDefault(); const name = $('#saved-name').value.trim();
   if (!name || !saved.includes(managedMix)) return;
   managedMix.name = name.slice(0, 40); $('#saved-dialog').close();
-  renderSaved(); sync(); focusSaved(managedMix); status(`Renamed mix to “${managedMix.name}”.`);
+  renderSaved(); sync(); focusSaved(managedMix); announceMix('Renamed', managedMix.name);
 };
 $('#duplicate-saved').onclick = () => {
   if (!saved.includes(managedMix)) return;
   if (saved.length >= 20) { $('#saved-status').textContent = 'You have 20 saved mixes. Delete one to make room.'; return; }
   const copy = { name: `${managedMix.name} copy`.slice(0, 40), mix: normalize(managedMix.mix) };
-  saved.push(copy); $('#saved-dialog').close(); renderSaved(); sync(); focusSaved(copy); status(`Saved “${copy.name}” on this device.`);
+  saved.push(copy); $('#saved-dialog').close(); renderSaved(); sync(); focusSaved(copy); announceMix('Copied', copy.name);
 };
 function confirmSaved(action) {
   const item = managedMix; if (!saved.includes(item)) return;
@@ -421,7 +402,7 @@ function confirmSaved(action) {
     if (deleting) saved.splice(saved.indexOf(item), 1); else item.mix = normalize(mix);
     renderSaved(); sync();
     if (deleting) ($('#saved-mixes .load-mix') || $('#save-current')).focus({ preventScroll: true }); else focusSaved(item);
-    status(deleting ? `Deleted saved mix “${item.name}”.` : `Updated “${item.name}” with your current mix.`);
+    announceMix(deleting ? 'Deleted' : 'Updated', item.name);
   };
   $('#saved-dialog').close(); $('#confirm-dialog').showModal();
 };
@@ -441,7 +422,7 @@ $('#save-form').onsubmit = event => {
   if (!name || !mix.enabled.length) { $('#save-status').textContent = 'Choose sounds and give your mix a name first.'; return; }
   if (saved.length >= 20) { $('#save-status').textContent = 'You have 20 saved mixes. Delete one to make room.'; return; }
   saved.push({ name: name.slice(0, 40), mix: normalize(mix) }); $('#save-dialog').close();
-  renderSaved(); sync(); $('#mix-name').value = ''; status(`Saved “${name}”.`, false, 'success');
+  renderSaved(); sync(); $('#mix-name').value = ''; announceMix('Saved', name);
 };
 
 let transferMix, pendingRestore;
@@ -532,7 +513,7 @@ $('#restore-mix').onclick = async () => {
     catalog = [...currentCatalog, ...prepared.additions]; mix = prepared.mix; saved = nextSaved;
     renderSounds(); renderSaved(); $('#search').value = ''; setCategoryFilters(['In your mix']); showView('library'); sync();
     $('#restore-dialog').close(); pendingRestore = undefined;
-    status(`“${recipe.name}” restored${save ? ' and saved on this device' : ''}. Press Play when you’re ready.`);
+    announceMix('Loaded', recipe.name, `${save ? 'Saved on this device. ' : ''}Ready to play.`);
   } catch (error) { $('#restore-status').textContent = `Could not restore this mix. ${error.message} Your library and saved mixes have been kept.`; }
   finally {
     if (decoder) await decoder.close().catch(() => {});
