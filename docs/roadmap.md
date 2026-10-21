@@ -38,9 +38,11 @@ The [saved mixes and custom sound proposal](saved-mixes-and-custom-sounds.md) de
 - [x] One-file ZIP export/import containing mix JSON and all referenced custom recordings; restore settings and sounds together, with duplicate detection and clear errors for incomplete archives. Released in 0.7.0; see [mix portability](mix-portability.md).
 - [ ] Drag-and-drop imports and storage-management controls.
 - [ ] Verify storage pressure, offline restart, installation, and playback on physical Android/iOS devices.
-- [ ] Long listening sessions for loop repetition, clicks, and relative loudness.
+- [x] User-confirmed long-duration mobile listening with successful sleep-timer operation. See the [2026-10-21 validation report](testing.md#user-confirmation-mobile-sessions-sleep-timer-and-zoom--2026-10-21).
+- [ ] Targeted listening audit for loop repetition, clicks, and relative loudness; general long-duration mobile use is confirmed.
 - [ ] Verify interruption recovery, extended background playback, and sleep-timer expiry while locked on Android/iOS.
-- [ ] Screen-reader and 200% zoom audits on desktop and mobile.
+- [x] User-confirmed 200% zoom usability; platform details were not recorded.
+- [ ] Screen-reader audit on desktop and mobile.
 - [ ] Improve pink-noise spectrum and generated nature textures.
 - [ ] Expand the recording catalog and support selective offline downloads.
 - [x] Add rain on tent, evening birds, and train carriage ambience on `dev`; clarify the existing dawn recording as Morning birds. See the [source shortlist](research/sound-expansion.md).

@@ -4,6 +4,12 @@
 
 Run `npm run check` and `npm test` on Node.js 22+. Tests cover input normalization, invalid and unavailable storage, independent saved-state snapshots, custom IDs, legacy migration, recording attribution/checksums, finite/non-silent audio buffers, loop endpoint continuity, and the relative smoothness of brown noise. They do not establish perceived audio quality or browser compatibility.
 
+## User confirmation: mobile sessions, sleep timer and zoom — 2026-10-21
+
+The maintainer reports successful real mobile use over long durations with the sleep timer, and reports that 200% zoom works well. Record these as user-confirmed checks of extended mobile listening, sleep-timer operation and 200% zoom usability.
+
+Device/browser versions, exact session durations, and the platform used for the zoom check were not recorded. The report does not specify whether playback was backgrounded or the screen was locked when the timer expired. Screen-reader behavior is untested. Targeted interruption recovery, background/locked timer expiry, storage pressure, offline restart/installation, and a detailed listening audit of loop seams and relative loudness remain separate checks. Earlier dated sections below describe the evidence available at those checkpoints.
+
 ## Shared mix feedback — 2026-10-21
 
 Syntax checks and all 35 Node 22 tests passed. The dedicated Chromium 156 `scripts/feedback-browser-check.cjs` harness passed all three presets, saved loads, saves/copies/renames/updates/deletes, reuse of the same notice DOM node, 320/390/1440px bounds with 40-character names, automatic dismissal, hover/focus pause and resumption, focus restoration, replacement during a fade, persistent warnings replacing a success, and hiding feedback when opening volume controls. It also confirms presets preserve an active countdown and saved loads restart their saved duration with an immediate display refresh. The preset popup screenshot was reviewed.
