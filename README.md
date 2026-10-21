@@ -60,7 +60,7 @@ An alternative is `python3 -m http.server 8080 --bind 127.0.0.1` from this direc
 
 ## Docker deployment
 
-Prebuilt images are published to `ghcr.io/vibeshibe/openambience` for Linux amd64 and arm64. Use `latest` for the current stable build, a version tag such as `0.7.1` for a specific release, or `dev` for development builds.
+Prebuilt images are published to `ghcr.io/vibeshibe/openambience` for Linux amd64 and arm64. Use `latest` for the current stable build, a version tag such as `0.8.0` for a specific release, or `dev` for development builds.
 
 ```sh
 docker run -d --name openambience --restart unless-stopped \

@@ -116,8 +116,19 @@ async function snapshot(page) {
     assert.equal((await snapshot(page)).sounds.length,1);
     await page.locator('#remove-sound-dialog .close').click(); await page.locator('#storage-dialog .close').click();
     await page.reload(); await page.waitForSelector('.sound-card:visible');
+    // Station metadata has no audio bytes, but follows the same consent flow.
+    await page.locator('#add-radio').click(); await page.locator('#radio-name').fill('Metadata station');
+    await page.locator('#radio-url').fill('https://example.com/live.mp3'); await page.locator('#radio-form button').click();
+    await page.waitForFunction(() => !document.querySelector('#radio-dialog').open);
+    await page.locator('[data-kind="radio"] .sound-toggle').click(); await page.locator('#open-mixer').click(); await page.locator('#open-save').click();
+    await page.locator('#mix-name').fill('With station'); await page.locator('#save-form button[type="submit"]').click();
+    await page.locator('[data-kind="radio"] .remove-sound').click(); assert.equal(await page.locator('#confirm-remove-sound').isDisabled(),true);
+    await page.locator('#remove-references').check(); await page.locator('#confirm-remove-sound').click();
+    await page.waitForFunction(() => !document.querySelector('#remove-sound-dialog').open);
+    assert.equal((await snapshot(page)).sounds.some(sound => sound.kind === 'radio'),false);
+    assert.equal((await snapshot(page)).state.saved.find(item => item.name === 'With station').mix.enabled.some(id => id.startsWith('radio-')),false);
     await page.waitForFunction(() => document.querySelector('#offline').textContent.includes('ready offline'));
-    await context.setOffline(true); await page.reload(); await page.waitForSelector('.sound-card:visible');
+    await context.setOffline(true); await page.reload(); await page.waitForSelector('.sound-card', { state:'attached' });
     await drop(page,[first]); await page.waitForSelector('#upload-dialog[open]'); await page.locator('#import-submit').click(); await page.waitForFunction(() => !document.querySelector('#upload-dialog').open);
     assert.equal((await snapshot(page)).sounds.length,2); assert.deepEqual(errors,[]);
     console.log('Storage/drop passed: reviewed batch imports, duplicates, downloads, mix impact, explicit consent, cancellation, atomic rollback, stale references, API fallbacks, persistence outcomes, ZIP/mixed/folder drops, five layouts, and offline imports.');
