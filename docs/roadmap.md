@@ -37,6 +37,7 @@ The [saved mixes and custom sound proposal](saved-mixes-and-custom-sounds.md) de
 
 - [x] One-file ZIP export/import containing mix JSON and all referenced custom recordings; restore settings and sounds together, with duplicate detection and clear errors for incomplete archives. Released in 0.7.0; see [mix portability](mix-portability.md).
 - [x] Drag-and-drop audio/ZIP imports and device storage management, including usage estimates, recording downloads and explicit, atomic removal of referenced layers. Released in 0.8.0; see [storage management](storage-management.md).
+- [x] One ZIP for all saved mixes with deduplicated recordings and selective, atomic import that preserves existing mixes and playback. Released in 0.9.0; see [all-mix backups](mix-portability.md#all-saved-mixes-in-one-zip).
 - [ ] Verify storage pressure, offline restart, installation, and playback on physical Android/iOS devices.
 - [x] User-confirmed long-duration mobile listening with successful sleep-timer operation. See the [2026-10-21 validation report](testing.md#user-confirmation-mobile-sessions-sleep-timer-and-zoom--2026-10-21).
 - [ ] Targeted listening audit for loop repetition, clicks, and relative loudness; general long-duration mobile use is confirmed.

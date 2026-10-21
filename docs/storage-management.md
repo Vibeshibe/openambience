@@ -2,6 +2,8 @@
 
 Available in 0.8.0. Files stay in the current site's browser storage; these actions do not upload recordings.
 
+Since 0.9.0, **My mixes → Download all mixes** backs up every saved mix in one ZIP, including shared recordings once. The same ZIP picker/drop flow opens a selective import preview for these backups. See [all-mix backups](mix-portability.md#all-saved-mixes-in-one-zip).
+
 ## Drop files or choose them
 
 Drop one or several audio recordings anywhere in the app. A drop indicator appears, then **Add your sounds** opens with the filenames and a category selector. Choose **Add to library** to validate and store them. Dropping does not immediately add recordings or start playback. The existing file picker uses the same routing and validation. The selected category applies to the batch.

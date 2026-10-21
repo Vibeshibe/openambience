@@ -447,7 +447,8 @@ for (const preset of PRESETS) {
 }
 function renderSaved() {
   $('#saved-mixes').replaceChildren(); $('#no-mixes').hidden = saved.length > 0;
-  $('#download-all-mixes').disabled = !saved.length || exportingMixes;
+  $('#download-all-mixes').disabled = !db || !saved.length || exportingMixes;
+  $('#download-all-mixes').title = !db ? 'Reload with local storage enabled before downloading your saved mixes.' : !saved.length ? 'Save a mix to include it in a download.' : 'Download every saved mix and its recordings in one ZIP';
   saved.forEach((item, index) => {
     const group = document.createElement('article'); group.className = 'saved-item';
     const heading = document.createElement('h3');
@@ -533,7 +534,7 @@ $('#restore-dialog').addEventListener('close', () => {
   pendingRestore = undefined; $('#mix-zip').value = ''; $('#restore-collection-list').replaceChildren();
 });
 $('#download-all-mixes').onclick = async () => {
-  if (!saved.length || exportingMixes) return;
+  if (!db || !saved.length || exportingMixes) return;
   const count = saved.length, button = $('#download-all-mixes');
   exportingMixes = true; button.disabled = true; button.textContent = 'Preparing ZIP…';
   $('#mixes-transfer-status').textContent = `Preparing ${count} saved mix${count === 1 ? '' : 'es'} and their recordings…`;
@@ -542,7 +543,7 @@ $('#download-all-mixes').onclick = async () => {
     downloadBlob(blob, `openambience-mixes-${new Date().toISOString().slice(0, 10)}.zip`);
     $('#mixes-transfer-status').textContent = `ZIP ready: ${count} saved mix${count === 1 ? '' : 'es'}, with shared recordings included once. Use Import mix ZIP to restore it.`;
   } catch (error) { $('#mixes-transfer-status').textContent = error.message; }
-  finally { exportingMixes = false; button.textContent = 'Download all mixes'; button.disabled = !saved.length; }
+  finally { exportingMixes = false; button.textContent = 'Download all mixes'; button.disabled = !db || !saved.length; }
 };
 function openTransfer(item = { name: $('#mix-name').value.trim() || 'My mix', mix }) {
   if (!item.mix.enabled.length) { status('Choose sounds before sharing or downloading a mix.'); return; }
@@ -681,10 +682,11 @@ $('#restore-selected-mixes').onclick = async () => {
     feedback.success(`Imported ${prepared.mixes.length} saved mix${prepared.mixes.length === 1 ? '' : 'es'}. Existing mixes and playback kept.`);
   } catch (error) { $('#restore-status').textContent = `Could not import these mixes. ${error.message} Your library and saved mixes have been kept.`; }
   finally {
-    await audio.close(); libraryBusy = false;
+    libraryBusy = false;
     delete $('#restore-dialog').dataset.busy; $('#mix-zip').disabled = false; $('#restore-collection-list').disabled = false;
     $('#select-all-mixes').disabled = false; $('#select-no-mixes').disabled = false;
     updateCollectionSelection();
+    await audio.close();
   }
 };
 $('#restore-mix').onclick = async () => {

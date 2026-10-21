@@ -29,6 +29,18 @@ The restored settings and all new recordings commit in a single IndexedDB transa
 
 The app writes uncompressed STORE ZIP entries, so its own downloads can be restored without a compression API. Import also accepts standard DEFLATE entries when the browser supports `DecompressionStream('deflate-raw')`, with a limit on actual expanded bytes. Encrypted, multipart and ZIP64 archives, directory entries, and unrelated files are rejected. Keep the original download for the broadest browser compatibility. See the [compression API documentation](https://developer.mozilla.org/en-US/docs/Web/API/DecompressionStream/DecompressionStream) and [ZIP format documentation](https://www.loc.gov/preservation/digital/formats/fdd/fdd000354.shtml).
 
+## All saved mixes in one ZIP
+
+Available in 0.9.0. In **My mixes**, choose **Download all mixes**. The download contains every saved mix, including names, selected layers and levels, master volume, timer durations, binaural settings and station metadata. Referenced uploaded recordings are included once per SHA-256 hash, even when several mixes use them. Unreferenced library recordings and the unsaved current mix are excluded; save the current mix first to include it. No download is offered when there are no saved mixes or local storage could not be opened.
+
+Use **Import mix ZIP** or drop the backup into the app. The shared restore dialog lists mixes with checkboxes, names, sound summaries, volume and timer settings. Select all, clear the selection, or pick individual mixes, then choose **Import selected mixes**. Only recordings/stations referenced by selected mixes are added. Existing mixes are preserved, including entries with matching names; repeated imports can add copies of mixes. Matching recordings and stations are reused while preserving their local metadata. Empty saved mixes left after removing their layers are also preserved.
+
+The preview shows how many of the 20 saved-mix slots remain. Select fewer mixes or remove unwanted saved mixes if the import would exceed that limit. The 30-recording and 20-station limits also apply to the merged library. All selected mixes and new sounds commit atomically. A damaged archive, invalid audio, storage failure or concurrent library change leaves the previous library and saved mixes intact. Reload and review the import again if another tab changes settings or sounds. Import keeps the current selection, playback and timer deadline; it does not load any of the imported mixes automatically.
+
+The archive contains `mixes.json` with `{ "format": "openambience-mixes", "schemaVersion": 1, "mixes": [/* recipes */] }`, plus the shared `audio/<sha256>.audio` entries. `mixes` contains 1–20 version 1 recipes; inside a collection only, a recipe may have zero enabled layers so an empty saved entry can round-trip. Individual mix ZIPs and links retain their existing nonempty recipe contract. Collection archives allow at most 31 files, 4 MiB of JSON and 754 MiB of expanded data. Each audio file is still limited to 25 MiB, two minutes and mono/stereo. The full archive's structure, checksums and hashes are checked before the preview; selected audio is decoded before storage, once per distinct recording. ZIP handling uses the same STORE/DEFLATE support and path/expansion checks as individual mix downloads. The browser prepares archives in memory, so large backups need sufficient device memory.
+
+Apps before 0.9.0 cannot restore collection archives. Individual downloads and versioned links remain compatible with their existing format, and no browser storage migration is required.
+
 ## Version 1 recipe contract
 
 ```json

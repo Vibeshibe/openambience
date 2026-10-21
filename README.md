@@ -36,7 +36,7 @@
 | --- | --- |
 | **29 built-in sounds** | Layer nature recordings, train ambience, noise textures, and binaural tones. |
 | **Your own recordings** | Import audio, choose categories, and keep it on your device. |
-| **Saved mixes** | Return to your favourite combinations with a tap. |
+| **Saved mixes** | Return to your favourite combinations, share one mix, or back up all saved mixes in one ZIP. |
 | **Offline listening** | Cache the bundled library and play imported sounds offline. |
 | **Internet radio** | Add compatible live streams when you’re online. |
 | **Settle in** | Adjust each layer, set a sleep timer, and install the app where supported. |
@@ -60,7 +60,7 @@ An alternative is `python3 -m http.server 8080 --bind 127.0.0.1` from this direc
 
 ## Docker deployment
 
-Prebuilt images are published to `ghcr.io/vibeshibe/openambience` for Linux amd64 and arm64. Use `latest` for the current stable build, a version tag such as `0.8.0` for a specific release, or `dev` for development builds.
+Prebuilt images are published to `ghcr.io/vibeshibe/openambience` for Linux amd64 and arm64. Use `latest` for the current stable build, a version tag such as `0.9.0` for a specific release, or `dev` for development builds.
 
 ```sh
 docker run -d --name openambience --restart unless-stopped \
