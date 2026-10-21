@@ -6,7 +6,7 @@ OpenAmbience should make the frequent listening actions easy to reach and keep b
 
 - **Primary action:** the prominent play/pause button sits at the center of the player and controls playback immediately.
 - **Frequent adjustment:** a circular speaker button to the right of Play opens a vertical slider, large percentage, and mute/unmute action.
-- **Secondary actions:** a circular three-dot **Mix options** button to the left of Play opens the current mix's sleep timer, save form, and clear action.
+- **Secondary actions:** a circular three-dot **Mix options** button to the left of Play opens the current mix's sleep timer and separate Save mix, Share / download mix, and Clear actions. Saving opens a compact naming dialog.
 - **Navigation:** Sound library and My mixes remain visible. Category choices live in a collapsible Filters section; its header always identifies the active category or number of selected categories and current result count.
 
 The three-dot icon communicates additional actions associated with the current mix. A hamburger suggests a navigation drawer; placing one in the playback bar could imply hidden app destinations. A settings gear would suggest broader application preferences, and a sliders icon would suggest the mixing controls already visible in the library/player. The contextual options icon fits this panel's actual contents.
@@ -18,6 +18,16 @@ The options button uses an original 24px SVG inside a 44×44px circular target, 
 This remains a dialog containing form controls, so it is announced as a dialog rather than an ARIA menu. Icon-only styling does not remove the control's accessible name. See the [WAI button pattern](https://www.w3.org/WAI/ARIA/apg/patterns/button/) and [accessible naming guidance](https://www.w3.org/WAI/ARIA/apg/practices/names-and-descriptions/). The navigation distinction is consistent with the [Material drawer pattern](https://api.flutter.dev/flutter/material/Drawer-class.html); choosing the contextual icon here is a project design decision.
 
 Use icon-only controls where their action is familiar and space is limited. Keep descriptive text for sound names, category navigation, saving, and destructive actions. Future application-wide settings should have a separate destination instead of accumulating unrelated controls in Mix options.
+
+## Saved mixes and portable mix dialogs
+
+My mixes begins with paired Save current mix and Import mix ZIP controls, followed by a responsive grid of saved cards. Each card shows its name, sound names, layer count, and selected timer duration. Its footer has separate Load mix and Share buttons plus a 44px three-dot details button. The name also loads the mix. Cards use one column on phones, two on tablets, and three on wider screens, with aligned action rows.
+
+The details dialog contains a name field and Save name action, followed by Replace with current mix and Make a copy. Delete saved mix has its own separated, muted red control at the bottom. Replacement and deletion show an in-app confirmation naming the affected mix; Cancel receives initial focus. Canceling returns to the details dialog. Confirmed deletion removes only the saved recipe. Rename and copy restore focus to the relevant card's details button; deletion focuses a remaining mix or the save action.
+
+Save your mix is a separate compact dialog with a summary, name field, Cancel, and Save mix. Mix options keeps its timer near the current-selection summary; Save and Share are full-width action rows beneath it, and Clear has a separated footer. This keeps the naming form from stretching the options panel. Save current mix in My mixes opens the naming dialog directly.
+
+Save, details, confirmation, sharing and restore dialogs share a 460px desktop width, consistent headings, 44px close targets, field spacing, and paired footer buttons. On phones they sit above the bottom edge with 12px side insets and rounded corners; height is bounded by the dynamic viewport and long content scrolls. Long mix names wrap inside confirmations and cards. Share actions stack at the narrowest widths. Form text uses 16px to avoid focus zoom on mobile Safari. Inline feedback occupies space only when there is a message. These layout rules support short landscape windows as well as portrait phones; physical-device and assistive-technology validation remain separate.
 
 ## Player text and feedback
 

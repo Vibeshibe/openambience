@@ -81,7 +81,7 @@ See the [container deployment guide](docs/docker.md) for port settings, updates,
 
 ## Features
 
-New on **dev** after 0.6.0: versioned mix links, single-ZIP download/restore including custom recordings, and saved sleep-timer settings. Use **Mix options → Share / download mix**, or **Share / download** beside a saved mix. Restore from **My mixes → Import mix ZIP**. Links and archives show a preview before loading; playback starts only with Play. See [mix portability](docs/mix-portability.md).
+New on **dev** after 0.6.0: versioned mix links, single-ZIP download/restore including custom recordings, and saved sleep-timer settings. Use **Mix options → Share / download mix**, or **Share** on a saved card. Restore from **My mixes → Import mix ZIP**. Links and archives show a preview before loading; playback starts only with Play. Save mix opens a compact naming dialog; saved-card details (•••) contain renaming, replacement, copying and deletion. See [mix portability](docs/mix-portability.md).
 
 Available in **0.6.0**:
 
