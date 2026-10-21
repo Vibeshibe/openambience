@@ -33,7 +33,7 @@ Save, details, confirmation, sharing and restore dialogs share a 460px desktop w
 
 The resting player shows only its three controls. Sound selection count and sleep countdown live in Mix options alongside the timer. Routine play/pause messages remain available to screen readers. Other action feedback appears in a bordered, dismissible notice above the player and is also copied into Mix options. Opening the volume popout clears the visible notice so it cannot cover the slider.
 
-Saving a mix shows a compact, content-sized confirmation with a checkmark and a 44px close target. It fades out after five seconds, waiting while the pointer or keyboard focus is inside the notice. Reduced-motion preferences skip the animation. Other notices retain their existing persistent behavior.
+Saving or loading a saved mix shows a compact, content-sized confirmation with a checkmark and a 44px close target. It fades out after five seconds, waiting while the pointer or keyboard focus is inside the notice. Reduced-motion preferences skip the animation. Other notices retain their existing persistent behavior.
 
 ## Volume popout
 

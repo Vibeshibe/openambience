@@ -368,7 +368,7 @@ function renderSaved() {
     const button = document.createElement('button'); button.className = 'load-mix'; button.textContent = item.name; button.title = `Load ${item.name}`;
     const load = () => {
       mix = normalize(item.mix); deadline = playing && mix.timerMinutes ? Date.now() + mix.timerMinutes * 60000 : 0;
-      sync(); void updateAudio(); status(`${item.name} loaded.`);
+      sync(); void updateAudio(); status(`Loaded “${item.name}”.`, false, 'success');
     };
     button.onclick = load; heading.append(button);
     const description = document.createElement('p'); description.className = 'saved-description';
