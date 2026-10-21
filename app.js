@@ -3,14 +3,17 @@ import { CATEGORIES, FILTER_CATEGORIES, CUSTOM_CATEGORIES, categoryOf, matchesCa
 import { normalizeRadioUrl } from './js/radio.js';
 import { AudioEngine } from './js/audio.js';
 import { MixMediaSession } from './js/media-session.js';
-import { openLibrary, listSounds, putSound, deleteSound, readLibraryState, commitLibraryState } from './js/storage.js';
+import { openLibrary, listSounds, putSound, readLibraryState, commitLibraryState, removeSoundAndReferences } from './js/storage.js';
 import { makeRecipe, mixLink, recipeFromHash, exportMixZip, importMixZip, prepareRestore } from './js/portable-mix.js';
 import { createFeedback } from './js/feedback.js';
+import { classifyFiles, installFileDrop } from './js/file-import.js';
+import { soundUsage, usageSignature, formatBytes, inspectStorage } from './js/library-management.js';
 
 const $ = selector => document.querySelector(selector);
 let storage, db;
 try { storage = window.localStorage; } catch {}
 let catalog = [...SOUNDS];
+let libraryBusy = false;
 const feedback = createFeedback($('#player-notice'), { mirror: $('#dialog-status'), fallbackFocus: $('#play') });
 const status = (message, quiet = false) => feedback.status(message, { quiet });
 function announceMix(action, name, detail = '') {
@@ -37,7 +40,7 @@ const symbols = { rain: '☂', thunder: 'ϟ', wind: '≋', ocean: '≈', water: 
 const normalize = value => normalizeMix(value, catalog);
 function persist() {
   // Do not overwrite recipes with custom IDs if their database could not load.
-  if (!db) return;
+  if (!db || libraryBusy) return;
   void commitLibraryState(db, { schemaVersion: 2, mix, saved }).catch(() => {
     status('Browser storage is full or blocked. Changes will only last for this visit.');
   });
@@ -213,15 +216,7 @@ function renderSounds() {
     }
     if (sound.kind === 'custom' || sound.kind === 'radio') {
       const remove = document.createElement('button'); remove.className = 'remove-sound'; remove.textContent = sound.kind === 'radio' ? 'Remove station' : 'Remove recording';
-      remove.onclick = async () => {
-        if (!confirm(`Remove “${sound.name}” from this device and your saved mixes?`)) return;
-        try {
-          await deleteSound(db, sound.id); engine.remove(sound.id);
-          catalog = catalog.filter(item => item.id !== sound.id);
-          mix = normalize(mix); saved = saved.map(item => ({ ...item, mix: normalize(item.mix) }));
-          renderSounds(); renderSaved(); sync(); status(`${sound.kind === 'radio' ? 'Station' : 'Recording'} removed. Saved mixes have been updated.`);
-        } catch { status('Could not remove this sound. Please try again.'); }
-      };
+      remove.onclick = () => openSoundRemoval(sound);
       card.append(remove);
     }
     $('#sounds').append(card);
@@ -323,7 +318,112 @@ for (const dialog of document.querySelectorAll('dialog')) {
   dialog.addEventListener('cancel', event => { if (dialog.dataset.busy) event.preventDefault(); });
   dialog.onclick = event => { if (event.target === dialog && !dialog.dataset.busy) { const bounds = dialog.getBoundingClientRect(); if (event.clientY < bounds.top || event.clientY > bounds.bottom || event.clientX < bounds.left || event.clientX > bounds.right) dialog.close(); } };
 }
-for (const button of document.querySelectorAll('[data-close-dialog]')) button.onclick = () => button.closest('dialog').close();
+for (const button of document.querySelectorAll('[data-close-dialog]')) button.onclick = () => { const dialog = button.closest('dialog'); if (!dialog.dataset.busy) dialog.close(); };
+
+function downloadBlob(blob, name) {
+  const url = URL.createObjectURL(blob), anchor = document.createElement('a');
+  anchor.href = url; anchor.download = name; document.body.append(anchor); anchor.click(); anchor.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 60000);
+}
+function renderStorageRecordings() {
+  const recordings = catalog.filter(sound => sound.kind === 'custom').sort((a, b) => a.name.localeCompare(b.name));
+  $('#recording-usage').textContent = formatBytes(recordings.reduce((sum, sound) => sum + (sound.blob?.size || 0), 0));
+  $('#recording-slots').textContent = `${recordings.length} / 30`;
+  $('#storage-empty').hidden = recordings.length > 0; $('#storage-recordings').replaceChildren();
+  for (const sound of recordings) {
+    const row = document.createElement('article'); row.className = 'storage-recording';
+    const name = document.createElement('h4'); name.textContent = sound.name;
+    const meta = document.createElement('p'); meta.className = 'hint';
+    meta.textContent = `${formatBytes(sound.blob?.size || 0)} · ${Math.round(sound.durationSeconds || 0)} sec · ${categoryOf(sound)}`;
+    const usage = soundUsage({ mix, saved }, sound.id), references = document.createElement('p'); references.className = 'hint';
+    references.textContent = `${usage.current ? 'In your current mix · ' : ''}${usage.saved.length ? `${usage.saved.length} saved mix${usage.saved.length === 1 ? '' : 'es'}` : 'No saved mix references'}`;
+    row.append(name, meta, references);
+    if (usage.saved.length) {
+      const details = document.createElement('details'), summary = document.createElement('summary'), list = document.createElement('ul');
+      summary.textContent = 'Show saved mixes'; list.className = 'reference-list';
+      for (const value of usage.saved) { const item = document.createElement('li'); item.textContent = value; list.append(item); }
+      details.append(summary, list); row.append(details);
+    }
+    const actions = document.createElement('div'); actions.className = 'storage-recording-actions';
+    const download = document.createElement('button'); download.textContent = 'Download'; download.className = 'quiet'; download.setAttribute('aria-label', `Download recording ${sound.name}`); download.disabled = !sound.blob;
+    download.onclick = () => {
+      const extension = /mpeg/.test(sound.blob.type) ? 'mp3' : /wav/.test(sound.blob.type) ? 'wav' : /ogg/.test(sound.blob.type) ? 'ogg' : /flac/.test(sound.blob.type) ? 'flac' : /mp4|aac/.test(sound.blob.type) ? 'm4a' : 'audio';
+      const filename = sound.blob.name || `${sound.name}.${extension}`;
+      downloadBlob(sound.blob, filename.replace(/[\\/:*?"<>|]/g, '-').slice(0, 120));
+    };
+    const remove = document.createElement('button'); remove.textContent = 'Remove'; remove.className = 'danger quiet'; remove.setAttribute('aria-label', `Remove recording ${sound.name}`); remove.onclick = () => openSoundRemoval(sound);
+    actions.append(download, remove); row.append(actions); $('#storage-recordings').append(row);
+  }
+}
+async function refreshStorage() {
+  renderStorageRecordings();
+  $('#storage-estimate').textContent = 'Checking browser storage…';
+  const info = await inspectStorage(navigator.storage);
+  $('#storage-estimate').textContent = info.usage !== undefined && info.quota !== undefined
+    ? `This site uses approximately ${formatBytes(info.usage)} of a ${formatBytes(info.quota)} browser allowance, including app files and offline audio.`
+    : 'This browser does not provide a storage estimate. Recording sizes above are available locally.';
+  $('#storage-protection-status').textContent = info.persistent === true ? 'Offline data has browser retention protection. Clearing site data still removes it.'
+    : info.persistent === false ? 'The browser may clear offline data when space is low.' : 'This browser does not report offline-data retention protection.';
+  $('#persist-storage').hidden = typeof navigator.storage?.persist !== 'function';
+  $('#persist-storage').disabled = info.persistent === true;
+  $('#persist-storage').textContent = info.persistent === true ? 'Protection enabled' : 'Keep offline data';
+}
+function openStorage(message = '') {
+  $('#storage-status').textContent = db ? message : 'Local recording storage is unavailable. Reload with storage enabled to manage recordings.';
+  $('#storage-dialog').showModal(); void refreshStorage();
+}
+$('#manage-storage').onclick = () => openStorage();
+$('#refresh-storage').onclick = () => { $('#storage-status').textContent = ''; void refreshStorage(); };
+$('#persist-storage').onclick = async () => {
+  $('#persist-storage').disabled = true;
+  try {
+    const granted = await navigator.storage.persist();
+    await refreshStorage();
+    $('#storage-status').textContent = granted ? 'Retention protection enabled. Keep ZIP backups as well.' : 'The browser did not grant retention protection. Your recordings are still available; keep ZIP backups.';
+  } catch { $('#storage-status').textContent = 'Could not request retention protection. Your existing data is unchanged.'; $('#persist-storage').disabled = false; }
+};
+let removalContext;
+function openSoundRemoval(sound) {
+  const usage = soundUsage({ mix, saved }, sound.id), inUse = usage.current || usage.saved.length > 0;
+  removalContext = { sound, expectedUsage: usageSignature({ mix, saved }, sound.id), returnStorage: $('#storage-dialog').open };
+  const radio = sound.kind === 'radio';
+  $('#remove-sound-title').textContent = radio ? 'Remove station?' : 'Remove recording?';
+  $('#confirm-remove-sound').textContent = radio ? 'Remove station' : 'Remove recording';
+  $('#remove-sound-description').textContent = `“${sound.name}”${radio ? '' : ` (${formatBytes(sound.blob?.size || 0)})`} will be removed from this device.${inUse ? ' Review the affected mixes below; their other sounds and settings will be kept.' : ' No mix uses it.'}${usage.current || busy ? ' Current playback will pause.' : ''}`;
+  $('#remove-sound-usage').replaceChildren();
+  for (const name of [...(usage.current ? ['Current mix'] : []), ...usage.saved]) { const item = document.createElement('li'); item.textContent = name; $('#remove-sound-usage').append(item); }
+  $('#remove-sound-usage').hidden = !inUse; $('#remove-references-field').hidden = !inUse;
+  $('#remove-references').checked = false; $('#confirm-remove-sound').disabled = Boolean(inUse);
+  $('#remove-sound-status').textContent = '';
+  $('#storage-dialog').close(); $('#remove-sound-dialog').showModal();
+}
+$('#remove-references').onchange = () => { $('#confirm-remove-sound').disabled = !$('#remove-references').checked; };
+$('#remove-sound-dialog').addEventListener('close', () => {
+  const context = removalContext; removalContext = undefined;
+  if (context?.returnStorage) openStorage();
+});
+$('#confirm-remove-sound').onclick = async () => {
+  if (!removalContext || !db || libraryBusy) return;
+  const context = removalContext, { sound } = context;
+  libraryBusy = true; $('#remove-sound-dialog').dataset.busy = 'true';
+  $('#confirm-remove-sound').disabled = true; $('#remove-references').disabled = true;
+  $('#remove-sound-status').textContent = 'Removing…';
+  try {
+    if (mix.enabled.includes(sound.id) || busy) await pause(true);
+    const next = await removeSoundAndReferences(db, sound.id, context.expectedUsage);
+    engine.remove(sound.id); catalog = catalog.filter(item => item.id !== sound.id);
+    mix = normalize(next.mix); saved = next.saved.map(item => ({ ...item, mix: normalize(item.mix) }));
+    libraryBusy = false; renderSounds(); renderSaved(); sync();
+    removalContext = undefined; $('#remove-sound-dialog').close();
+    if (context.returnStorage) openStorage(`Removed “${sound.name}”. Affected mix layers were updated.`);
+    else { $('#manage-storage').focus({ preventScroll: true }); feedback.success(`Removed “${sound.name}”.`); }
+  } catch (error) { $('#remove-sound-status').textContent = `Could not remove this sound. ${error.message} Your library and saved mixes have been kept.`; }
+  finally {
+    libraryBusy = false; delete $('#remove-sound-dialog').dataset.busy;
+    $('#remove-references').disabled = false;
+    $('#confirm-remove-sound').disabled = !$('#remove-references-field').hidden && !$('#remove-references').checked;
+  }
+};
 const openMixer = () => { $('#dialog-status').textContent = ''; $('#mixer-dialog').showModal(); };
 function openSave() {
   if (!mix.enabled.length) { status('Choose sounds before saving a mix.'); return; }
@@ -453,10 +553,8 @@ $('#download-mix').onclick = async () => {
   $('#transfer-dialog').dataset.busy = 'true'; $('#transfer-status').textContent = 'Preparing your mix download…';
   try {
     const recipe = makeRecipe($('#transfer-name').value.trim(), transferMix, catalog);
-    const blob = await exportMixZip(recipe, catalog), url = URL.createObjectURL(blob);
-    const anchor = document.createElement('a'); anchor.href = url;
-    anchor.download = `${recipe.name.replace(/[^\p{L}\p{N}_-]+/gu, '-').slice(0, 60) || 'openambience-mix'}.openambience.zip`;
-    document.body.append(anchor); anchor.click(); anchor.remove(); setTimeout(() => URL.revokeObjectURL(url), 60000);
+    const blob = await exportMixZip(recipe, catalog);
+    downloadBlob(blob, `${recipe.name.replace(/[^\p{L}\p{N}_-]+/gu, '-').slice(0, 60) || 'openambience-mix'}.openambience.zip`);
     $('#transfer-status').textContent = 'ZIP ready. It contains this mix’s settings and all its uploaded recordings. Use Import mix ZIP to restore it.';
   } catch (error) { $('#transfer-status').textContent = error.message; }
   finally { button.disabled = false; delete $('#transfer-dialog').dataset.busy; }
@@ -475,20 +573,21 @@ function previewRestore(recipe, files, save) {
   $('#restore-mix').disabled = !db;
   $('#restore-status').textContent = db ? 'Load when you’re ready. Your current playback will pause.' : 'Local storage is unavailable. Reload with storage enabled to restore this mix.';
 }
-$('#import-mix').onclick = () => {
+function openMixImport() {
   pendingRestore = undefined; $('#mix-zip').value = ''; $('#restore-preview').hidden = true;
   $('#restore-status').textContent = ''; $('#restore-file-field').hidden = false;
   $('#restore-dialog').showModal();
-};
-$('#mix-zip').onchange = async () => {
-  const file = $('#mix-zip').files[0]; if (!file) return;
+}
+$('#import-mix').onclick = openMixImport;
+async function inspectMixFile(file) {
   pendingRestore = undefined; $('#restore-preview').hidden = true;
   $('#restore-dialog').dataset.busy = 'true'; $('#mix-zip').disabled = true;
   $('#restore-status').textContent = 'Checking your mix ZIP…';
   try { const { recipe, files } = await importMixZip(file); previewRestore(recipe, files, true); }
   catch (error) { $('#restore-status').textContent = error.message; }
   finally { delete $('#restore-dialog').dataset.busy; $('#mix-zip').disabled = false; }
-};
+}
+$('#mix-zip').onchange = () => { const file = $('#mix-zip').files[0]; if (file) void inspectMixFile(file); };
 $('#restore-mix').onclick = async () => {
   if (!pendingRestore || !db || $('#restore-dialog').dataset.busy) return;
   const { recipe, files } = pendingRestore, save = $('#restore-save').checked;
@@ -555,12 +654,45 @@ for (const name of CUSTOM_CATEGORIES) {
   const option = document.createElement('option'); option.value = name; option.textContent = name === 'My sounds' ? 'Uncategorized' : name;
   $('#upload-category').append(option);
 }
-$('#add-sounds').onclick = () => {
+let selectedAudioFiles = [], fileRouting = false;
+function selectAudioFiles(files) {
+  selectedAudioFiles = Array.from(files);
+  $('#upload-selection').textContent = selectedAudioFiles.length ? `${selectedAudioFiles.length} selected: ${selectedAudioFiles.map(file => file.name).join(', ')}` : 'You can also drop audio files here.';
+}
+function openAudioImport(files = []) {
   $('#upload-form').reset(); $('#import-status').textContent = '';
   // Suggest the current genre when browsing one category; other views start uncategorized.
   $('#upload-category').value = selectedCategories.length === 1 && CUSTOM_CATEGORIES.includes(selectedCategories[0]) ? selectedCategories[0] : 'My sounds';
-  $('#upload-dialog').showModal();
+  selectAudioFiles(files); $('#upload-dialog').showModal();
+}
+function importProblem(message) {
+  const active = document.querySelector('dialog[open]');
+  const output = active?.querySelector('[role="status"]');
+  if (output) output.textContent = message; else status(message);
+}
+async function routeImportFiles(files) {
+  const active = document.querySelector('dialog[open]');
+  if (!db) throw new Error('Local recording storage is unavailable. Reload with storage enabled before importing.');
+  if (fileRouting || active?.dataset.busy || libraryBusy) throw new Error('An import or storage operation is in progress. Wait for it to finish.');
+  if (active && !['upload-dialog', 'restore-dialog'].includes(active.id)) throw new Error('Close this dialog before importing files.');
+  fileRouting = true;
+  $('#import-submit').disabled = true;
+  try {
+    const input = await classifyFiles(files);
+    if (input.kind === 'zip') { $('#upload-dialog').close(); openMixImport(); await inspectMixFile(input.file); }
+    else {
+      pendingRestore = undefined; $('#restore-dialog').close();
+      if ($('#upload-dialog').open) { selectAudioFiles(input.files); $('#import-status').textContent = ''; }
+      else openAudioImport(input.files);
+    }
+  } finally { fileRouting = false; if (!$('#upload-dialog').dataset.busy) $('#import-submit').disabled = false; }
+}
+$('#add-sounds').onclick = () => openAudioImport();
+$('#sound-files').onchange = () => {
+  const files = Array.from($('#sound-files').files); selectAudioFiles([]);
+  void routeImportFiles(files).catch(error => importProblem(error.message));
 };
+installFileDrop({ overlay: $('#file-drop-overlay'), onFiles: routeImportFiles, onProblem: importProblem });
 async function inspectDuration(file) {
   const url = URL.createObjectURL(file);
   const audio = document.createElement('audio');
@@ -577,11 +709,12 @@ async function inspectDuration(file) {
 }
 $('#upload-form').onsubmit = async event => {
   event.preventDefault();
-  if (!db || $('#import-submit').disabled) return;
-  const files = [...$('#sound-files').files];
+  if (!db || $('#import-submit').disabled || fileRouting) return;
+  const files = [...selectedAudioFiles];
   if (!files.length) { $('#import-status').textContent = 'Choose at least one audio file.'; return; }
   const category = CUSTOM_CATEGORIES.includes($('#upload-category').value) ? $('#upload-category').value : 'My sounds';
   for (const id of ['add-sounds', 'import-submit', 'sound-files', 'upload-category']) $(`#${id}`).disabled = true;
+  $('#upload-dialog').dataset.busy = 'true';
   $('#import-submit').textContent = 'Adding…'; $('#import-status').textContent = 'Checking your recordings…';
   let imported = 0; const problems = [];
   // A separate decoder never connects imported audio to the speakers.
@@ -591,12 +724,12 @@ $('#upload-form').onsubmit = async event => {
     decoder = new Context(); await decoder.suspend();
     for (const file of files) {
       try {
-        if (catalog.filter(sound => sound.kind === 'custom').length >= 30) throw new Error('30 custom sounds are already stored');
         if (!file.size || file.size > 25 * 1024 * 1024) throw new Error('choose a file below 25 MB');
         if (await inspectDuration(file) > 120) throw new Error('choose a recording of two minutes or less');
         const data = await file.arrayBuffer();
         const hash = [...new Uint8Array(await crypto.subtle.digest('SHA-256', data))].map(byte => byte.toString(16).padStart(2, '0')).join('');
         if (catalog.some(sound => sound.hash === hash)) throw new Error('already in your library');
+        if (catalog.filter(sound => sound.kind === 'custom').length >= 30) throw new Error('30 custom sounds are already stored');
         // Validate the content, since file names and MIME types are not reliable.
         let buffer;
         try { buffer = await decoder.decodeAudioData(data); }
@@ -609,7 +742,8 @@ $('#upload-form').onsubmit = async event => {
     }
   } catch (error) { problems.push(error.message); }
   finally {
-    await decoder?.close();
+    await decoder?.close().catch(() => {});
+    delete $('#upload-dialog').dataset.busy;
     for (const id of ['add-sounds', 'import-submit', 'sound-files', 'upload-category']) $(`#${id}`).disabled = false;
     $('#import-submit').textContent = 'Add to library';
     mix = normalize(mix); renderSounds();
@@ -617,7 +751,7 @@ $('#upload-form').onsubmit = async event => {
     sync();
     const message = `${imported} recording${imported === 1 ? '' : 's'} added.${problems.length ? ` ${problems[0]}${problems.length > 1 ? ` (${problems.length - 1} other files could not be added.)` : ''}` : ' Tagged Uploaded and ready offline.'}`;
     $('#import-status').textContent = message; status(message);
-    if (imported && !problems.length) { $('#upload-dialog').close(); $('#upload-form').reset(); }
+    if (imported && !problems.length) { $('#upload-dialog').close(); $('#upload-form').reset(); selectAudioFiles([]); }
 
   }
 };

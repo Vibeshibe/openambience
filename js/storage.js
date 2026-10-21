@@ -1,3 +1,4 @@
+import { usageSignature, withoutSound } from './library-management.js';
 // Audio stays on this device. Metadata and blobs commit in one transaction.
 export function openLibrary() {
   return new Promise((resolve, reject) => {
@@ -54,5 +55,27 @@ export function commitLibraryState(db, state, sounds = []) {
       try { tx.abort(); } catch {}
       reject(error);
     }
+  });
+}
+
+// Recheck references inside the deleting transaction so another tab cannot add
+// an affected mix between the impact preview and the actual removal.
+export function removeSoundAndReferences(db, id, expectedUsage) {
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(['sounds', 'state'], 'readwrite');
+    let next, failure;
+    tx.oncomplete = () => resolve(next);
+    tx.onerror = () => reject(failure || tx.error);
+    tx.onabort = () => reject(failure || tx.error || new Error('Removal canceled.'));
+    const request = tx.objectStore('state').get('current');
+    request.onsuccess = () => {
+      try {
+        const state = request.result;
+        if (!state || usageSignature(state, id) !== expectedUsage) throw new Error('Mix references changed. Reload and review the recording again before removing it.');
+        next = withoutSound(state, id);
+        tx.objectStore('sounds').delete(id);
+        tx.objectStore('state').put(next, 'current');
+      } catch (error) { failure = error; tx.abort(); }
+    };
   });
 }

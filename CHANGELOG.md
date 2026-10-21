@@ -4,6 +4,9 @@ App releases use [Semantic Versioning](docs/versioning.md). Research checkpoints
 
 ## Unreleased
 
+- Add drag-and-drop audio and mix ZIP import using the same review and validation flows as file pickers. Reject folders and mixed audio/ZIP batches without importing them.
+- Add device storage management with recording sizes, categories and mix references, original recording downloads, browser usage estimates and an explicit retention-protection request.
+- Replace sound deletion with an impact preview and explicit consent to remove referenced layers. Delete the recording and update recipes in one transaction, rejecting stale reference previews and rolling back storage failures.
 - Record user-confirmed long-duration mobile listening, successful sleep-timer operation and 200% zoom usability; retain screen-reader and targeted device/audio audits as separate pending checks.
 ## 0.7.1 — 2026-10-21
 

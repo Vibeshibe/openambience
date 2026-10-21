@@ -69,7 +69,7 @@
       <div class="section-heading"><div class="category-title"><h2 id="category-heading">All sounds</h2><span id="binaural-headphones" class="headphones-tag" hidden>Stereo headphones</span></div><span id="visible-count"></span></div>
       <div id="sounds" class="sound-grid"></div>
       <p id="empty" class="empty" hidden>No sounds here yet. Try another category or add a recording.</p><p id="radio-hint" class="hint" hidden>Radio uses your internet connection. Saved station URLs stay on this device; live audio is never downloaded for offline use.</p>
-      <p class="hint">Layer up to six sounds. Your imports stay on this device.</p>
+      <p class="hint">Layer up to six sounds. Drop audio files or one mix ZIP anywhere to import. Your files stay on this device.</p>
     </section>
     <section id="mixes" aria-labelledby="mixes-title" hidden>
       <div class="section-heading"><h2 id="mixes-title">Made for your moments</h2></div>
@@ -80,7 +80,7 @@
     </section>
     <noscript>Enable JavaScript to mix and play sounds.</noscript>
   </main>
-  <footer><span id="offline">Preparing offline library…</span><button id="show-credits" class="text-button">Sound credits</button><a class="repo-link" href="https://github.com/Vibeshibe/openambience" target="_blank" rel="noopener noreferrer" aria-label="OpenAmbience on GitHub (opens in a new tab)">GitHub <span aria-hidden="true">↗</span></a><span>v0.7.1 · No accounts. No tracking.</span></footer>
+  <footer><span id="offline">Preparing offline library…</span><button id="manage-storage" class="text-button">Manage storage</button><button id="show-credits" class="text-button">Sound credits</button><a class="repo-link" href="https://github.com/Vibeshibe/openambience" target="_blank" rel="noopener noreferrer" aria-label="OpenAmbience on GitHub (opens in a new tab)">GitHub <span aria-hidden="true">↗</span></a><span>v0.7.1 · No accounts. No tracking.</span></footer>
   <div class="player-dock">
     <section class="player" aria-label="Playback controls">
       <button id="open-mixer" class="quiet" aria-haspopup="dialog" aria-controls="mixer-dialog" aria-label="Mix options" title="Mix options: sleep timer, save, or clear">
@@ -157,11 +157,30 @@
     </div>
     <p id="restore-status" class="dialog-status" role="status"></p>
   </dialog>
-  <dialog id="upload-dialog" aria-labelledby="upload-title">
+  <div id="file-drop-overlay" hidden aria-hidden="true"><div><strong>Drop to import</strong><span>Audio recordings or one mix ZIP</span></div></div>
+  <dialog id="storage-dialog" class="mix-dialog storage-dialog" aria-labelledby="storage-title">
+    <div class="dialog-heading"><h2 id="storage-title">Storage on this device</h2><button class="close quiet" aria-label="Close storage management">✕</button></div>
+    <div class="storage-summary"><div><span>Your recordings</span><strong id="recording-usage"></strong></div><div><span>Library slots</span><strong id="recording-slots"></strong></div></div>
+    <p id="storage-estimate" class="hint"></p>
+    <div class="storage-protection"><p id="storage-protection-status" class="hint"></p><button id="persist-storage" class="quiet">Keep offline data</button></div>
+    <p class="hint">Browser storage can be cleared. Back up mixes as ZIPs before removing recordings you want to keep.</p>
+    <div class="section-heading"><h3>Your recordings</h3><button id="refresh-storage" class="quiet">Refresh</button></div>
+    <div id="storage-recordings"></div><p id="storage-empty" class="hint" hidden>No uploaded recordings yet. Add sounds from the library or drop audio files into the app.</p>
+    <p id="storage-status" class="dialog-status" role="status"></p>
+  </dialog>
+  <dialog id="remove-sound-dialog" class="mix-dialog" aria-labelledby="remove-sound-title" aria-describedby="remove-sound-description">
+    <div class="dialog-heading"><h2 id="remove-sound-title">Remove recording?</h2><button class="close quiet" aria-label="Close sound removal">✕</button></div>
+    <p id="remove-sound-description" class="hint"></p><ul id="remove-sound-usage" class="reference-list"></ul>
+    <label id="remove-references-field" class="restore-save" hidden><input id="remove-references" type="checkbox">Also remove this layer from the affected mixes</label>
+    <div class="dialog-actions"><button type="button" class="quiet" data-close-dialog autofocus>Keep sound</button><button id="confirm-remove-sound" class="danger danger-primary">Remove recording</button></div>
+    <p id="remove-sound-status" class="dialog-status" role="status"></p>
+  </dialog>
+  <dialog id="upload-dialog" class="mix-dialog" aria-labelledby="upload-title">
     <div class="dialog-heading"><h2 id="upload-title">Add your sounds</h2><button class="close quiet" aria-label="Close sound import">✕</button></div>
     <p>Your recordings join the library with an <span class="source-tag">Uploaded</span> tag. Files stay on this device and work offline.</p>
     <form id="upload-form">
-      <label class="field" for="sound-files">Audio files<input id="sound-files" type="file" multiple required aria-describedby="upload-limits"></label>
+      <label class="field file-drop-zone" for="sound-files">Choose or drop audio files<input id="sound-files" type="file" multiple aria-describedby="upload-limits upload-selection"></label>
+      <p id="upload-selection" class="hint"></p>
       <p id="upload-limits" class="hint">Browse your files and choose audio recordings, such as MP3 or WAV. Up to 25 MB and 2 minutes per file, mono or stereo. Files your browser cannot read as audio are skipped.</p>
       <label class="field" for="upload-category">Category<select id="upload-category" aria-describedby="upload-category-help"></select></label>
       <p id="upload-category-help" class="hint">Applies to these files. They’ll appear beside the built-in sounds in this category. You can change each recording’s category later.</p>
