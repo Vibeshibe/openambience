@@ -1,7 +1,7 @@
 import { SOUNDS, normalizeMix } from './state.js';
 import { CUSTOM_CATEGORIES } from './categories.js';
 import { normalizeRadioUrl } from './radio.js';
-import { createZip, readZip, ZIP_LIMITS } from './zip.js';
+import { createZip, readZip, ZIP_LIMITS, COLLECTION_ZIP_LIMITS } from './zip.js';
 
 const FORMAT = 'openambience-mix';
 const MAX_LINK = 16000;
@@ -13,12 +13,12 @@ export async function sha256(blob) {
   return [...new Uint8Array(await crypto.subtle.digest('SHA-256', await blob.arrayBuffer()))].map(byte => byte.toString(16).padStart(2, '0')).join('');
 }
 
-export function validateRecipe(raw, { link = false } = {}) {
+export function validateRecipe(raw, { link = false, allowEmpty = false } = {}) {
   if (!raw || raw.format !== FORMAT) throw new Error('This is not an OpenAmbience mix.');
   if (raw.schemaVersion !== 1) throw new Error('Unsupported mix version. Update OpenAmbience and try again.');
   if (!text(raw.name, 40)) throw new Error('The mix needs a name of at most 40 characters.');
   const mix = raw.mix;
-  if (!mix || !Array.isArray(mix.enabled) || !mix.enabled.length || mix.enabled.length > 6
+  if (!mix || !Array.isArray(mix.enabled) || (!allowEmpty && !mix.enabled.length) || mix.enabled.length > 6
     || new Set(mix.enabled).size !== mix.enabled.length || !mix.enabled.every(idValid)
     || !percent(mix.master) || ![0, 15, 30, 60].includes(mix.timerMinutes)
     || ![2, 4, 6, 8, 10, 14, 20, 30].includes(mix.binauralBeat)
@@ -59,7 +59,7 @@ export function validateRecipe(raw, { link = false } = {}) {
   }, sounds };
 }
 
-export function makeRecipe(name, rawMix, catalog) {
+export function makeRecipe(name, rawMix, catalog, options) {
   // Check before normalization, which intentionally removes missing local IDs.
   if (rawMix.enabled.some(id => !catalog.some(sound => sound.id === id))) throw new Error('A recording is missing. Restore it before exporting this mix.');
   const mix = normalizeMix(rawMix, catalog);
@@ -72,7 +72,7 @@ export function makeRecipe(name, rawMix, catalog) {
       id, name: sound.name, kind: 'custom', category: sound.category || 'My sounds', hash: sound.hash,
       path: `audio/${sound.hash}.audio`, size: sound.blob.size, mimeType: sound.blob.type || 'application/octet-stream', durationSeconds: sound.durationSeconds }];
   });
-  return validateRecipe({ format: FORMAT, schemaVersion: 1, name, mix, sounds });
+  return validateRecipe({ format: FORMAT, schemaVersion: 1, name, mix, sounds }, options);
 }
 
 export function mixLink(recipe, baseUrl) {
@@ -110,8 +110,7 @@ export async function exportMixZip(recipe, catalog) {
   return createZip(entries);
 }
 
-export async function importMixZip(file) {
-  const files = await readZip(file);
+async function readRecipeFiles(files) {
   const json = files.get('mix.json');
   if (!json) throw new Error('This ZIP has no mix.json. Choose an OpenAmbience mix download.');
   let raw;
@@ -126,19 +125,76 @@ export async function importMixZip(file) {
   return { recipe, files };
 }
 
+export async function importMixZip(file) {
+  return readRecipeFiles(await readZip(file));
+}
+
+export function validateCollection(raw) {
+  if (!raw || raw.format !== 'openambience-mixes') throw new Error('This is not an OpenAmbience mixes download.');
+  if (raw.schemaVersion !== 1) throw new Error('Unsupported mixes version. Update OpenAmbience and try again.');
+  if (!Array.isArray(raw.mixes) || !raw.mixes.length || raw.mixes.length > 20) throw new Error('A mixes download must contain 1 to 20 saved mixes.');
+  const mixes = raw.mixes.map(recipe => validateRecipe(recipe, { allowEmpty: true }));
+  const recordings = new Set(), stations = new Set();
+  for (const recipe of mixes) for (const sound of recipe.sounds) {
+    if (sound.kind === 'custom') recordings.add(sound.hash); else stations.add(sound.url);
+  }
+  if (recordings.size > 30 || stations.size > 20) throw new Error('These mixes exceed the library limits of 30 recordings or 20 stations.');
+  return { format: 'openambience-mixes', schemaVersion: 1, mixes };
+}
+
+export async function exportMixesZip(saved, catalog) {
+  const collection = validateCollection({ format: 'openambience-mixes', schemaVersion: 1,
+    mixes: saved.map(item => makeRecipe(item.name, item.mix, catalog, { allowEmpty: true })) });
+  const entries = [{ name: 'mixes.json', blob: new Blob([JSON.stringify(collection, null, 2)], { type: 'application/json' }) }];
+  const included = new Map();
+  for (const recipe of collection.mixes) for (const sound of recipe.sounds.filter(item => item.kind === 'custom')) {
+    const blob = catalog.find(item => item.id === sound.id)?.blob;
+    if (!blob || blob.size !== sound.size || (included.get(sound.path) !== blob && await sha256(blob) !== sound.hash)) throw new Error(`“${sound.name}” is missing or damaged. No ZIP was downloaded.`);
+    if (!included.has(sound.path)) entries.push({ name: sound.path, blob });
+    included.set(sound.path, blob);
+  }
+  return createZip(entries, COLLECTION_ZIP_LIMITS);
+}
+
+// The shared picker/drop flow accepts both formats; the original single-mix API
+// retains its narrower file/size limits and recipe contract.
+export async function importMixArchive(file) {
+  const files = await readZip(file, COLLECTION_ZIP_LIMITS);
+  if (!files.has('mixes.json')) {
+    if (files.size > ZIP_LIMITS.files || file.size > ZIP_LIMITS.totalBytes + 65536
+      || (files.get('mix.json')?.size || 0) > ZIP_LIMITS.jsonBytes) throw new Error('ZIP contents exceed the single-mix size limits.');
+    return readRecipeFiles(files);
+  }
+  let raw;
+  try { raw = JSON.parse(await files.get('mixes.json').text()); } catch { throw new Error('The ZIP contains damaged mixes settings.'); }
+  const collection = validateCollection(raw);
+  const expected = new Set(['mixes.json']);
+  for (const recipe of collection.mixes) for (const sound of recipe.sounds) if (sound.kind === 'custom') expected.add(sound.path);
+  if (files.size !== expected.size || [...files.keys()].some(path => !expected.has(path))) throw new Error('The ZIP contains missing or unexpected files.');
+  const checked = new Set();
+  for (const recipe of collection.mixes) for (const sound of recipe.sounds.filter(item => item.kind === 'custom')) {
+    const blob = files.get(sound.path);
+    if (!blob || blob.size !== sound.size || (!checked.has(sound.path) && await sha256(blob) !== sound.hash)) throw new Error(`Missing or damaged recording: ${sound.name}.`);
+    checked.add(sound.path);
+  }
+  return { collection, files };
+}
+
 // Preparation has no storage side effects. The caller validates audio, then uses
 // one IndexedDB transaction to commit additions and the complete state snapshot.
-export async function prepareRestore(recipe, files, catalog, inspectAudio) {
-  recipe = validateRecipe(recipe);
+export async function prepareRestore(recipe, files, catalog, inspectAudio, { allowEmpty = false, checkedAudio = new Map() } = {}) {
+  recipe = validateRecipe(recipe, { allowEmpty });
   const additions = [], mapping = new Map();
   for (const sound of recipe.sounds) {
     const existing = [...catalog, ...additions].find(item => sound.kind === 'radio' ? item.kind === 'radio' && item.url === sound.url : item.kind === 'custom' && item.hash === sound.hash);
     if (sound.kind === 'custom') {
       const source = files?.get(sound.path);
-      if (!source || source.size !== sound.size || await sha256(source) !== sound.hash) throw new Error(`Missing or damaged recording: ${sound.name}.`);
+      const checked = checkedAudio.get(sound.hash);
+      if (!source || source.size !== sound.size || (checked?.source !== source && await sha256(source) !== sound.hash)) throw new Error(`Missing or damaged recording: ${sound.name}.`);
       // Even matching hashes are decoded before committing an untrusted archive.
       const blob = source.slice(0, source.size, sound.mimeType);
-      const durationSeconds = await inspectAudio(blob);
+      const durationSeconds = checked?.source === source ? checked.durationSeconds : await inspectAudio(blob);
+      checkedAudio.set(sound.hash, { source, durationSeconds });
       if (!existing) {
         const { path, size, mimeType, ...metadata } = sound;
         additions.push({ ...metadata, id: `custom-${crypto.randomUUID()}`, blob, durationSeconds });
@@ -153,4 +209,18 @@ export async function prepareRestore(recipe, files, catalog, inspectAudio) {
   const levels = Object.fromEntries(recipe.mix.enabled.map(id => [mapping.get(id) || id, recipe.mix.levels[id]]));
   if (new Set(enabled).size !== enabled.length) throw new Error('This mix refers to the same local sound more than once.');
   return { additions, mix: normalizeMix({ ...recipe.mix, enabled, levels }, [...catalog, ...additions]) };
+}
+
+export async function prepareCollectionRestore(collection, indices, files, catalog, inspectAudio, savedCount = 0) {
+  collection = validateCollection(collection);
+  if (!Array.isArray(indices) || !indices.length || new Set(indices).size !== indices.length
+    || !indices.every(index => Number.isInteger(index) && index >= 0 && index < collection.mixes.length)) throw new Error('Select at least one mix to import.');
+  if (savedCount + indices.length > 20) throw new Error(`There is room for ${Math.max(0, 20 - savedCount)} more saved mixes. Select fewer mixes or delete saved mixes first.`);
+  const additions = [], mixes = [], checkedAudio = new Map();
+  for (const index of [...indices].sort((a, b) => a - b)) {
+    const recipe = collection.mixes[index];
+    const prepared = await prepareRestore(recipe, files, [...catalog, ...additions], inspectAudio, { allowEmpty: true, checkedAudio });
+    additions.push(...prepared.additions); mixes.push({ name: recipe.name, mix: prepared.mix });
+  }
+  return { additions, mixes };
 }

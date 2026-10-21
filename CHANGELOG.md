@@ -4,6 +4,8 @@ App releases use [Semantic Versioning](docs/versioning.md). Research checkpoints
 
 ## Unreleased
 
+- Add Download all mixes: one ZIP for every saved mix with shared recordings stored once, plus selective import into the existing library without replacing mixes or interrupting playback.
+
 ## 0.8.1 — 2026-10-21
 
 - Give mix ZIP imports a visible drop area, matching audio imports, with a styled file picker and the dropped filename retained for review.

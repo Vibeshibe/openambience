@@ -73,7 +73,9 @@
     </section>
     <section id="mixes" aria-labelledby="mixes-title" hidden>
       <div class="section-heading"><h2 id="mixes-title">Made for your moments</h2></div>
-      <div class="mix-library-actions"><button id="save-current" class="primary">Save current mix</button><button id="import-mix" class="quiet">Import mix ZIP</button></div>
+      <div class="mix-library-actions"><button id="save-current" class="primary">Save current mix</button><button id="import-mix" class="quiet">Import mix ZIP</button><button id="download-all-mixes" class="quiet" aria-describedby="mixes-transfer-help">Download all mixes</button></div>
+      <p id="mixes-transfer-help" class="hint">One ZIP backs up all saved mixes and their recordings. Import accepts individual mixes or a full backup.</p>
+      <p id="mixes-transfer-status" class="dialog-status" role="status"></p>
       <div id="saved-mixes" class="saved-grid"></div>
       <p id="no-mixes" class="empty">A mix worth coming back to? Save it from the player below.</p>
       <h2>A place to start</h2><div id="presets" class="presets"></div>
@@ -154,6 +156,14 @@
     <div id="restore-preview" hidden><h3 id="restore-name"></h3><p id="restore-summary"></p><ul id="restore-sounds"></ul>
       <label class="restore-save"><input id="restore-save" type="checkbox">Save on this device</label>
       <div class="dialog-actions"><button type="button" class="quiet" data-close-dialog>Cancel</button><button id="restore-mix" class="primary">Load mix</button></div>
+    </div>
+    <div id="restore-collection" hidden>
+      <h3>Choose mixes to import</h3>
+      <p id="restore-collection-summary" class="hint"></p>
+      <div class="collection-selection-actions"><button id="select-all-mixes" class="text-button" type="button">Select all</button><button id="select-no-mixes" class="text-button" type="button">Clear selection</button></div>
+      <fieldset id="restore-collection-list"><legend class="sr-only">Mixes in this ZIP</legend></fieldset>
+      <p id="restore-collection-help" class="hint">Selected mixes are added to My mixes. Existing mixes and current playback are kept. Matching recordings and stations are reused; matching mix names are kept as separate entries.</p>
+      <div class="dialog-actions"><button type="button" class="quiet" data-close-dialog>Cancel</button><button id="restore-selected-mixes" class="primary" aria-describedby="restore-collection-summary restore-collection-help">Import selected mixes</button></div>
     </div>
     <p id="restore-status" class="dialog-status" role="status"></p>
   </dialog>

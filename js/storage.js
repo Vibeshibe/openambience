@@ -40,21 +40,36 @@ export function readLibraryState(db) {
 
 // The recipe and every new recording either commit together or all roll back.
 // add() deliberately refuses to overwrite an existing library ID.
-export function commitLibraryState(db, state, sounds = []) {
+export function commitLibraryState(db, state, sounds = [], { expected } = {}) {
   return new Promise((resolve, reject) => {
     const tx = db.transaction(['sounds', 'state'], 'readwrite');
     tx.oncomplete = () => resolve();
     tx.onerror = () => reject(tx.error || new Error('Could not save the mix.'));
     tx.onabort = () => reject(tx.error || new Error('Could not save the mix.'));
-    try {
-      for (const sound of sounds) tx.objectStore('sounds').add(sound);
-      tx.objectStore('state').put(state, 'current');
-    } catch (error) {
-      // Synchronous clone/quota failures do not automatically abort a transaction.
-      // Discard earlier add requests as well as the failed settings write.
-      try { tx.abort(); } catch {}
-      reject(error);
+    function write() {
+      try {
+        for (const sound of sounds) tx.objectStore('sounds').add(sound);
+        tx.objectStore('state').put(state, 'current');
+      } catch (error) {
+        // Synchronous clone/quota failures do not automatically abort a transaction.
+        // Discard earlier add requests as well as the failed settings write.
+        try { tx.abort(); } catch {}
+        reject(error);
+      }
     }
+    if (!expected) { write(); return; }
+    // A batch import must not overwrite a newer tab's recipes or reuse a sound
+    // that another tab removed while the archive was being decoded.
+    const snapshot = tx.objectStore('state').get('current'), inventory = tx.objectStore('sounds').getAll();
+    const fingerprint = values => JSON.stringify(values.map(sound => [sound.id, sound.kind, sound.hash || sound.url, sound.blob?.size]).sort((a, b) => a[0].localeCompare(b[0])));
+    inventory.onsuccess = () => {
+      try {
+        if (JSON.stringify(snapshot.result) !== JSON.stringify(expected.state) || fingerprint(inventory.result) !== fingerprint(expected.sounds)) throw new Error('Your library changed in another tab. Reload and review the import again.');
+        write();
+      } catch (error) {
+        tx.abort(); reject(error);
+      }
+    };
   });
 }
 

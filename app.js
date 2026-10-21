@@ -4,7 +4,7 @@ import { normalizeRadioUrl } from './js/radio.js';
 import { AudioEngine } from './js/audio.js';
 import { MixMediaSession } from './js/media-session.js';
 import { openLibrary, listSounds, putSound, readLibraryState, commitLibraryState, removeSoundAndReferences } from './js/storage.js';
-import { makeRecipe, mixLink, recipeFromHash, exportMixZip, importMixZip, prepareRestore } from './js/portable-mix.js';
+import { makeRecipe, mixLink, recipeFromHash, exportMixZip, exportMixesZip, importMixArchive, prepareRestore, prepareCollectionRestore } from './js/portable-mix.js';
 import { createFeedback } from './js/feedback.js';
 import { classifyFiles, installFileDrop } from './js/file-import.js';
 import { soundUsage, usageSignature, formatBytes, inspectStorage } from './js/library-management.js';
@@ -13,7 +13,7 @@ const $ = selector => document.querySelector(selector);
 let storage, db;
 try { storage = window.localStorage; } catch {}
 let catalog = [...SOUNDS];
-let libraryBusy = false;
+let libraryBusy = false, exportingMixes = false;
 const feedback = createFeedback($('#player-notice'), { mirror: $('#dialog-status'), fallbackFocus: $('#play') });
 const status = (message, quiet = false) => feedback.status(message, { quiet });
 function announceMix(action, name, detail = '') {
@@ -447,6 +447,7 @@ for (const preset of PRESETS) {
 }
 function renderSaved() {
   $('#saved-mixes').replaceChildren(); $('#no-mixes').hidden = saved.length > 0;
+  $('#download-all-mixes').disabled = !saved.length || exportingMixes;
   saved.forEach((item, index) => {
     const group = document.createElement('article'); group.className = 'saved-item';
     const heading = document.createElement('h3');
@@ -527,6 +528,22 @@ $('#save-form').onsubmit = event => {
 };
 
 let transferMix, pendingRestore;
+$('#restore-dialog').addEventListener('close', () => {
+  if ($('#restore-dialog').open) return;
+  pendingRestore = undefined; $('#mix-zip').value = ''; $('#restore-collection-list').replaceChildren();
+});
+$('#download-all-mixes').onclick = async () => {
+  if (!saved.length || exportingMixes) return;
+  const count = saved.length, button = $('#download-all-mixes');
+  exportingMixes = true; button.disabled = true; button.textContent = 'Preparing ZIP…';
+  $('#mixes-transfer-status').textContent = `Preparing ${count} saved mix${count === 1 ? '' : 'es'} and their recordings…`;
+  try {
+    const blob = await exportMixesZip(saved, catalog);
+    downloadBlob(blob, `openambience-mixes-${new Date().toISOString().slice(0, 10)}.zip`);
+    $('#mixes-transfer-status').textContent = `ZIP ready: ${count} saved mix${count === 1 ? '' : 'es'}, with shared recordings included once. Use Import mix ZIP to restore it.`;
+  } catch (error) { $('#mixes-transfer-status').textContent = error.message; }
+  finally { exportingMixes = false; button.textContent = 'Download all mixes'; button.disabled = !saved.length; }
+};
 function openTransfer(item = { name: $('#mix-name').value.trim() || 'My mix', mix }) {
   if (!item.mix.enabled.length) { status('Choose sounds before sharing or downloading a mix.'); return; }
   transferMix = normalize(item.mix);
@@ -562,6 +579,7 @@ $('#download-mix').onclick = async () => {
 };
 function previewRestore(recipe, files, save) {
   pendingRestore = { recipe, files };
+  $('#restore-collection').hidden = true; $('#restore-title').textContent = 'Restore a mix';
   $('#restore-preview').hidden = false;
   $('#restore-name').textContent = recipe.name;
   $('#restore-summary').textContent = `${recipe.mix.enabled.length} sounds · Volume ${recipe.mix.master}% · ${recipe.mix.timerMinutes ? `${recipe.mix.timerMinutes} minute timer` : 'No timer'}`;
@@ -574,31 +592,60 @@ function previewRestore(recipe, files, save) {
   $('#restore-mix').disabled = !db;
   $('#restore-status').textContent = db ? 'Load when you’re ready. Your current playback will pause.' : 'Local storage is unavailable. Reload with storage enabled to restore this mix.';
 }
+function updateCollectionSelection() {
+  if (!pendingRestore?.collection) return;
+  const count = $('#restore-collection-list').querySelectorAll('input:checked').length, room = Math.max(0, 20 - saved.length);
+  $('#restore-collection-summary').textContent = `${count} of ${pendingRestore.collection.mixes.length} mixes selected. Room for ${room} more saved mix${room === 1 ? '' : 'es'} on this device.`;
+  $('#restore-selected-mixes').disabled = !db || !count || count > room || !!$('#restore-dialog').dataset.busy;
+}
+function previewCollection(collection, files) {
+  pendingRestore = { collection, files };
+  $('#restore-preview').hidden = true; $('#restore-collection').hidden = false;
+  $('#restore-title').textContent = 'Import saved mixes';
+  $('#restore-collection-list').replaceChildren(...collection.mixes.map((recipe, index) => {
+    const label = document.createElement('label'); label.className = 'collection-mix';
+    const input = document.createElement('input'); input.type = 'checkbox'; input.value = String(index); input.checked = true;
+    const text = document.createElement('span'), name = document.createElement('strong'), summary = document.createElement('small');
+    name.textContent = recipe.name;
+    summary.textContent = `${recipe.mix.enabled.length} sounds · Volume ${recipe.mix.master}% · ${recipe.mix.timerMinutes ? `${recipe.mix.timerMinutes} minute timer` : 'No timer'}`;
+    const sounds = document.createElement('small');
+    sounds.textContent = recipe.mix.enabled.map(id => (recipe.sounds.find(sound => sound.id === id) || SOUNDS.find(sound => sound.id === id)).name).join(', ') || 'Empty mix';
+    text.append(name, summary, sounds); label.append(input, text); return label;
+  }));
+  $('#restore-status').textContent = 'Choose the mixes to add. Importing does not start or interrupt playback.';
+  updateCollectionSelection();
+}
+$('#restore-collection-list').onchange = updateCollectionSelection;
+for (const [id, checked] of [['select-all-mixes', true], ['select-no-mixes', false]]) {
+  $(`#${id}`).onclick = () => {
+    if ($('#restore-dialog').dataset.busy) return;
+    for (const input of $('#restore-collection-list').querySelectorAll('input')) input.checked = checked;
+    updateCollectionSelection();
+  };
+}
 function openMixImport() {
-  pendingRestore = undefined; $('#mix-zip').value = ''; $('#restore-preview').hidden = true;
+  pendingRestore = undefined; $('#mix-zip').value = ''; $('#restore-preview').hidden = true; $('#restore-collection').hidden = true;
+  $('#restore-title').textContent = 'Restore a mix';
   $('#restore-status').textContent = ''; $('#restore-file-field').hidden = false;
   $('#restore-dialog').showModal();
 }
 $('#import-mix').onclick = openMixImport;
 async function inspectMixFile(file) {
-  pendingRestore = undefined; $('#restore-preview').hidden = true;
+  pendingRestore = undefined; $('#restore-preview').hidden = true; $('#restore-collection').hidden = true;
   $('#restore-dialog').dataset.busy = 'true'; $('#mix-zip').disabled = true;
   $('#restore-status').textContent = 'Checking your mix ZIP…';
-  try { const { recipe, files } = await importMixZip(file); previewRestore(recipe, files, true); }
+  try {
+    const { recipe, collection, files } = await importMixArchive(file);
+    if (collection) previewCollection(collection, files); else previewRestore(recipe, files, true);
+  }
   catch (error) { $('#restore-status').textContent = error.message; }
-  finally { delete $('#restore-dialog').dataset.busy; $('#mix-zip').disabled = false; }
+  finally { delete $('#restore-dialog').dataset.busy; $('#mix-zip').disabled = false; updateCollectionSelection(); }
 }
 $('#mix-zip').onchange = () => { const file = $('#mix-zip').files[0]; if (file) void inspectMixFile(file); };
-$('#restore-mix').onclick = async () => {
-  if (!pendingRestore || !db || $('#restore-dialog').dataset.busy) return;
-  const { recipe, files } = pendingRestore, save = $('#restore-save').checked;
-  $('#restore-dialog').dataset.busy = 'true'; $('#restore-mix').disabled = true; $('#mix-zip').disabled = true;
-  $('#restore-status').textContent = 'Checking recordings and restoring your mix…';
+function restoreAudioInspector() {
   let decoder;
-  try {
-    if (save && saved.length >= 20) throw new Error('You have 20 saved mixes. Uncheck Save on this device to load, or delete a saved mix first.');
-    const currentCatalog = [...SOUNDS, ...await listSounds(db)];
-    const prepared = await prepareRestore(recipe, files, currentCatalog, async blob => {
+  return {
+    async inspect(blob) {
       if (await inspectDuration(blob) > 120) throw new Error('A recording exceeds two minutes.');
       if (!decoder) { const Context = globalThis.AudioContext || globalThis.webkitAudioContext; decoder = new Context(); await decoder.suspend(); }
       let buffer;
@@ -606,7 +653,50 @@ $('#restore-mix').onclick = async () => {
       catch { throw new Error('A recording cannot be decoded in this browser. Try a browser that supports its audio format.'); }
       if (!Number.isFinite(buffer.duration) || buffer.duration <= 0 || buffer.duration > 120 || buffer.numberOfChannels > 2) throw new Error('Recordings must be mono/stereo and at most two minutes long.');
       return buffer.duration;
-    });
+    },
+    async close() { if (decoder) await decoder.close().catch(() => {}); },
+  };
+}
+$('#restore-selected-mixes').onclick = async () => {
+  if (!pendingRestore?.collection || !db || libraryBusy || $('#restore-dialog').dataset.busy) return;
+  const { collection, files } = pendingRestore;
+  const indices = [...$('#restore-collection-list').querySelectorAll('input:checked')].map(input => Number(input.value));
+  libraryBusy = true; $('#restore-dialog').dataset.busy = 'true'; $('#mix-zip').disabled = true;
+  $('#restore-selected-mixes').disabled = true; $('#restore-collection-list').disabled = true;
+  $('#select-all-mixes').disabled = true; $('#select-no-mixes').disabled = true;
+  $('#restore-status').textContent = 'Checking recordings and importing selected mixes…';
+  const audio = restoreAudioInspector();
+  try {
+    const localState = { schemaVersion: 2, mix, saved }, expectedState = await readLibraryState(db), localSounds = await listSounds(db);
+    if (JSON.stringify(localState) !== JSON.stringify(expectedState)) throw new Error('Your settings changed in another tab. Reload before importing.');
+    const currentCatalog = [...SOUNDS, ...localSounds];
+    const prepared = await prepareCollectionRestore(collection, indices, files, currentCatalog, audio.inspect, saved.length);
+    const nextCatalog = [...currentCatalog, ...prepared.additions], nextMix = normalizeMix(mix, nextCatalog);
+    const nextSaved = [...saved, ...prepared.mixes];
+    await commitLibraryState(db, { schemaVersion: 2, mix: nextMix, saved: nextSaved }, prepared.additions,
+      { expected: { state: expectedState, sounds: localSounds } });
+    catalog = nextCatalog; mix = nextMix; saved = nextSaved;
+    renderSounds(); renderSaved(); showView('mixes'); sync();
+    $('#restore-dialog').close(); pendingRestore = undefined;
+    feedback.success(`Imported ${prepared.mixes.length} saved mix${prepared.mixes.length === 1 ? '' : 'es'}. Existing mixes and playback kept.`);
+  } catch (error) { $('#restore-status').textContent = `Could not import these mixes. ${error.message} Your library and saved mixes have been kept.`; }
+  finally {
+    await audio.close(); libraryBusy = false;
+    delete $('#restore-dialog').dataset.busy; $('#mix-zip').disabled = false; $('#restore-collection-list').disabled = false;
+    $('#select-all-mixes').disabled = false; $('#select-no-mixes').disabled = false;
+    updateCollectionSelection();
+  }
+};
+$('#restore-mix').onclick = async () => {
+  if (!pendingRestore?.recipe || !db || $('#restore-dialog').dataset.busy) return;
+  const { recipe, files } = pendingRestore, save = $('#restore-save').checked;
+  $('#restore-dialog').dataset.busy = 'true'; $('#restore-mix').disabled = true; $('#mix-zip').disabled = true;
+  $('#restore-status').textContent = 'Checking recordings and restoring your mix…';
+  const audio = restoreAudioInspector();
+  try {
+    if (save && saved.length >= 20) throw new Error('You have 20 saved mixes. Uncheck Save on this device to load, or delete a saved mix first.');
+    const currentCatalog = [...SOUNDS, ...await listSounds(db)];
+    const prepared = await prepareRestore(recipe, files, currentCatalog, audio.inspect);
     await pause(true);
     const nextSaved = save ? [...saved, { name: recipe.name, mix: prepared.mix }] : saved;
     await commitLibraryState(db, { schemaVersion: 2, mix: prepared.mix, saved: nextSaved }, prepared.additions);
@@ -616,7 +706,7 @@ $('#restore-mix').onclick = async () => {
     announceMix('Loaded', recipe.name, `${save ? 'Saved on this device. ' : ''}Ready to play.`);
   } catch (error) { $('#restore-status').textContent = `Could not restore this mix. ${error.message} Your library and saved mixes have been kept.`; }
   finally {
-    if (decoder) await decoder.close().catch(() => {});
+    await audio.close();
     delete $('#restore-dialog').dataset.busy; $('#restore-mix').disabled = false; $('#mix-zip').disabled = false;
   }
 };
