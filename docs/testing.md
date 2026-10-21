@@ -8,7 +8,7 @@ Run `npm run check` and `npm test` on Node.js 22+. Tests cover input normalizati
 
 Syntax checks and all 35 Node 22 tests passed. The dedicated Chromium 156 `scripts/feedback-browser-check.cjs` harness passed all three presets, saved loads, saves/copies/renames/updates/deletes, reuse of the same notice DOM node, 320/390/1440px bounds with 40-character names, automatic dismissal, hover/focus pause and resumption, focus restoration, replacement during a fade, persistent warnings replacing a success, and hiding feedback when opening volume controls. It also confirms presets preserve an active countdown and saved loads restart their saved duration with an immediate display refresh. The preset popup screenshot was reviewed.
 
-The full library browser harness passed, and the portable-mix harness passed offline download/playback and link/ZIP restore with assertions that restores use shared success feedback. No page errors occurred. Physical mobile and screen-reader checks remain separate.
+The full library browser harness passed, and the portable-mix harness passed offline download/playback and link/ZIP restore with assertions that restores use shared success feedback. The 0.7.1 update harness passed upgrade/reload and offline operation with the feedback module included in the app cache. No page errors occurred. Physical mobile and screen-reader checks remain separate.
 
 ```sh
 PLAYWRIGHT_MODULE=/tmp/openambience-tools/node_modules/playwright node scripts/feedback-browser-check.cjs

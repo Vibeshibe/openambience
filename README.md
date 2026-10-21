@@ -60,7 +60,7 @@ An alternative is `python3 -m http.server 8080 --bind 127.0.0.1` from this direc
 
 ## Docker deployment
 
-Prebuilt images are published to `ghcr.io/vibeshibe/openambience` for Linux amd64 and arm64. Use `latest` for the current stable build, a version tag such as `0.7.0` for a specific release, or `dev` for development builds.
+Prebuilt images are published to `ghcr.io/vibeshibe/openambience` for Linux amd64 and arm64. Use `latest` for the current stable build, a version tag such as `0.7.1` for a specific release, or `dev` for development builds.
 
 ```sh
 docker run -d --name openambience --restart unless-stopped \
@@ -83,7 +83,7 @@ See the [container deployment guide](docs/docker.md) for port settings, updates,
 
 New in **0.7.0**: versioned mix links, single-ZIP download/restore including custom recordings, and saved sleep-timer settings. Use **Mix options → Share / download mix**, or **Share** on a saved card. Restore from **My mixes → Import mix ZIP**. Links and archives show a preview before loading; playback starts only with Play. Save mix opens a compact naming dialog; saved-card details (•••) contain renaming, replacement, copying and deletion. See [mix portability](docs/mix-portability.md).
 
-Available in **0.7.0**:
+Available in **0.7.1**:
 
 - Fifteen recorded sounds: rain, rain on glass, rain on tent, thunder, forest wind, waves, stream, fireplace, morning birds, evening birds, crickets, café, fan, cat purring, and train carriage.
 - Six generated textures, including white, pink, and brown noise, plus a separate Binaural beats category with eight preset cards: Delta (2 Hz), Theta (4 and 6 Hz), Alpha (8 and 10 Hz), and Beta (14, 20, and 30 Hz). Frequencies describe the difference between the left and right tones. Each card suggests a listening use; a shared category tag reminds you to use stereo headphones for the separate left/right tones. Earlier saved mixes preserve their beat frequencies and levels. Birdsong is now labelled Morning birds.
