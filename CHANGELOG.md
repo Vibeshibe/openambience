@@ -4,6 +4,7 @@ App releases use [Semantic Versioning](docs/versioning.md). Research checkpoints
 
 ## Unreleased
 
+- Give mix saving its own compact dialog, organize Mix options into spaced action rows, and align save/import controls on My mixes. Saved cards show sound summaries and dedicated Load/Share controls, with editing and deletion in a separate details dialog and an explicit delete confirmation. Use consistent dialog sizing, mobile insets, full-size touch targets and responsive action layouts.
 - Add versioned mix links with a preview before loading, including sound levels, master volume, sleep timer, binaural presets and radio station metadata. Mixes with local recordings use ZIP downloads.
 - Add one-file ZIP download and restore of mix settings and referenced custom recordings, with hash-based reuse, ID remapping, audio validation and explicit incomplete-archive errors.
 - Persist mix state alongside recordings in IndexedDB so ZIP restore commits settings and audio together. Migrate existing localStorage recipes without deleting the original data. Saved mixes now retain their selected sleep-timer duration.

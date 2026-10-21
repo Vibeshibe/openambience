@@ -130,13 +130,14 @@ async function importFile(page, file) {
  await page.locator('#mute').click();assert.equal(await page.locator('#master').inputValue(),'35');
  await page.locator('#open-mixer').click();
  assert.equal(await page.locator('#volume-popout').isVisible(),false);
- await page.locator('#mix-name').fill('Evening <test>'); await page.locator('#save-form button').click();
- await page.locator('#mixer-dialog .close').click();
+ await page.locator('#open-save').click();
+ await page.locator('#mix-name').fill('Evening <test>'); await page.locator('#save-form button[type="submit"]').click();
  await page.locator('#mixes-tab').click();
  assert.equal(await page.locator('.saved-item').count(),1);
- await page.getByRole('button',{name:'Duplicate Evening <test>',exact:true}).click();
+ await page.getByRole('button',{name:'Manage Evening <test>',exact:true}).click(); await page.locator('#duplicate-saved').click();
  assert.equal(await page.locator('.saved-item').count(),2);
- await page.getByRole('button',{name:'Rename Evening <test>',exact:true}).click();
+ await page.getByRole('button',{name:'Manage Evening <test>',exact:true}).click();
+ await page.locator('#saved-name').fill('Renamed mix'); await page.locator('#rename-form button[type="submit"]').click();
  await page.locator('.preset').first().click();
  await page.getByRole('button',{name:'Renamed mix',exact:true}).click();
  await page.locator('#library-tab').click();
@@ -167,7 +168,7 @@ async function importFile(page, file) {
  await chooseCategory(page, 'My sounds');
  await page.locator('.sound-card:visible .sound-toggle').click();
  const customID=await page.locator('.sound-card:visible').getAttribute('data-sound');
- await page.locator('#open-mixer').click(); await page.locator('#mix-name').fill('With import'); await page.locator('#save-form button').click(); await page.locator('#mixer-dialog .close').click();
+ await page.locator('#open-mixer').click(); await page.locator('#open-save').click(); await page.locator('#mix-name').fill('With import'); await page.locator('#save-form button[type="submit"]').click();
  await page.waitForFunction(()=>document.querySelector('#offline').textContent.includes('ready offline'));
  await page.reload(); await page.waitForSelector('.sound-card:visible');
  assert.equal(await page.locator('.sound-card').count(),31);
@@ -206,7 +207,7 @@ async function importFile(page, file) {
  await page.waitForFunction(()=>document.querySelectorAll('.sound-card').length===30);
  await page.locator('#mixes-tab').click();await page.getByRole('button',{name:'With import',exact:true}).click();
  assert.equal(await page.evaluate(async()=>{const {openLibrary,readLibraryState}=await import('./js/storage.js');const db=await openLibrary();try{return (await readLibraryState(db)).mix.enabled.some(id=>id.startsWith('custom-'));}finally{db.close();}}),false);
- await page.getByRole('button',{name:'Delete Renamed mix',exact:true}).click();
+ await page.getByRole('button',{name:'Manage Renamed mix',exact:true}).click(); await page.locator('#delete-saved').click(); await page.locator('#confirm-action').click();
  assert.equal(await page.locator('.saved-item').count(),2);
  await page.locator('#library-tab').click(); await chooseCategory(page, 'All sounds');
  await page.setViewportSize({width:1440,height:1000});await page.screenshot({path:require('node:path').join(require('node:os').tmpdir(), 'openambience-desktop.png'),fullPage:true});

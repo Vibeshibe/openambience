@@ -98,6 +98,7 @@ function sync() {
   $('#volume-toggle .volume-waves').toggleAttribute('hidden', muted);
   $('#volume-toggle .volume-cross').toggleAttribute('hidden', !muted);
   $('#play').disabled = busy;
+  for (const id of ['open-save', 'save-current', 'share-current']) $(`#${id}`).disabled = !mix.enabled.length;
   $('#play').setAttribute('aria-pressed', String(playing));
   $('#layer-count').textContent = mix.enabled.length ? `${mix.enabled.length} sound${mix.enabled.length === 1 ? '' : 's'} selected` : 'Your quiet starts here';
   if (!deadline) $('#countdown').textContent = playing ? 'Playing your mix' : 'Ready when you are';
@@ -326,8 +327,16 @@ for (const dialog of document.querySelectorAll('dialog')) {
   dialog.addEventListener('cancel', event => { if (dialog.dataset.busy) event.preventDefault(); });
   dialog.onclick = event => { if (event.target === dialog && !dialog.dataset.busy) { const bounds = dialog.getBoundingClientRect(); if (event.clientY < bounds.top || event.clientY > bounds.bottom || event.clientX < bounds.left || event.clientX > bounds.right) dialog.close(); } };
 }
+for (const button of document.querySelectorAll('[data-close-dialog]')) button.onclick = () => button.closest('dialog').close();
 const openMixer = () => { $('#dialog-status').textContent = ''; $('#mixer-dialog').showModal(); };
-$('#open-mixer').onclick = openMixer; $('#save-current').onclick = openMixer;
+function openSave() {
+  if (!mix.enabled.length) { status('Choose sounds before saving a mix.'); return; }
+  $('#save-status').textContent = '';
+  $('#save-summary').textContent = `${mix.enabled.length} sound${mix.enabled.length === 1 ? '' : 's'}${mix.timerMinutes ? ` · ${mix.timerMinutes} minute timer` : ''} · Saved on this device`;
+  $('#mixer-dialog').close(); $('#save-dialog').showModal(); $('#mix-name').focus();
+}
+$('#open-mixer').onclick = openMixer;
+$('#save-current').onclick = openSave; $('#open-save').onclick = openSave;
 for (const preset of PRESETS) {
   const button = document.createElement('button'); button.className = 'preset'; button.textContent = preset.name;
   const note = document.createElement('small'); note.textContent = preset.note; button.append(note);
@@ -338,32 +347,84 @@ function renderSaved() {
   $('#saved-mixes').replaceChildren(); $('#no-mixes').hidden = saved.length > 0;
   saved.forEach((item, index) => {
     const group = document.createElement('article'); group.className = 'saved-item';
-    const button = document.createElement('button'); button.className = 'load-mix'; button.textContent = item.name;
-    button.onclick = () => {
+    const heading = document.createElement('h3');
+    const button = document.createElement('button'); button.className = 'load-mix'; button.textContent = item.name; button.title = `Load ${item.name}`;
+    const load = () => {
       mix = normalize(item.mix); deadline = playing && mix.timerMinutes ? Date.now() + mix.timerMinutes * 60000 : 0;
       sync(); void updateAudio(); status(`${item.name} loaded.`);
     };
-    group.append(button);
-    for (const action of ['Update', 'Rename', 'Duplicate', 'Share / download', 'Delete']) {
-      const control = document.createElement('button'); control.textContent = action; control.setAttribute('aria-label', `${action} ${item.name}`);
-      control.onclick = () => {
-        if (action === 'Share / download') { openTransfer(item); return; }
-        if (action === 'Update') { if (!mix.enabled.length) { status('Select sounds before updating a mix.'); return; } if (!confirm(`Replace “${item.name}” with your current selection?`)) return; item.mix = normalize(mix); }
-        if (action === 'Rename') { const name = prompt('Name this mix', item.name)?.trim(); if (!name) return; item.name = name.slice(0, 40); }
-        if (action === 'Duplicate') { if (saved.length >= 20) { status('You have 20 saved mixes. Delete one first.'); return; } saved.push({ name: `${item.name} copy`.slice(0, 40), mix: normalize(item.mix) }); }
-        if (action === 'Delete') { if (!confirm(`Delete saved mix “${item.name}”?`)) return; saved.splice(index, 1); }
-        renderSaved(); sync(); status('Saved mixes updated on this device.');
-      };
-      group.append(control);
-    }
+    button.onclick = load; heading.append(button);
+    const description = document.createElement('p'); description.className = 'saved-description';
+    description.textContent = item.mix.enabled.map(id => catalog.find(sound => sound.id === id)?.name).filter(Boolean).join(' · ') || 'No sounds selected';
+    const meta = document.createElement('p'); meta.className = 'saved-meta';
+    meta.textContent = `${item.mix.enabled.length} sound${item.mix.enabled.length === 1 ? '' : 's'}${item.mix.timerMinutes ? ` · ${item.mix.timerMinutes} min timer` : ''}`;
+    const actions = document.createElement('div'); actions.className = 'saved-actions';
+    const loadButton = document.createElement('button'); loadButton.className = 'saved-load'; loadButton.textContent = 'Load mix'; loadButton.setAttribute('aria-label', `Load ${item.name}`); loadButton.onclick = load;
+    const share = document.createElement('button'); share.className = 'saved-share quiet'; share.textContent = 'Share'; share.setAttribute('aria-label', `Share / download ${item.name}`); share.title = 'Share or download this mix'; share.onclick = () => openTransfer(item);
+    const more = document.createElement('button'); more.className = 'saved-more quiet'; more.setAttribute('aria-label', `Manage ${item.name}`); more.setAttribute('aria-haspopup', 'dialog'); more.setAttribute('aria-controls', 'saved-dialog'); more.title = 'Edit or delete this mix';
+    more.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="5" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="19" cy="12" r="1.8"/></svg>';
+    more.onclick = () => openSaved(item);
+    actions.append(loadButton, share, more); group.dataset.index = index;
+    group.append(heading, description, meta, actions);
     $('#saved-mixes').append(group);
   });
 }
+let managedMix, pendingConfirmation;
+function openSaved(item) {
+  managedMix = item; $('#saved-name').value = item.name; $('#saved-status').textContent = '';
+  $('#update-saved').disabled = !mix.enabled.length; $('#saved-dialog').showModal();
+}
+function focusSaved(item) {
+  const index = saved.indexOf(item);
+  ($(`#saved-mixes [data-index="${index}"] .saved-more`) || $('#save-current')).focus({ preventScroll: true });
+}
+$('#rename-form').onsubmit = event => {
+  event.preventDefault(); const name = $('#saved-name').value.trim();
+  if (!name || !saved.includes(managedMix)) return;
+  managedMix.name = name.slice(0, 40); $('#saved-dialog').close();
+  renderSaved(); sync(); focusSaved(managedMix); status(`Renamed mix to “${managedMix.name}”.`);
+};
+$('#duplicate-saved').onclick = () => {
+  if (!saved.includes(managedMix)) return;
+  if (saved.length >= 20) { $('#saved-status').textContent = 'You have 20 saved mixes. Delete one to make room.'; return; }
+  const copy = { name: `${managedMix.name} copy`.slice(0, 40), mix: normalize(managedMix.mix) };
+  saved.push(copy); $('#saved-dialog').close(); renderSaved(); sync(); focusSaved(copy); status(`Saved “${copy.name}” on this device.`);
+};
+function confirmSaved(action) {
+  const item = managedMix; if (!saved.includes(item)) return;
+  const deleting = action === 'delete';
+  if (!deleting && !mix.enabled.length) { $('#saved-status').textContent = 'Choose sounds before replacing a saved mix.'; return; }
+  $('#confirm-title').textContent = deleting ? 'Delete saved mix?' : 'Replace saved mix?';
+  $('#confirm-description').textContent = deleting
+    ? `“${item.name}” will be removed from your saved mixes. Your recordings and current selection will stay in the library.`
+    : `Replace the sounds, levels and timer in “${item.name}” with your current mix?`;
+  $('#confirm-action').textContent = deleting ? 'Delete mix' : 'Replace mix';
+  $('#confirm-action').className = deleting ? 'danger danger-primary' : 'primary';
+  pendingConfirmation = () => {
+    if (deleting) saved.splice(saved.indexOf(item), 1); else item.mix = normalize(mix);
+    renderSaved(); sync();
+    if (deleting) ($('#saved-mixes .load-mix') || $('#save-current')).focus({ preventScroll: true }); else focusSaved(item);
+    status(deleting ? `Deleted saved mix “${item.name}”.` : `Updated “${item.name}” with your current mix.`);
+  };
+  $('#saved-dialog').close(); $('#confirm-dialog').showModal();
+};
+$('#delete-saved').onclick = () => confirmSaved('delete');
+$('#update-saved').onclick = () => confirmSaved('update');
+$('#confirm-action').onclick = () => {
+  const action = pendingConfirmation; pendingConfirmation = undefined;
+  $('#confirm-dialog').close(); action?.();
+};
+$('#confirm-dialog').addEventListener('close', () => {
+  if (!pendingConfirmation) return;
+  pendingConfirmation = undefined;
+  if (saved.includes(managedMix)) openSaved(managedMix);
+});
 $('#save-form').onsubmit = event => {
   event.preventDefault(); const name = $('#mix-name').value.trim();
-  if (!name || !mix.enabled.length) { status('Choose sounds and give your mix a name first.'); return; }
-  if (saved.length >= 20) { status('You have 20 saved mixes. Delete one to make room.'); return; }
-  saved.push({ name: name.slice(0, 40), mix: normalize(mix) }); renderSaved(); sync(); $('#mix-name').value = ''; status(`Saved “${name}” on this device.`);
+  if (!name || !mix.enabled.length) { $('#save-status').textContent = 'Choose sounds and give your mix a name first.'; return; }
+  if (saved.length >= 20) { $('#save-status').textContent = 'You have 20 saved mixes. Delete one to make room.'; return; }
+  saved.push({ name: name.slice(0, 40), mix: normalize(mix) }); $('#save-dialog').close();
+  renderSaved(); sync(); $('#mix-name').value = ''; status(`Saved “${name}” on this device.`);
 };
 
 let transferMix, pendingRestore;

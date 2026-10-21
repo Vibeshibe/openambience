@@ -1,4 +1,4 @@
-const CACHE = 'openambience-shell-0.6.0-portable-2';
+const CACHE = 'openambience-shell-0.6.0-mix-ui-1';
 const FILES = ['./', './index.html', './styles.css', './app.js', './js/state.js', './js/zip.js', './js/portable-mix.js', './js/audio.js', './js/binaural.js', './js/media-session.js', './js/media-transport.js', './js/catalog.js', './js/storage.js', './js/categories.js', './js/radio.js', './audio/credits.json', './manifest.webmanifest', './icons/icon.svg', './icons/icon-192.png', './icons/icon-512.png'];
 self.addEventListener('install', event => {
   event.waitUntil((async () => {

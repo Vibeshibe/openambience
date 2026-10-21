@@ -70,7 +70,7 @@ async function importFile(page, file) {
  await page.locator('#mute').click();assert.equal(await page.locator('#master').inputValue(),'0');
  assert.equal(await page.evaluate(()=>window.__radios.at(-1).paused),false);
  await page.locator('#mute').click();assert.equal(await page.locator('#master').inputValue(),'28');
- await page.locator('#open-mixer').click();await page.locator('#mix-name').fill('Radio and brown');await page.locator('#save-form button').click();await page.locator('#mixer-dialog .close').click();
+ await page.locator('#open-mixer').click();await page.locator('#open-save').click();await page.locator('#mix-name').fill('Radio and brown');await page.locator('#save-form button[type="submit"]').click();
  await page.locator('#play').click();assert.equal(await page.evaluate(()=>window.__radios.every(media=>media.paused&&!media.hasAttribute('src'))),true);
  await page.locator('#add-radio').click();await page.locator('#radio-name').fill('Duplicate');await page.locator('#radio-url').fill('https://127.0.0.1:8443/live.mp3');await page.locator('#radio-form button').click();
  assert.match(await page.locator('#radio-form-status').textContent(),/already/);

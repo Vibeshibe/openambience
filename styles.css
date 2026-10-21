@@ -6,6 +6,7 @@
   --text:#edf0df;
   --muted:#b3c2b0;
   --accent:#d4e6a2;
+  --danger:#f2aaa3;
   font-family:ui-sans-serif,system-ui,sans-serif;
   color:var(--text);
   background:var(--bg);
@@ -339,9 +340,12 @@ input[type=range] {
 }
 .saved-item {
   display:flex;
-  flex-wrap:wrap;
-  gap:6px;
+  flex-direction:column;
+  min-width:0;
+  padding:18px;
 }
+.saved-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); align-items:stretch; gap:14px; margin:20px 0 32px; }
+.saved-item h3 { margin:0; font-size:16px; }
 .saved-item .load-mix {
   width:100%;
   text-align:left;
@@ -350,11 +354,21 @@ input[type=range] {
   padding:0;
   background:none;
   overflow-wrap:anywhere;
+  font-size:16px;
+  line-height:1.4;
 }
+.saved-item .load-mix:hover { color:var(--accent); }
+.saved-description { margin:8px 0; font-size:13px; line-height:1.5; color:var(--muted); overflow-wrap:anywhere; }
+.saved-meta { margin:0 0 18px; color:var(--muted); font-size:12px; }
+.saved-actions { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr) 44px; gap:8px; padding-top:14px; border-top:1px solid var(--line); margin-top:auto; }
 .saved-item button:not(.load-mix) {
-  font-size:12px;
-  padding:6px 9px;
+  font-size:13px;
+  padding:10px 8px;
 }
+.saved-load { color:var(--accent); border-color:#7c9a88; }
+.saved-more { display:grid; place-items:center; width:44px; height:44px; }
+.saved-more svg { width:22px; height:22px; fill:currentColor; }
+.mix-library-actions { display:flex; gap:10px; flex-wrap:wrap; margin:18px 0; }
 .quiet {
   background:transparent;
 }
@@ -738,3 +752,41 @@ form .primary {
 .restore-save input { width:20px; height:20px; accent-color:var(--accent); }
 #transfer-status, #restore-status, #restore-sounds, #restore-name { overflow-wrap:anywhere; }
 #mix-zip, #share-link { min-width:0; max-width:100%; }
+
+/* The mix dialogs share the same rhythm, action sizing and mobile insets. */
+.mix-dialog { width:min(460px,calc(100% - 32px)); max-height:calc(100dvh - 32px); padding:24px; overflow-wrap:anywhere; }
+.mix-dialog .dialog-heading { align-items:flex-start; margin-bottom:18px; }
+.mix-dialog .dialog-heading h2 { align-self:center; font-size:20px; line-height:1.3; min-width:0; overflow-wrap:anywhere; }
+.mix-dialog .close { flex:0 0 44px; width:44px; height:44px; padding:8px; }
+.mix-dialog .field { margin-top:18px; gap:8px; }
+.mix-dialog form .field { margin-top:0; }
+.mix-dialog .field input, .mix-dialog .field select { min-width:0; font-size:16px; }
+.mix-dialog .hint { margin:0 0 18px; }
+.mix-summary { border:1px solid var(--line); border-radius:12px; padding:12px 14px; background:var(--panel); }
+.mix-summary .player-summary { margin:0; }
+.mix-summary #active-names { margin:8px 0 0; }
+.mix-dialog .timer-help { margin:8px 0 0; font-size:12px; }
+.mix-option-actions { display:grid; gap:8px; margin-top:20px; padding-top:20px; border-top:1px solid var(--line); }
+.option-action { display:flex; justify-content:space-between; align-items:center; gap:16px; width:100%; min-height:48px; text-align:left; padding:12px 14px; font-size:14px; }
+.option-action span:last-child { color:var(--muted); flex-shrink:0; }
+.dialog-actions { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin-top:20px; }
+.dialog-actions button { min-width:0; min-height:46px; margin:0; padding:11px 12px; font-size:14px; line-height:1.4; }
+.mix-dialog form .dialog-actions .primary { width:100%; margin:0; }
+.dialog-danger { border-top:1px solid var(--line); margin-top:20px; padding-top:12px; }
+.dialog-danger button { width:100%; font-size:14px; }
+.danger { color:var(--danger); border-color:#805953; }
+.danger:hover { border-color:var(--danger); }
+.danger-primary { background:var(--danger); color:#2b1715; border-color:var(--danger); font-weight:650; }
+.mix-dialog .dialog-status { margin:16px 0 0; padding:12px; font-size:13px; line-height:1.5; color:var(--muted); border:1px solid var(--line); background:var(--panel); border-radius:12px; overflow-wrap:anywhere; }
+.dialog-status:empty { display:none; }
+.mix-dialog .transfer-note { margin:16px 0 0; font-size:12px; }
+.mix-dialog .restore-save { min-height:44px; font-size:14px; }
+.mix-dialog button:disabled { cursor:default; }
+@media(max-width:900px) { .saved-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+@media(max-width:600px) {
+  .saved-grid { grid-template-columns:1fr; gap:12px; }
+  .mix-library-actions { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
+  .mix-library-actions button { min-width:0; padding:11px 8px; font-size:13px; }
+  .mix-dialog { width:calc(100% - 24px); max-width:460px; max-height:calc(100dvh - 24px); margin:auto auto max(12px,env(safe-area-inset-bottom)); padding:20px; border-radius:22px; }
+}
+@media(max-width:360px) { .transfer-actions { grid-template-columns:1fr; } }

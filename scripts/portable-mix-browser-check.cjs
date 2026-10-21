@@ -44,8 +44,9 @@ async function completeRestore(page) {
     await setRange(source, '[data-sound="binaural-20"] input', 17);
     await setRange(source, '#master', 62);
     await source.locator('#open-mixer').click(); await source.locator('#timer').selectOption('30');
-    await source.locator('#mix-name').fill('Morning ☀ 雨'); await source.locator('#save-form button').click();
-    await source.locator('#mixer-dialog .close').click(); await source.locator('#mixes-tab').click();
+    await source.locator('#open-save').click();
+    await source.locator('#mix-name').fill('Morning ☀ 雨'); await source.locator('#save-form button[type="submit"]').click();
+    await source.locator('#mixes-tab').click();
     await source.getByRole('button', { name: 'Share / download Morning ☀ 雨', exact: true }).click(); await source.locator('#create-link').click();
     const link = await source.locator('#share-link').inputValue(); assert.match(link, /#mix=v1\./);
     for (const width of [320, 390, 768, 1440]) {

@@ -72,9 +72,9 @@
       <p class="hint">Layer up to six sounds. Your imports stay on this device.</p>
     </section>
     <section id="mixes" aria-labelledby="mixes-title" hidden>
-      <div class="section-heading"><h2 id="mixes-title">Made for your moments</h2><button id="save-current" class="quiet">Save current mix</button></div>
-      <div class="mix-actions"><button id="import-mix">Import mix ZIP</button></div>
-      <div id="saved-mixes" class="presets"></div>
+      <div class="section-heading"><h2 id="mixes-title">Made for your moments</h2></div>
+      <div class="mix-library-actions"><button id="save-current" class="primary">Save current mix</button><button id="import-mix" class="quiet">Import mix ZIP</button></div>
+      <div id="saved-mixes" class="saved-grid"></div>
       <p id="no-mixes" class="empty">A mix worth coming back to? Save it from the player below.</p>
       <h2>A place to start</h2><div id="presets" class="presets"></div>
     </section>
@@ -110,25 +110,51 @@
       <button id="dismiss-status" class="quiet" aria-label="Dismiss message" hidden>✕</button>
     </div>
   </div>
-  <dialog id="mixer-dialog" aria-labelledby="mixer-title"><div class="dialog-heading"><h2 id="mixer-title">Mix options</h2><button class="close quiet" aria-label="Close mix options">✕</button></div><div class="player-summary"><strong id="layer-count">Your quiet starts here</strong><span id="countdown">Nothing playing</span></div><p id="active-names" class="hint"></p><label class="field" for="timer">Sleep timer<select id="timer"><option value="0">Keep playing</option><option value="15">15 minutes</option><option value="30">30 minutes</option><option value="60">1 hour</option></select></label><p class="hint">Gently fades out over the final five seconds.</p><form id="save-form"><label class="field" for="mix-name">Save for later<input id="mix-name" maxlength="40" required placeholder="Name this mix" autocomplete="off"></label><button type="submit" class="primary">Save mix on this device</button></form><button id="share-current">Share / download mix</button><button id="reset" class="text-button">Clear this mix</button><p id="dialog-status" role="status"></p></dialog>
-  <dialog id="transfer-dialog" aria-labelledby="transfer-title">
-    <div class="dialog-heading"><h2 id="transfer-title">Share or download your mix</h2><button class="close quiet" aria-label="Close mix sharing">✕</button></div>
+  <dialog id="mixer-dialog" class="mix-dialog" aria-labelledby="mixer-title">
+    <div class="dialog-heading"><h2 id="mixer-title">Mix options</h2><button class="close quiet" aria-label="Close mix options">✕</button></div>
+    <div class="mix-summary"><div class="player-summary"><strong id="layer-count">Your quiet starts here</strong><span id="countdown">Nothing playing</span></div><p id="active-names" class="hint"></p></div>
+    <label class="field" for="timer">Sleep timer<select id="timer"><option value="0">Keep playing</option><option value="15">15 minutes</option><option value="30">30 minutes</option><option value="60">1 hour</option></select></label>
+    <p class="hint timer-help">Gently fades out over the final five seconds.</p>
+    <div class="mix-option-actions"><button id="open-save" class="option-action"><span>Save mix</span><span aria-hidden="true">＋</span></button><button id="share-current" class="option-action"><span>Share / download mix</span><span aria-hidden="true">↗</span></button></div>
+    <div class="dialog-danger"><button id="reset" class="quiet">Clear this mix</button></div>
+    <p id="dialog-status" class="dialog-status" role="status"></p>
+  </dialog>
+  <dialog id="save-dialog" class="mix-dialog" aria-labelledby="save-title">
+    <div class="dialog-heading"><h2 id="save-title">Save your mix</h2><button class="close quiet" aria-label="Close save mix">✕</button></div>
+    <p id="save-summary" class="hint"></p>
+    <form id="save-form"><label class="field" for="mix-name">Mix name<input id="mix-name" maxlength="40" required placeholder="A name for this moment" autocomplete="off"></label><div class="dialog-actions"><button type="button" class="quiet" data-close-dialog>Cancel</button><button type="submit" class="primary">Save mix</button></div></form>
+    <p id="save-status" class="dialog-status" role="status"></p>
+  </dialog>
+  <dialog id="saved-dialog" class="mix-dialog" aria-labelledby="saved-title">
+    <div class="dialog-heading"><h2 id="saved-title">Edit saved mix</h2><button class="close quiet" aria-label="Close saved mix details">✕</button></div>
+    <form id="rename-form"><label class="field" for="saved-name">Mix name<input id="saved-name" maxlength="40" required autocomplete="off"></label><div class="dialog-actions"><button type="button" class="quiet" data-close-dialog>Done</button><button type="submit" class="primary">Save name</button></div></form>
+    <div class="mix-option-actions"><button id="update-saved" class="option-action"><span>Replace with current mix</span><span aria-hidden="true">↻</span></button><button id="duplicate-saved" class="option-action"><span>Make a copy</span><span aria-hidden="true">＋</span></button></div>
+    <div class="dialog-danger"><button id="delete-saved" class="danger quiet">Delete saved mix</button></div>
+    <p id="saved-status" class="dialog-status" role="status"></p>
+  </dialog>
+  <dialog id="confirm-dialog" class="mix-dialog" aria-labelledby="confirm-title" aria-describedby="confirm-description">
+    <div class="dialog-heading"><h2 id="confirm-title"></h2><button class="close quiet" aria-label="Close confirmation">✕</button></div>
+    <p id="confirm-description" class="hint"></p>
+    <div class="dialog-actions"><button id="cancel-confirm" class="quiet" data-close-dialog autofocus>Cancel</button><button id="confirm-action"></button></div>
+  </dialog>
+  <dialog id="transfer-dialog" class="mix-dialog" aria-labelledby="transfer-title">
+    <div class="dialog-heading"><h2 id="transfer-title">Share your mix</h2><button class="close quiet" aria-label="Close mix sharing">✕</button></div>
     <p id="transfer-help" class="hint"></p>
     <label class="field" for="transfer-name">Mix name<input id="transfer-name" maxlength="40" required autocomplete="off"></label>
-    <div class="mix-actions"><button id="create-link">Copy mix link</button><button id="download-mix" class="primary">Download mix ZIP</button></div>
+    <div class="dialog-actions transfer-actions"><button id="create-link" class="quiet">Copy mix link</button><button id="download-mix" class="primary">Download mix ZIP</button></div>
     <label id="share-link-field" class="field" for="share-link" hidden>Mix link<input id="share-link" readonly type="url"></label>
-    <p class="hint">A ZIP backs up the recipe and its recordings. It does not render a finished audio track. Share recordings only when you have permission.</p>
-    <p id="transfer-status" role="status"></p>
+    <p class="hint transfer-note">ZIPs contain settings and source recordings, rather than a finished audio track. Only share recordings you have permission to share.</p>
+    <p id="transfer-status" class="dialog-status" role="status"></p>
   </dialog>
-  <dialog id="restore-dialog" aria-labelledby="restore-title">
+  <dialog id="restore-dialog" class="mix-dialog" aria-labelledby="restore-title">
     <div class="dialog-heading"><h2 id="restore-title">Restore a mix</h2><button class="close quiet" aria-label="Close mix restore">✕</button></div>
     <label id="restore-file-field" class="field" for="mix-zip">Mix ZIP<input id="mix-zip" type="file" accept=".zip,application/zip" aria-describedby="restore-file-help"></label>
     <p id="restore-file-help" class="hint">Restore settings and uploaded recordings together. Matching recordings and stations are reused. Playback starts only with Play.</p>
     <div id="restore-preview" hidden><h3 id="restore-name"></h3><p id="restore-summary"></p><ul id="restore-sounds"></ul>
       <label class="restore-save"><input id="restore-save" type="checkbox">Save on this device</label>
-      <button id="restore-mix" class="primary">Load mix</button>
+      <div class="dialog-actions"><button type="button" class="quiet" data-close-dialog>Cancel</button><button id="restore-mix" class="primary">Load mix</button></div>
     </div>
-    <p id="restore-status" role="status"></p>
+    <p id="restore-status" class="dialog-status" role="status"></p>
   </dialog>
   <dialog id="upload-dialog" aria-labelledby="upload-title">
     <div class="dialog-heading"><h2 id="upload-title">Add your sounds</h2><button class="close quiet" aria-label="Close sound import">✕</button></div>
