@@ -60,7 +60,7 @@ An alternative is `python3 -m http.server 8080 --bind 127.0.0.1` from this direc
 
 ## Docker deployment
 
-Prebuilt images are published to `ghcr.io/vibeshibe/openambience` for Linux amd64 and arm64. Use `latest` for the current stable build, a version tag such as `0.6.0` for a specific release, or `dev` for development builds.
+Prebuilt images are published to `ghcr.io/vibeshibe/openambience` for Linux amd64 and arm64. Use `latest` for the current stable build, a version tag such as `0.7.0` for a specific release, or `dev` for development builds.
 
 ```sh
 docker run -d --name openambience --restart unless-stopped \
@@ -81,9 +81,9 @@ See the [container deployment guide](docs/docker.md) for port settings, updates,
 
 ## Features
 
-New on **dev** after 0.6.0: versioned mix links, single-ZIP download/restore including custom recordings, and saved sleep-timer settings. Use **Mix options → Share / download mix**, or **Share** on a saved card. Restore from **My mixes → Import mix ZIP**. Links and archives show a preview before loading; playback starts only with Play. Save mix opens a compact naming dialog; saved-card details (•••) contain renaming, replacement, copying and deletion. See [mix portability](docs/mix-portability.md).
+New in **0.7.0**: versioned mix links, single-ZIP download/restore including custom recordings, and saved sleep-timer settings. Use **Mix options → Share / download mix**, or **Share** on a saved card. Restore from **My mixes → Import mix ZIP**. Links and archives show a preview before loading; playback starts only with Play. Save mix opens a compact naming dialog; saved-card details (•••) contain renaming, replacement, copying and deletion. See [mix portability](docs/mix-portability.md).
 
-Available in **0.6.0**:
+Available in **0.7.0**:
 
 - Fifteen recorded sounds: rain, rain on glass, rain on tent, thunder, forest wind, waves, stream, fireplace, morning birds, evening birds, crickets, café, fan, cat purring, and train carriage.
 - Six generated textures, including white, pink, and brown noise, plus a separate Binaural beats category with eight preset cards: Delta (2 Hz), Theta (4 and 6 Hz), Alpha (8 and 10 Hz), and Beta (14, 20, and 30 Hz). Frequencies describe the difference between the left and right tones. Each card suggests a listening use; a shared category tag reminds you to use stereo headphones for the separate left/right tones. Earlier saved mixes preserve their beat frequencies and levels. Birdsong is now labelled Morning birds.
@@ -92,12 +92,12 @@ Available in **0.6.0**:
 - Up to six simultaneous layers, individual volume, and a sleep timer with a five-second fade. The persistent player centers three circular controls: **Mix options** on the left, play/pause in the middle, and a speaker button on the right. The speaker opens a vertical volume slider with a large percentage and mute/unmute; Mix options opens saving and timer controls.
 - Twenty named local mixes with load, update, rename, duplicate, and delete controls.
 - Choose files and a category in **Add sounds**, then select **Add to library**. A batch shares the chosen category; you can change each recording’s category afterward. **My sounds** still finds every imported recording. Supported formats depend on the browser; MP3 and WAV are good starting points. Files must be mono/stereo, at most 25 MB and two minutes long. Up to 30 imports; identical files are detected.
-- Offline caching of the app and the entire bundled library. Wait for **Library ready offline** before disconnecting. Imports are stored locally in IndexedDB. On dev, mix recipes also use IndexedDB so ZIP restores commit together; existing localStorage recipes migrate automatically.
+- Offline caching of the app and the entire bundled library. Wait for **Library ready offline** before disconnecting. Imports and mix recipes use IndexedDB so ZIP restores commit together; existing localStorage recipes migrate automatically.
 - In-app sound credits and install support. When a new version is ready, a quiet notice offers **Update & reload** or **Later**. Later leaves a square notification button with a red reminder dot; playback continues until you choose to update.
 
 Recordings are edited, loudness-adjusted excerpts of creator-published MP3 previews under CC0 or CC BY 4.0, acquired directly from Freesound. They are not lossless originals. Attribution, source URLs, modifications, and checksums are in [audio/credits.json](audio/credits.json). Audio assets have separate licences from the MIT application code.
 
-Nothing is uploaded when you import a recording. Clearing browser site data removes custom sounds and saved mixes. Browsers can also evict local storage. On dev, download a mix ZIP to back up its settings and referenced custom recordings together. Pausing cancels the current timer; resuming starts its selected duration again. Playback never starts automatically after reload.
+Nothing is uploaded when you import a recording. Clearing browser site data removes custom sounds and saved mixes. Browsers can also evict local storage. Download a mix ZIP to back up its settings and referenced custom recordings together. Pausing cancels the current timer; resuming starts its selected duration again. Playback never starts automatically after reload.
 
 ### Media controls
 
@@ -171,7 +171,7 @@ Increment the cache version in `sw.js` whenever shipping changed app files. A ne
 - Browser support for custom audio codecs varies. Custom recordings loop as supplied; trim or crossfade them in an audio editor for a smoother seam.
 - The engine limits decoded audio to 96 MiB and pauses with a message if a mix is too large. Six long imports may exceed this limit.
 - Bundled loops are short (roughly 30 seconds). Thunder includes a 30-second quiet interval between events.
-- Browser storage is local and may be cleared or evicted. Dev includes ZIP mix backups; automatic cross-device sync remains planned. Radio supports direct CORS-enabled HTTPS audio streams; playlists and station webpages are not supported.
+- Browser storage is local and may be cleared or evicted. ZIP mix backups are available; automatic cross-device sync remains planned. Radio supports direct CORS-enabled HTTPS audio streams; playlists and station webpages are not supported.
 - The sleep timer uses the audio clock for fading and the wall clock for stopping; device suspension can delay UI updates.
 
 ## AI usage disclosure

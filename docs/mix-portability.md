@@ -1,6 +1,6 @@
 # Share and back up mixes
 
-Available on `dev` after 0.6.0. Open **Mix options → Share / download mix**, or use **Share** on a saved card. Give the mix a name, then copy its link or download its ZIP. These actions do not upload anything.
+Available in 0.7.0. Open **Mix options → Share / download mix**, or use **Share** on a saved card. Give the mix a name, then copy its link or download its ZIP. These actions do not upload anything.
 
 ## Mix links
 

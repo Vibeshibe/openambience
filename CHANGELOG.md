@@ -4,6 +4,8 @@ App releases use [Semantic Versioning](docs/versioning.md). Research checkpoints
 
 ## Unreleased
 
+## 0.7.0 — 2026-10-21
+
 - Make save and saved-mix loading confirmations compact, with a success icon, aligned dismissal control, and a five-second fade that waits while hovered or keyboard-focused.
 - Give mix saving its own compact dialog, organize Mix options into spaced action rows, and align save/import controls on My mixes. Saved cards show sound summaries and dedicated Load/Share controls, with editing and deletion in a separate details dialog and an explicit delete confirmation. Use consistent dialog sizing, mobile insets, full-size touch targets and responsive action layouts.
 - Add versioned mix links with a preview before loading, including sound levels, master volume, sleep timer, binaural presets and radio station metadata. Mixes with local recordings use ZIP downloads.

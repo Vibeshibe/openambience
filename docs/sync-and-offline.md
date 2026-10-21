@@ -9,7 +9,7 @@
 
 This storage belongs to the site's origin and browser profile on that device. Using a different browser or host/port does not share that data. No audio or mix is currently uploaded. Radio playback connects directly to the selected station.
 
-On `dev`, [mix links and ZIP backups](mix-portability.md) transfer selected mixes between browsers. A ZIP includes referenced custom recordings and restores settings and audio atomically; links carry built-in and radio settings. Neither requires a sync provider.
+Since 0.7.0, [mix links and ZIP backups](mix-portability.md) transfer selected mixes between browsers. A ZIP includes referenced custom recordings and restores settings and audio atomically; links carry built-in and radio settings. Neither requires a sync provider.
 
 Browser-managed storage can be cleared by the user or evicted under storage pressure. Persistence can be requested with the Storage API but is not a backup or a guarantee that the user cannot delete data. See [MDN: storage quotas and eviction](https://developer.mozilla.org/en-US/docs/Web/API/Storage_API/Storage_quotas_and_eviction_criteria).
 

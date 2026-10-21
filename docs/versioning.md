@@ -35,5 +35,6 @@ An exported mix's `schemaVersion` is independent of the app version. Increment i
 3. Run relevant checks (`npm run check`, `npm test`, and browser checks for runtime changes). For research-only changes, verify sources, data consistency, and Markdown links.
 4. Commit the release preparation on `dev`, push it, and promote it to `main`.
 5. Tag the released `main` commit as `vX.Y.Z` and push that tag. Never move a published release tag.
+6. Confirm the Check, GitHub Pages deployment, and Container workflows succeed for the release. Verify the public page serves the new version and the container runs publish `latest` from `main` and the semantic version tags from the release tag. A push triggering a workflow is not evidence that its deployment finished successfully.
 
 The [container workflow](../.github/workflows/container.yml) publishes tested images for pushes to `dev`, `main`, and version tags. `main` updates `latest`; version tags add versioned images. See [container deployment](docker.md). This document does not configure branch protection.
