@@ -59,6 +59,12 @@ The Add sounds dialog collects files and their category before import. Browsing 
 
 The Uploaded badge means imported from the device, not sent to a server. The dialog and badge tooltip make local/offline storage explicit. Existing imported files receive the same tag automatically, using their saved metadata and stable IDs.
 
+## Dropped files and storage management
+
+A file drag reveals a pointer-transparent overlay. Over an open dialog, a dashed outline also identifies the drop state. Audio batches enter Add your sounds with a category and filename summary; a single ZIP enters Restore a mix. Both wait for the normal confirmation and use the picker validation paths. Mixed batches, folders, in-progress operations and unrelated open editing dialogs receive an explanation without changing stored data or closing the editing form.
+
+Manage storage is a footer action and is linked from Add your sounds. The dialog uses the same mix-dialog language, with two summary cards, browser estimates, optional retention protection and a recording list. Its heading and close button remain available while the list scrolls. Each recording has metadata, an expandable saved-mix reference list, Download and Remove. The removal dialog lists affected mixes and requires an unchecked-by-default acknowledgement to remove selected layers. Cancel/Keep sound returns to the storage manager when that was the entry point. No destructive bulk action is offered. The [storage guide](storage-management.md) records behavior and browser limits.
+
 
 ## Updates without interruption
 

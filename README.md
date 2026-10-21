@@ -81,9 +81,11 @@ See the [container deployment guide](docs/docker.md) for port settings, updates,
 
 ## Features
 
+New in **0.8.0**: drop audio files or one mix ZIP into the app to open the existing import review. **Manage storage** in the footer (also available in Add sounds) shows recording sizes and mix references, offers original-file downloads, and previews removal before changing any mix. Browser storage estimates and an optional **Keep offline data** request help manage local copies. See [storage management](docs/storage-management.md).
+
 New in **0.7.0**: versioned mix links, single-ZIP download/restore including custom recordings, and saved sleep-timer settings. Use **Mix options → Share / download mix**, or **Share** on a saved card. Restore from **My mixes → Import mix ZIP**. Links and archives show a preview before loading; playback starts only with Play. Save mix opens a compact naming dialog; saved-card details (•••) contain renaming, replacement, copying and deletion. See [mix portability](docs/mix-portability.md).
 
-Available in **0.7.1**:
+Available in **0.8.0**:
 
 - Fifteen recorded sounds: rain, rain on glass, rain on tent, thunder, forest wind, waves, stream, fireplace, morning birds, evening birds, crickets, café, fan, cat purring, and train carriage.
 - Six generated textures, including white, pink, and brown noise, plus a separate Binaural beats category with eight preset cards: Delta (2 Hz), Theta (4 and 6 Hz), Alpha (8 and 10 Hz), and Beta (14, 20, and 30 Hz). Frequencies describe the difference between the left and right tones. Each card suggests a listening use; a shared category tag reminds you to use stereo headphones for the separate left/right tones. Earlier saved mixes preserve their beat frequencies and levels. Birdsong is now labelled Morning birds.
@@ -91,7 +93,7 @@ Available in **0.7.1**:
 - **＋ Radio** saves direct HTTPS radio-stream URLs locally. Compatible stations join the mixer and sleep timer; live playback needs internet and is never cached. See [radio compatibility](docs/internet-radio.md).
 - Up to six simultaneous layers, individual volume, and a sleep timer with a five-second fade. The persistent player centers three circular controls: **Mix options** on the left, play/pause in the middle, and a speaker button on the right. The speaker opens a vertical volume slider with a large percentage and mute/unmute; Mix options opens saving and timer controls.
 - Twenty named local mixes with load, update, rename, duplicate, and delete controls.
-- Choose files and a category in **Add sounds**, then select **Add to library**. A batch shares the chosen category; you can change each recording’s category afterward. **My sounds** still finds every imported recording. Supported formats depend on the browser; MP3 and WAV are good starting points. Files must be mono/stereo, at most 25 MB and two minutes long. Up to 30 imports; identical files are detected.
+- Choose or drop files and a category in **Add sounds**, then select **Add to library**. A batch shares the chosen category; you can change each recording’s category afterward. **My sounds** still finds every imported recording. Supported formats depend on the browser; MP3 and WAV are good starting points. Files must be mono/stereo, at most 25 MB and two minutes long. Up to 30 imports; identical files are detected. Drop a single mix ZIP to preview its restore. Folders and mixed ZIP/audio batches are rejected.
 - Offline caching of the app and the entire bundled library. Wait for **Library ready offline** before disconnecting. Imports and mix recipes use IndexedDB so ZIP restores commit together; existing localStorage recipes migrate automatically.
 - In-app sound credits and install support. When a new version is ready, a quiet notice offers **Update & reload** or **Later**. Later leaves a square notification button with a red reminder dot; playback continues until you choose to update.
 
@@ -134,6 +136,8 @@ js/catalog.js              Generated bundled recording catalog
 js/storage.js              IndexedDB storage and atomic mix restoration
 js/portable-mix.js         Versioned mix links and ZIP import/export
 js/feedback.js             Shared success/status notices and dismissal lifecycle
+js/file-import.js          Shared file routing and drag-and-drop events
+js/library-management.js   Recording references and browser storage information
 js/zip.js                  Bounded ZIP reading and writing
 js/categories.js           Category membership and filtering
 js/radio.js                Stream URL validation and radio playback lifecycle

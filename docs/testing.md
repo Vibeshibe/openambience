@@ -4,6 +4,18 @@
 
 Run `npm run check` and `npm test` on Node.js 22+. Tests cover input normalization, invalid and unavailable storage, independent saved-state snapshots, custom IDs, legacy migration, recording attribution/checksums, finite/non-silent audio buffers, loop endpoint continuity, and the relative smoothness of brown noise. They do not establish perceived audio quality or browser compatibility.
 
+## 0.8.0 imports and storage — 2026-10-21
+
+Syntax checks and all 39 Node 22 tests passed. New unit coverage checks ZIP classification, mixed/oversized batches, immutable reference removal, duplicate mix names, inactive levels, size formatting and partial/failing storage APIs.
+
+The isolated Chromium 156 storage harness passed reviewed audio drops, duplicate detection, exact original-file downloads, per-recording usage/references, explicit consent and cancellation, synchronous quota-failure rollback, stale reference rejection, missing storage APIs, declined/granted persistence, ZIP drops, mixed-batch rejection and a synthetic folder-drop fixture. It checks 320×568, 390×844, 768×900, 1440×1000 and 740×360 dialog bounds; the mobile screenshot was reviewed. Offline audio drop/import and reload passed. The existing library and portable-mix suites passed with the updated removal confirmation, including mix-reference cleanup, timer operation, offline playback and ZIP restore. No page errors occurred.
+
+```sh
+PLAYWRIGHT_MODULE=/tmp/openambience-tools/node_modules/playwright node scripts/storage-browser-check.cjs
+```
+
+These are desktop browser checks with isolated profiles and injected storage API outcomes. Actual disk exhaustion, native OS folder dragging, storage eviction and physical-device picker/download behavior remain separate checks. The maintainer's mobile listening, timer and zoom confirmations below still apply.
+
 ## User confirmation: mobile sessions, sleep timer and zoom — 2026-10-21
 
 The maintainer reports successful real mobile use over long durations with the sleep timer, and reports that 200% zoom works well. Record these as user-confirmed checks of extended mobile listening, sleep-timer operation and 200% zoom usability.

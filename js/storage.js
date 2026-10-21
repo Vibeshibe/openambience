@@ -60,7 +60,7 @@ export function commitLibraryState(db, state, sounds = []) {
 
 // Recheck references inside the deleting transaction so another tab cannot add
 // an affected mix between the impact preview and the actual removal.
-export function removeSoundAndReferences(db, id, expectedUsage) {
+export function removeSoundAndReferences(db, id, expected) {
   return new Promise((resolve, reject) => {
     const tx = db.transaction(['sounds', 'state'], 'readwrite');
     let next, failure;
@@ -71,10 +71,17 @@ export function removeSoundAndReferences(db, id, expectedUsage) {
     request.onsuccess = () => {
       try {
         const state = request.result;
-        if (!state || usageSignature(state, id) !== expectedUsage) throw new Error('Mix references changed. Reload and review the recording again before removing it.');
-        next = withoutSound(state, id);
-        tx.objectStore('sounds').delete(id);
-        tx.objectStore('state').put(next, 'current');
+        if (!state || usageSignature(state, id) !== expected.usage || JSON.stringify(state) !== expected.state) throw new Error('Mix references changed or another tab updated your settings. Reload and review the recording again before removing it.');
+        const soundRequest = tx.objectStore('sounds').get(id);
+        soundRequest.onsuccess = () => {
+          try {
+            const sound = soundRequest.result;
+            if (!sound || (sound.hash || sound.url) !== expected.identity) throw new Error('This sound changed in another tab. Reload before removing it.');
+            next = withoutSound(state, id);
+            tx.objectStore('sounds').delete(id);
+            tx.objectStore('state').put(next, 'current');
+          } catch (error) { failure = error; tx.abort(); }
+        };
       } catch (error) { failure = error; tx.abort(); }
     };
   });

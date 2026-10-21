@@ -121,7 +121,7 @@ async function importFile(page, file) {
  await page.locator('[data-kind="radio"] .sound-toggle').click();
  await page.waitForFunction(()=>window.__radios.every(media=>media.paused&&!media.hasAttribute('src')));
  await page.locator('#play').click();assert.equal(await page.evaluate(()=>window.__contexts[0].state),'suspended');
- await page.locator('[data-kind="radio"] .remove-sound').click();await page.waitForFunction(()=>!document.querySelector('[data-kind="radio"]'));
+ await page.locator('[data-kind="radio"] .remove-sound').click();await page.locator('#remove-references').check();await page.locator('#confirm-remove-sound').click();await page.waitForFunction(()=>!document.querySelector('[data-kind="radio"]'));
  assert.equal(await page.evaluate(async()=>{const {openLibrary,readLibraryState}=await import('./js/storage.js');const db=await openLibrary();try{return (await readLibraryState(db)).saved.some(item=>item.mix.enabled.some(id=>id.startsWith('radio-')));}finally{db.close();}}),false);
  assert.deepEqual(errors,[]);
  console.log('PASS: categories/counts, custom categorization persistence, radio URL validation/duplicates, no request on save, CORS-enabled audible stream, CORS rejection preserves local audio, pause releases stream, offline/online retry, saved station mix reload, offline local playback, no radio cache, timer stops stream, responsive categories.');

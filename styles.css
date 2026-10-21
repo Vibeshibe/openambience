@@ -799,6 +799,7 @@ form .primary {
 }
 @media(max-width:360px) { .transfer-actions { grid-template-columns:1fr; } }
 .storage-dialog { width:min(640px,calc(100% - 32px)); }
+.storage-dialog .dialog-heading { position:sticky; top:0; z-index:1; background:var(--bg); box-shadow:0 -24px 0 var(--bg); padding-bottom:12px; }
 .storage-summary { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; margin-bottom:16px; }
 .storage-summary > div { display:flex; flex-direction:column; gap:8px; padding:14px; border:1px solid var(--line); background:var(--panel); border-radius:12px; }
 .storage-summary span { color:var(--muted); font-size:12px; }

@@ -204,6 +204,7 @@ async function importFile(page, file) {
  await page.clock.install();await page.locator('#play').click();await page.waitForFunction(()=>document.querySelector('#play').textContent.includes('Pause'));
  await page.clock.fastForward(901000);await page.waitForFunction(()=>document.querySelector('#status').textContent.includes('Sleep timer finished'));
  await chooseCategory(page, 'My sounds');await page.locator('.remove-sound').click();
+ await page.locator('#remove-references').check(); await page.locator('#confirm-remove-sound').click();
  await page.waitForFunction(()=>document.querySelectorAll('.sound-card').length===30);
  await page.locator('#mixes-tab').click();await page.getByRole('button',{name:'With import',exact:true}).click();
  assert.equal(await page.evaluate(async()=>{const {openLibrary,readLibraryState}=await import('./js/storage.js');const db=await openLibrary();try{return (await readLibraryState(db)).mix.enabled.some(id=>id.startsWith('custom-'));}finally{db.close();}}),false);

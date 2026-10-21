@@ -347,7 +347,7 @@ function renderStorageRecordings() {
     const actions = document.createElement('div'); actions.className = 'storage-recording-actions';
     const download = document.createElement('button'); download.textContent = 'Download'; download.className = 'quiet'; download.setAttribute('aria-label', `Download recording ${sound.name}`); download.disabled = !sound.blob;
     download.onclick = () => {
-      const extension = /mpeg/.test(sound.blob.type) ? 'mp3' : /wav/.test(sound.blob.type) ? 'wav' : /ogg/.test(sound.blob.type) ? 'ogg' : /flac/.test(sound.blob.type) ? 'flac' : /mp4|aac/.test(sound.blob.type) ? 'm4a' : 'audio';
+      const extension = /mpeg/.test(sound.blob.type) ? 'mp3' : /wav/.test(sound.blob.type) ? 'wav' : /ogg/.test(sound.blob.type) ? 'ogg' : /flac/.test(sound.blob.type) ? 'flac' : /mp4|m4a/.test(sound.blob.type) ? 'm4a' : /aac/.test(sound.blob.type) ? 'aac' : /webm/.test(sound.blob.type) ? 'webm' : 'audio';
       const filename = sound.blob.name || `${sound.name}.${extension}`;
       downloadBlob(sound.blob, filename.replace(/[\\/:*?"<>|]/g, '-').slice(0, 120));
     };
@@ -373,6 +373,7 @@ function openStorage(message = '') {
   $('#storage-dialog').showModal(); void refreshStorage();
 }
 $('#manage-storage').onclick = () => openStorage();
+$('#upload-manage-storage').onclick = () => { if (!$('#upload-dialog').dataset.busy) { $('#upload-dialog').close(); openStorage(); } };
 $('#refresh-storage').onclick = () => { $('#storage-status').textContent = ''; void refreshStorage(); };
 $('#persist-storage').onclick = async () => {
   $('#persist-storage').disabled = true;
@@ -385,7 +386,8 @@ $('#persist-storage').onclick = async () => {
 let removalContext;
 function openSoundRemoval(sound) {
   const usage = soundUsage({ mix, saved }, sound.id), inUse = usage.current || usage.saved.length > 0;
-  removalContext = { sound, expectedUsage: usageSignature({ mix, saved }, sound.id), returnStorage: $('#storage-dialog').open };
+  removalContext = { sound, expected: { usage: usageSignature({ mix, saved }, sound.id),
+    state: JSON.stringify({ schemaVersion: 2, mix, saved }), identity: sound.hash || sound.url }, returnStorage: $('#storage-dialog').open };
   const radio = sound.kind === 'radio';
   $('#remove-sound-title').textContent = radio ? 'Remove station?' : 'Remove recording?';
   $('#confirm-remove-sound').textContent = radio ? 'Remove station' : 'Remove recording';
@@ -410,7 +412,7 @@ $('#confirm-remove-sound').onclick = async () => {
   $('#remove-sound-status').textContent = 'Removing…';
   try {
     if (mix.enabled.includes(sound.id) || busy) await pause(true);
-    const next = await removeSoundAndReferences(db, sound.id, context.expectedUsage);
+    const next = await removeSoundAndReferences(db, sound.id, context.expected);
     engine.remove(sound.id); catalog = catalog.filter(item => item.id !== sound.id);
     mix = normalize(next.mix); saved = next.saved.map(item => ({ ...item, mix: normalize(item.mix) }));
     libraryBusy = false; renderSounds(); renderSaved(); sync();
@@ -661,6 +663,7 @@ function selectAudioFiles(files) {
 }
 function openAudioImport(files = []) {
   $('#upload-form').reset(); $('#import-status').textContent = '';
+  $('#import-problems').replaceChildren(); $('#import-problems').hidden = true;
   // Suggest the current genre when browsing one category; other views start uncategorized.
   $('#upload-category').value = selectedCategories.length === 1 && CUSTOM_CATEGORIES.includes(selectedCategories[0]) ? selectedCategories[0] : 'My sounds';
   selectAudioFiles(files); $('#upload-dialog').showModal();
@@ -750,6 +753,8 @@ $('#upload-form').onsubmit = async event => {
     if (imported) { showView('library'); $('#search').value = ''; setCategoryFilters([category]); }
     sync();
     const message = `${imported} recording${imported === 1 ? '' : 's'} added.${problems.length ? ` ${problems[0]}${problems.length > 1 ? ` (${problems.length - 1} other files could not be added.)` : ''}` : ' Tagged Uploaded and ready offline.'}`;
+    $('#import-problems').replaceChildren(...problems.map(problem => { const item = document.createElement('li'); item.textContent = problem; return item; }));
+    $('#import-problems').hidden = !problems.length;
     $('#import-status').textContent = message; status(message);
     if (imported && !problems.length) { $('#upload-dialog').close(); $('#upload-form').reset(); selectAudioFiles([]); }
 
