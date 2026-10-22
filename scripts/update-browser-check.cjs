@@ -96,7 +96,7 @@ const server = createServer(async (req, res) => {
     assert.equal(await page.evaluate(() => localStorage.getItem('update-check-paused')), 'yes', 'Explicit update pauses audio');
     assert.equal(await page.locator('#master').inputValue(), '27');
     assert.equal(await page.locator('[data-sound="brown"] .sound-toggle').getAttribute('aria-pressed'), 'true');
-    assert.equal(await page.locator('#play').getAttribute('aria-pressed'), 'false', 'No autoplay after update');
+    assert.equal(await page.locator('#play').getAttribute('aria-label'), 'Play mix', 'No autoplay after update');
     assert.equal(await page.locator('#update-notice').isVisible(), false);
     await other.waitForFunction(() => document.querySelector('#show-update').hidden);
     await other.waitForFunction(() => document.querySelector('#offline').textContent.includes('ready offline'));

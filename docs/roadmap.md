@@ -45,7 +45,8 @@ The [saved mixes and custom sound proposal](saved-mixes-and-custom-sounds.md) de
 - [ ] Verify interruption recovery, extended background playback, and sleep-timer expiry while locked on Android/iOS.
 - [x] User-confirmed 200% zoom usability; platform details were not recorded.
 - [x] User-confirmed Tab navigation and arrow-key volume adjustment. Add page-level Space playback and reliable skip-link focus in 0.9.2; a full screen-reader audit remains separate.
-- [ ] Screen-reader audit on desktop and mobile.
+- [x] Initial user-confirmed Windows Narrator/Firefox check: Space playback, Escape dismissal and popup announcements work. See the [validation record](testing.md#user-confirmation-narrator-with-firefox--2026-10-22).
+- [ ] Follow up on the reported announcement quirks and complete broader desktop/mobile screen-reader coverage.
 - [ ] Improve pink-noise spectrum and generated nature textures.
 - [ ] Expand the recording catalog and support selective offline downloads.
 - [x] Add rain on tent, evening birds, and train carriage ambience on `dev`; clarify the existing dawn recording as Morning birds. See the [source shortlist](research/sound-expansion.md).

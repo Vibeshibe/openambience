@@ -4,6 +4,11 @@ App releases use [Semantic Versioning](docs/versioning.md). Research checkpoints
 
 ## Unreleased
 
+## 0.9.3 — 2026-10-22
+
+- Remove redundant pressed/unpressed semantics from Play/Pause and Mute/Unmute, which already announce their changing action names. Keep pressed states for sound-selection buttons with stable names.
+- Align existing browser-check expectations with those action names and record an initial Windows Narrator/Firefox check: Space playback, Escape dismissal and popup announcements work. The reported “padding” announcement beneath the logo remains unconfirmed.
+
 ## 0.9.2 — 2026-10-22
 
 - Add Space to toggle playback when focus is outside interactive controls and no dialog is open. Preserve native button/checkbox activation, text entry, slider keys and modified shortcuts; holding Space does not repeatedly toggle playback.

@@ -4,6 +4,12 @@
 
 Run `npm run check` and `npm test` on patched Node.js: 24.22.1 or a newer 24.x patch is recommended; the supported 22.x line starts at 22.23.4. CI resolves the latest patch above those minimums. See [Node security maintenance](node-security.md). Tests cover input normalization, invalid and unavailable storage, independent saved-state snapshots, custom IDs, legacy migration, recording attribution/checksums, finite/non-silent audio buffers, loop endpoint continuity, and the relative smoothness of brown noise. They do not establish perceived audio quality or browser compatibility.
 
+## User confirmation: Narrator with Firefox — 2026-10-22
+
+The maintainer reports that screen-reader use on Windows with Firefox generally works, including Space to play/pause, Escape to close dialogs and spoken popup feedback. They also report hearing “padding” beneath the OpenAmbience logo and a button's previous state during activation. Exact Firefox/Windows versions and the affected button were not provided. Record this as a positive initial desktop screen-reader check with announcement issues still open, not a complete desktop/mobile accessibility audit.
+
+Code review found Play/Pause and Mute/Unmute changing their accessible names while also exposing `aria-pressed`. In 0.9.3 those action buttons use their changing action names without the extra toggle state, following the [WAI button pattern](https://www.w3.org/WAI/ARIA/apg/patterns/button/). Sound-selection toggles keep their stable names and pressed states. Existing browser-check expectations now use the Play/Mute action names. This markup correction has not been confirmed to eliminate the reported previous-state announcement. The “padding” announcement was not reproduced or traced to an element; the semantic header is retained. Local validation for this follow-up consists of syntax/whitespace checks, with the configured CI suite run on push; no additional tests or browser checks were run locally.
+
 ## User confirmation and keyboard follow-up — 2026-10-22
 
 The maintainer reports that the backup/restore checks worked, offline cold starts work, Tab navigation generally works and volume sliders respond to arrow keys. They report no noticed audio artifacts during several weeks of use, with positive feedback from other users. Record these as user-confirmed results; device/browser versions and individual backup failure-case steps were not provided. They do not establish automated coverage of storage failures or a screen-reader audit.

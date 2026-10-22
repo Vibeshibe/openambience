@@ -41,7 +41,7 @@ async function snapshot(page) {
       await expectSuccess(page, `Loaded “${name}”.`);
       const mix = await snapshot(page);
       assert.equal(mix.master, 65); assert.equal(mix.timerMinutes, 30);
-      assert.equal(await page.locator('#play').getAttribute('aria-pressed'), 'false');
+      assert.equal(await page.locator('#play').getAttribute('aria-label'), 'Play mix');
       await expire(page);
     }
     const savedButton = page.getByRole('button', { name: `Load ${savedName}`, exact: true });
@@ -58,7 +58,7 @@ async function snapshot(page) {
     await page.setViewportSize({ width: 390, height: 844 });
     // Presets retain the active countdown; a saved mix starts its saved duration.
     await page.locator('#play').click(); await page.waitForFunction(() => {
-      const play = document.querySelector('#play'); return play.getAttribute('aria-pressed') === 'true' && play.getAttribute('aria-busy') === 'false';
+      const play = document.querySelector('#play'); return play.getAttribute('aria-label') === 'Pause mix' && play.getAttribute('aria-busy') === 'false';
     });
     await page.clock.fastForward(60000); await page.locator('#open-mixer').click();
     await page.waitForFunction(() => /^\d+:\d+/.test(document.querySelector('#countdown').textContent));

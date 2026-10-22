@@ -90,14 +90,12 @@ function sync() {
   $('#play .pause-symbol').toggleAttribute('hidden', !playing);
   if (mix.master > 0) lastAudibleVolume = mix.master;
   const muted = mix.master === 0;
-  $('#mute').setAttribute('aria-pressed', String(muted));
   $('#mute').setAttribute('aria-label', muted ? 'Unmute volume' : 'Mute volume');
   $('#mute').textContent = muted ? 'Unmute' : 'Mute';
   $('#volume-toggle .volume-waves').toggleAttribute('hidden', muted);
   $('#volume-toggle .volume-cross').toggleAttribute('hidden', !muted);
   $('#play').disabled = busy;
   for (const id of ['open-save', 'save-current', 'share-current']) $(`#${id}`).disabled = !mix.enabled.length;
-  $('#play').setAttribute('aria-pressed', String(playing));
   $('#layer-count').textContent = mix.enabled.length ? `${mix.enabled.length} sound${mix.enabled.length === 1 ? '' : 's'} selected` : 'Your quiet starts here';
   if (!deadline) $('#countdown').textContent = playing ? 'Playing your mix' : 'Ready when you are';
   $('#active-names').textContent = mix.enabled.map(id => catalog.find(sound => sound.id === id)?.name).join(' · ') || 'Choose sounds from the library first.';

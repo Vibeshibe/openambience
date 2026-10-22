@@ -67,13 +67,13 @@ async function completeRestore(page) {
     let state = (await snapshot(linked)).state;
     assert.equal(state.mix.master, 62); assert.equal(state.mix.timerMinutes, 30);
     assert.equal(state.mix.levels.brown, 23); assert.equal(state.mix.levels['binaural-20'], 17);
-    assert.equal(state.saved.length, 0); assert.equal(await linked.locator('#play').getAttribute('aria-pressed'), 'false');
+    assert.equal(state.saved.length, 0); assert.equal(await linked.locator('#play').getAttribute('aria-label'), 'Play mix');
     // Loading a link during playback pauses it before replacing the selection.
     await linked.locator('#play').click();
-    await linked.waitForFunction(() => document.querySelector('#play').getAttribute('aria-pressed') === 'true');
+    await linked.waitForFunction(() => document.querySelector('#play').getAttribute('aria-label') === 'Pause mix');
     await linked.evaluate(hash => { location.hash = '#library'; location.hash = hash; }, new URL(link).hash);
     await linked.waitForSelector('#restore-dialog[open]'); await completeRestore(linked);
-    assert.equal(await linked.locator('#play').getAttribute('aria-pressed'), 'false');
+    assert.equal(await linked.locator('#play').getAttribute('aria-label'), 'Play mix');
 
     await source.locator('#library-tab').click(); await source.locator('#add-sounds').click();
     await source.locator('#sound-files').setInputFiles({ name: 'Personal rain.mp3', mimeType: 'audio/mpeg', buffer: await fs.readFile(path.join(__dirname, '../audio/rain-leaves.mp3')) });
@@ -137,7 +137,7 @@ async function completeRestore(page) {
     assert.equal(imported.name, 'Personal rain'); assert.equal(imported.category, 'Weather');
     assert.equal(restored.state.mix.levels[imported.id], 28);
     const station = restored.sounds.find(sound => sound.kind === 'radio'); assert.equal(restored.state.mix.levels[station.id], 34);
-    assert.equal(await target.locator('#play').getAttribute('aria-pressed'), 'false');
+    assert.equal(await target.locator('#play').getAttribute('aria-label'), 'Play mix');
     await target.locator('[data-kind="custom"] select').selectOption('Water');
     await importZip(target, buffer); await completeRestore(target);
     restored = await snapshot(target); assert.equal(restored.sounds.length, 2);
@@ -147,11 +147,11 @@ async function completeRestore(page) {
 
     await target.waitForFunction(() => document.querySelector('#offline').textContent.includes('Library ready offline'), { timeout: 60000 });
     await target.reload(); await target.waitForSelector('.sound-card:visible');
-    assert.equal(await target.locator('#play').getAttribute('aria-pressed'), 'false');
+    assert.equal(await target.locator('#play').getAttribute('aria-label'), 'Play mix');
     assert.equal((await snapshot(target)).state.mix.timerMinutes, 30);
     await targetContext.setOffline(true); await target.reload(); await target.waitForSelector('.sound-card:visible');
     await target.locator('#play').click();
-    await target.waitForFunction(() => document.querySelector('#play').getAttribute('aria-pressed') === 'true');
+    await target.waitForFunction(() => document.querySelector('#play').getAttribute('aria-label') === 'Pause mix');
     await target.locator('#play').click();
     await target.locator('#open-mixer').click(); await target.locator('#share-current').click();
     const offlineDownload = target.waitForEvent('download'); await target.locator('#download-mix').click(); await offlineDownload;

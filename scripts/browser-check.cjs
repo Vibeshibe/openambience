@@ -135,7 +135,7 @@ async function importFile(page, file) {
  assert.equal(await page.locator('#master').inputValue(),'35');
  await page.waitForFunction(()=>window.__contexts[0].__gains[0].gain.value>.34);
  await page.locator('#master').fill('0');
- assert.equal(await page.locator('#mute').getAttribute('aria-pressed'),'true');
+ assert.equal(await page.locator('#mute').getAttribute('aria-label'),'Unmute volume');
  await page.locator('#mute').click();assert.equal(await page.locator('#master').inputValue(),'35');
  await page.locator('#open-mixer').click();
  assert.equal(await page.locator('#volume-popout').isVisible(),false);
