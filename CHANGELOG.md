@@ -4,6 +4,11 @@ App releases use [Semantic Versioning](docs/versioning.md). Research checkpoints
 
 ## Unreleased
 
+## 0.9.1 — 2026-10-22
+
+- Require patched Node.js releases for development tooling: 22.23.4, 24.22.1 or 26.12.1 and newer patches in those supported lines. Set the default local version to 24.22.1 in `.node-version`.
+- Make CI select the latest Node 22/24 patches above the October 21 security-release minimums, including the container validation workflow. The shipped application image runs Nginx and does not contain Node.js.
+
 ## 0.9.0 — 2026-10-21
 
 - Add Download all mixes: one ZIP for every saved mix with shared recordings stored once, plus selective import into the existing library without replacing mixes or interrupting playback.

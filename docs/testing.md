@@ -2,7 +2,7 @@
 
 ## Automated checks
 
-Run `npm run check` and `npm test` on Node.js 22+. Tests cover input normalization, invalid and unavailable storage, independent saved-state snapshots, custom IDs, legacy migration, recording attribution/checksums, finite/non-silent audio buffers, loop endpoint continuity, and the relative smoothness of brown noise. They do not establish perceived audio quality or browser compatibility.
+Run `npm run check` and `npm test` on patched Node.js: 24.22.1 or a newer 24.x patch is recommended; the supported 22.x line starts at 22.23.4. CI resolves the latest patch above those minimums. See [Node security maintenance](node-security.md). Tests cover input normalization, invalid and unavailable storage, independent saved-state snapshots, custom IDs, legacy migration, recording attribution/checksums, finite/non-silent audio buffers, loop endpoint continuity, and the relative smoothness of brown noise. They do not establish perceived audio quality or browser compatibility.
 
 ## 0.9.0 all-mix backups — 2026-10-21
 

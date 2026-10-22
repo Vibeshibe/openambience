@@ -65,7 +65,7 @@ docker compose -f compose.yaml -f compose.build.yaml up -d --build
 
 Use those same two `-f` arguments for subsequent Compose commands managing the local build. The image needs no Node installation or application build step. Only explicitly selected application assets enter the image; source-control data, local environment files, scripts, and tests are excluded.
 
-With a container running, Node.js 22+ can verify its packaged assets and HTTP behavior:
+With a container running, patched Node.js (24.22.1 or a newer 24.x patch recommended; Node 22 requires 22.23.4+) can verify its packaged assets and HTTP behavior:
 
 ```sh
 node scripts/container-check.js http://127.0.0.1:8080/

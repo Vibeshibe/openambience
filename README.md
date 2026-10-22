@@ -47,7 +47,7 @@ OpenAmbience is an independent project inspired by the experience of layering so
 
 ## Run locally
 
-Requires **Node.js 22 or newer**. No package installation, build step, API keys, or backend is required.
+Use **Node.js 24.22.1 or a newer 24.x patch**; `.node-version` records the default. The package also accepts patched Node 22 (22.23.4+) and Node 26 (26.12.1+) or newer majors. CI covers the latest supported 22.x and 24.x patches. No package installation, build step, API keys, or backend is required.
 
 ```sh
 cd openambience
