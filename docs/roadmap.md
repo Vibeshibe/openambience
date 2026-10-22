@@ -38,16 +38,18 @@ The [saved mixes and custom sound proposal](saved-mixes-and-custom-sounds.md) de
 - [x] One-file ZIP export/import containing mix JSON and all referenced custom recordings; restore settings and sounds together, with duplicate detection and clear errors for incomplete archives. Released in 0.7.0; see [mix portability](mix-portability.md).
 - [x] Drag-and-drop audio/ZIP imports and device storage management, including usage estimates, recording downloads and explicit, atomic removal of referenced layers. Released in 0.8.0; see [storage management](storage-management.md).
 - [x] One ZIP for all saved mixes with deduplicated recordings and selective, atomic import that preserves existing mixes and playback. Released in 0.9.0; see [all-mix backups](mix-portability.md#all-saved-mixes-in-one-zip).
-- [ ] Verify storage pressure, offline restart, installation, and playback on physical Android/iOS devices.
+- [x] User-confirmed backup/restore and offline cold starts on 2026-10-22; see the [validation record](testing.md#user-confirmation-and-keyboard-follow-up--2026-10-22).
+- [ ] Verify storage pressure and installation on physical Android/iOS devices.
 - [x] User-confirmed long-duration mobile listening with successful sleep-timer operation. See the [2026-10-21 validation report](testing.md#user-confirmation-mobile-sessions-sleep-timer-and-zoom--2026-10-21).
-- [ ] Targeted listening audit for loop repetition, clicks, and relative loudness; general long-duration mobile use is confirmed.
+- [x] User-confirmed listening quality over several weeks with no noticed artifacts and positive feedback from other users, reported 2026-10-22.
 - [ ] Verify interruption recovery, extended background playback, and sleep-timer expiry while locked on Android/iOS.
 - [x] User-confirmed 200% zoom usability; platform details were not recorded.
+- [x] User-confirmed Tab navigation and arrow-key volume adjustment. Add page-level Space playback and reliable skip-link focus in 0.9.2; a full screen-reader audit remains separate.
 - [ ] Screen-reader audit on desktop and mobile.
 - [ ] Improve pink-noise spectrum and generated nature textures.
 - [ ] Expand the recording catalog and support selective offline downloads.
 - [x] Add rain on tent, evening birds, and train carriage ambience on `dev`; clarify the existing dawn recording as Morning birds. See the [source shortlist](research/sound-expansion.md).
-- [ ] Listen to the new recording loops for speech, handling noise, relative levels, and repetition.
+- [ ] Optional detailed per-recording listening audit for speech and handling noise; general app listening quality is user-confirmed.
 - [x] Add original binaural generation with separate left/right tones, a headphones hint, and saved-mix support.
 - [x] Versioned mix URLs with validated previews and saved timer settings, released in 0.7.0.
 - [ ] Stereo placement.

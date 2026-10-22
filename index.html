@@ -82,13 +82,13 @@
     </section>
     <noscript>Enable JavaScript to mix and play sounds.</noscript>
   </main>
-  <footer><span id="offline">Preparing offline library…</span><button id="manage-storage" class="text-button">Manage storage</button><button id="show-credits" class="text-button">Sound credits</button><a class="repo-link" href="https://github.com/Vibeshibe/openambience" target="_blank" rel="noopener noreferrer" aria-label="OpenAmbience on GitHub (opens in a new tab)">GitHub <span aria-hidden="true">↗</span></a><span>v0.9.1 · No accounts. No tracking.</span></footer>
+  <footer><span id="offline">Preparing offline library…</span><button id="manage-storage" class="text-button">Manage storage</button><button id="show-credits" class="text-button">Sound credits</button><a class="repo-link" href="https://github.com/Vibeshibe/openambience" target="_blank" rel="noopener noreferrer" aria-label="OpenAmbience on GitHub (opens in a new tab)">GitHub <span aria-hidden="true">↗</span></a><span>v0.9.2 · No accounts. No tracking.</span></footer>
   <div class="player-dock">
     <section class="player" aria-label="Playback controls">
       <button id="open-mixer" class="quiet" aria-haspopup="dialog" aria-controls="mixer-dialog" aria-label="Mix options" title="Mix options: sleep timer, save, or clear">
         <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="5" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="19" cy="12" r="1.8"/></svg>
       </button>
-      <button id="play" class="play" aria-pressed="false" aria-label="Play mix" title="Play mix">
+      <button id="play" class="play" aria-pressed="false" aria-label="Play mix" aria-keyshortcuts="Space" title="Play mix">
         <svg class="play-symbol" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
         <svg class="pause-symbol" viewBox="0 0 24 24" aria-hidden="true" hidden><path d="M6 5h4v14H6zm8 0h4v14h-4z"/></svg>
         <span id="play-label" class="sr-only">Play mix</span>
@@ -118,6 +118,7 @@
     <div class="mix-summary"><div class="player-summary"><strong id="layer-count">Your quiet starts here</strong><span id="countdown">Nothing playing</span></div><p id="active-names" class="hint"></p></div>
     <label class="field" for="timer">Sleep timer<select id="timer"><option value="0">Keep playing</option><option value="15">15 minutes</option><option value="30">30 minutes</option><option value="60">1 hour</option></select></label>
     <p class="hint timer-help">Gently fades out over the final five seconds.</p>
+    <p class="hint keyboard-help">Keyboard: Space plays or pauses when focus is outside a control and no dialog is open. Focused buttons use Space or Enter; sliders use arrow keys.</p>
     <div class="mix-option-actions"><button id="open-save" class="option-action"><span>Save mix</span><span aria-hidden="true">＋</span></button><button id="share-current" class="option-action"><span>Share / download mix</span><span aria-hidden="true">↗</span></button></div>
     <div class="dialog-danger"><button id="reset" class="quiet">Clear this mix</button></div>
     <p id="dialog-status" class="dialog-status" role="status"></p>

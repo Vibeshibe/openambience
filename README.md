@@ -105,7 +105,7 @@ Nothing is uploaded when you import a recording. Clearing browser site data remo
 
 Media Session support exposes play, pause, and stop to supported browser and system media controls, with selected-sound names and app artwork. Stop keeps your selection and cancels the timer; the next play starts the selected timer duration again. Empty mixes clear the session. No seeking or track skipping is offered for looping mixes. Browsers without this API retain the in-app controls.
 
-Media controls are confirmed by user testing on iOS/Safari, iOS/Chrome, Android/Chrome, Android/Firefox, Linux/Chrome, and Linux/Firefox. Lock-screen operation is also confirmed. The maintainer additionally reports successful long-duration mobile listening with the sleep timer and usable 200% zoom. Screen-reader testing, interruption recovery and explicit background/locked timer-expiry checks remain open. See the [validation record](docs/testing.md).
+Media controls are confirmed by user testing on iOS/Safari, iOS/Chrome, Android/Chrome, Android/Firefox, Linux/Chrome, and Linux/Firefox. Lock-screen operation is also confirmed. The maintainer additionally reports successful long-duration mobile listening with the sleep timer, usable 200% zoom, working backups and offline cold starts, keyboard Tab/arrow navigation and positive listening quality over several weeks. Space toggles playback outside interactive controls while no dialog is open; focused buttons retain Space/Enter activation. Screen-reader testing, interruption recovery and explicit background/locked timer-expiry checks remain open. See the [validation record](docs/testing.md).
 
 ## Research and design
 

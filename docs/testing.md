@@ -4,6 +4,14 @@
 
 Run `npm run check` and `npm test` on patched Node.js: 24.22.1 or a newer 24.x patch is recommended; the supported 22.x line starts at 22.23.4. CI resolves the latest patch above those minimums. See [Node security maintenance](node-security.md). Tests cover input normalization, invalid and unavailable storage, independent saved-state snapshots, custom IDs, legacy migration, recording attribution/checksums, finite/non-silent audio buffers, loop endpoint continuity, and the relative smoothness of brown noise. They do not establish perceived audio quality or browser compatibility.
 
+## User confirmation and keyboard follow-up — 2026-10-22
+
+The maintainer reports that the backup/restore checks worked, offline cold starts work, Tab navigation generally works and volume sliders respond to arrow keys. They report no noticed audio artifacts during several weeks of use, with positive feedback from other users. Record these as user-confirmed results; device/browser versions and individual backup failure-case steps were not provided. They do not establish automated coverage of storage failures or a screen-reader audit.
+
+The focus-only Skip to sounds link shown in the screenshot is intentional. The 0.9.2 follow-up explicitly opens the library and focuses its region on activation, including while My mixes is displayed; the link's focused outline is inset from the viewport edges. Space toggles playback when focus is outside controls and no dialog is open. Interactive elements retain native behaviour; modifiers/composition are ignored and repeat keydown events do not toggle repeatedly. Mix options documents the shortcut and the Play control exposes `aria-keyshortcuts="Space"`.
+
+An offline cold start means completely closing the app, disconnecting, and reopening it after its initial library cache completed. The new user report confirms this works. Installation/storage pressure, interruption recovery, explicit locked-screen timer expiry and screen-reader operation remain separate checks. No new automated tests or interactive browser checks were run locally for this keyboard follow-up; syntax checks and the configured CI results are recorded for the release.
+
 ## 0.9.1 Node security maintenance — 2026-10-22
 
 The Windows default Node runtime and isolated project tooling both report 24.22.1 after upgrading. The official Windows installer matched the published SHA-256 checksum and had a valid OpenJS Foundation signature; Windows Installer reported success with exit status 0. Local syntax and whitespace checks passed. The preview started with the upgraded runtime and returned HTTP 200 with the 0.9.1 footer. No additional tests were run locally. GitHub's configured Check workflow passed for both `>=22.23.4 <23` and `>=24.22.1 <25`; container validation also passed under the new patched Node 24 range. This maintenance release changes the tooling policy and displayed version, not the mix/archive implementation.

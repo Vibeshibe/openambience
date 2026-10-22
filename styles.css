@@ -62,13 +62,18 @@ a {
 }
 .skip-link {
   position:fixed;
-  top:-80px;
+  top:12px;
+  left:12px;
+  max-width:calc(100% - 24px);
+  transform:translateY(calc(-100% - 20px));
   padding:14px;
   background:var(--bg);
+  border:1px solid var(--line);
+  border-radius:12px;
   z-index:10;
 }
 .skip-link:focus {
-  top:8px;
+  transform:translateY(0);
 }
 .site-header,main,footer {
   max-width:1120px;
@@ -778,6 +783,7 @@ form .primary {
 .mix-summary .player-summary { margin:0; }
 .mix-summary #active-names { margin:8px 0 0; }
 .mix-dialog .timer-help { margin:8px 0 0; font-size:12px; }
+.mix-dialog .keyboard-help { margin:12px 0 0; font-size:12px; line-height:1.5; }
 .mix-option-actions { display:grid; gap:8px; margin-top:20px; padding-top:20px; border-top:1px solid var(--line); }
 .option-action { display:flex; justify-content:space-between; align-items:center; gap:16px; width:100%; min-height:48px; text-align:left; padding:12px 14px; font-size:14px; }
 .option-action span:last-child { color:var(--muted); flex-shrink:0; }

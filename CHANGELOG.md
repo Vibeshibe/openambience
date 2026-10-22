@@ -4,6 +4,12 @@ App releases use [Semantic Versioning](docs/versioning.md). Research checkpoints
 
 ## Unreleased
 
+## 0.9.2 — 2026-10-22
+
+- Add Space to toggle playback when focus is outside interactive controls and no dialog is open. Preserve native button/checkbox activation, text entry, slider keys and modified shortcuts; holding Space does not repeatedly toggle playback.
+- Make Skip to sounds open the library and explicitly move focus there, including from My mixes. Keep the link hidden until focused and inset its focus outline from the viewport edges.
+- Record user-confirmed backup/restore, offline cold starts, keyboard navigation/slider adjustment and positive listening feedback over several weeks. Screen-reader and targeted interruption/locked-timer checks remain separate.
+
 ## 0.9.1 — 2026-10-22
 
 - Require patched Node.js releases for development tooling: 22.23.4, 24.22.1 or 26.12.1 and newer patches in those supported lines. Set the default local version to 24.22.1 in `.node-version`.

@@ -238,6 +238,12 @@ function showView(name) {
 }
 $('#library-tab').onclick = () => showView('library');
 $('#mixes-tab').onclick = () => showView('mixes');
+$('.skip-link').onclick = event => {
+  event.preventDefault();
+  showView('library');
+  $('#library').focus({ preventScroll: true });
+  $('#library').scrollIntoView({ block: 'start' });
+};
 async function pause(stop = false) {
   ++playbackRevision; playing = false; deadline = 0;
   if (stop || !mix.enabled.length) sessionStarted = false;
@@ -296,6 +302,14 @@ document.addEventListener('keydown', event => {
   if (event.key === 'Escape' && !$('#volume-popout').hidden) {
     event.preventDefault(); setVolumeOpen(false, true);
   }
+  if (event.key !== ' ' || event.defaultPrevented || event.isComposing
+    || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey
+    || document.querySelector('dialog[open]')) return;
+  // Preserve native Space activation, typing and range/control behaviour.
+  const target = event.target instanceof Element ? event.target : document.activeElement;
+  if (target?.closest('a,button,input,select,textarea,summary,audio,video,iframe,[contenteditable],[role="button"],[role="slider"],[role="checkbox"],[role="textbox"]')) return;
+  event.preventDefault();
+  if (!event.repeat) $('#play').click();
 });
 window.addEventListener('resize', () => { if (!$('#volume-popout').hidden) fitVolumePopout(); });
 new ResizeObserver(() => { if (!$('#volume-popout').hidden) fitVolumePopout(); }).observe($('.player-dock'));
