@@ -4,6 +4,8 @@ App releases use [Semantic Versioning](docs/versioning.md). Research checkpoints
 
 ## Unreleased
 
+- Document proposed post-1.0 priorities: maintenance, stereo/timer controls, optional sound packs/downloads, mix organization/recovery and longer-term research. No new runtime features are included in this documentation update.
+
 ## 1.0.0 — 2026-10-22
 
 - Publish the first stable OpenAmbience release: local mixing, fifteen recordings, six generated textures, eight binaural presets, radio, saved mixes, sleep timers, media controls and offline use.

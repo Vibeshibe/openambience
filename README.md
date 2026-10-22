@@ -45,6 +45,8 @@ Development happens on [`dev`](https://github.com/Vibeshibe/openambience/tree/de
 
 **1.0.0 is the first stable release.** The 1.x line preserves the documented version 1 mix links/archives and stable sound IDs. Upgrading from 0.9.x keeps saved mixes and recordings without a new storage migration. See the [release notes](docs/releases/1.0.0.md) and [compatibility contract](docs/versioning.md#stable-1x-compatibility-contract).
 
+The [post-1.0 roadmap](docs/roadmap.md#post-10-priorities) proposes stereo/timer controls, optional sound packs and downloads, then mix organization and recovery. Larger ideas such as optional sync and finished-audio export remain research candidates.
+
 OpenAmbience is an independent project inspired by the experience of layering sounds in [Ambiphone](https://ambiph.one/). It includes a documented product analysis and a static PWA, with original code and graphics, generated textures, and independently sourced openly licensed recordings. It is not affiliated with Ambiphone and does not redistribute its code or hosted audio files.
 
 ## Run locally

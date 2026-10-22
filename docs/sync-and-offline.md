@@ -11,6 +11,8 @@ This storage belongs to the site's origin and browser profile on that device. Us
 
 Since 0.7.0, [mix links and ZIP backups](mix-portability.md) transfer selected mixes between browsers. A ZIP includes referenced custom recordings and restores settings and audio atomically; links carry built-in and radio settings. Neither requires a sync provider.
 
+Since 0.9.0, one ZIP can back up all saved mixes with shared recordings included once and a selective import preview. The [post-1.0 roadmap](roadmap.md#later--research-and-optional-capabilities) keeps provider-based sync as an optional research candidate after local organization and missing-media recovery; no provider or delivery version has been selected.
+
 Browser-managed storage can be cleared by the user or evicted under storage pressure. Persistence can be requested with the Storage API but is not a backup or a guarantee that the user cannot delete data. See [MDN: storage quotas and eviction](https://developer.mozilla.org/en-US/docs/Web/API/Storage_API/Storage_quotas_and_eviction_criteria).
 
 ## Proposed sync architecture
