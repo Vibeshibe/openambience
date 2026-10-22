@@ -43,7 +43,9 @@
 
 Development happens on [`dev`](https://github.com/Vibeshibe/openambience/tree/dev). Releases follow [semantic versioning](docs/versioning.md); see the [changelog](CHANGELOG.md).
 
-OpenAmbience is an independent project inspired by the experience of layering sounds in [Ambiphone](https://ambiph.one/). It includes a documented product analysis and a working static PWA starter, with original code and graphics, generated textures, and independently sourced openly licensed recordings. It is not affiliated with Ambiphone and does not redistribute its code or hosted audio files.
+**1.0.0 is the first stable release.** The 1.x line preserves the documented version 1 mix links/archives and stable sound IDs. Upgrading from 0.9.x keeps saved mixes and recordings without a new storage migration. See the [release notes](docs/releases/1.0.0.md) and [compatibility contract](docs/versioning.md#stable-1x-compatibility-contract).
+
+OpenAmbience is an independent project inspired by the experience of layering sounds in [Ambiphone](https://ambiph.one/). It includes a documented product analysis and a static PWA, with original code and graphics, generated textures, and independently sourced openly licensed recordings. It is not affiliated with Ambiphone and does not redistribute its code or hosted audio files.
 
 ## Run locally
 
@@ -60,7 +62,7 @@ An alternative is `python3 -m http.server 8080 --bind 127.0.0.1` from this direc
 
 ## Docker deployment
 
-Prebuilt images are published to `ghcr.io/vibeshibe/openambience` for Linux amd64 and arm64. Use `latest` for the current stable build, a version tag such as `0.9.0` for a specific release, or `dev` for development builds.
+Prebuilt images are published to `ghcr.io/vibeshibe/openambience` for Linux amd64 and arm64. Use `latest` for the current stable build, `1.0.0` for this release, `1.0` for updates within this minor line, or `dev` for development builds.
 
 ```sh
 docker run -d --name openambience --restart unless-stopped \
@@ -172,6 +174,7 @@ Increment the cache version in `sw.js` whenever shipping changed app files. A ne
 
 ## Known limits
 
+- Initial Narrator/Firefox use works, with a reported “padding” announcement beneath the logo still unreproduced. The Play/Mute announcement cleanup needs user reconfirmation; broader desktop/mobile screen-reader coverage remains open.
 - User testing confirms lock-screen controls and successful long-duration mobile listening with the sleep timer. Interruption recovery and explicit background/locked timer-expiry checks remain pending.
 - Browser support for custom audio codecs varies. Custom recordings loop as supplied; trim or crossfade them in an audio editor for a smoother seam.
 - The engine limits decoded audio to 96 MiB and pauses with a message if a mix is too large. Six long imports may exceed this limit.

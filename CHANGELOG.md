@@ -4,6 +4,13 @@ App releases use [Semantic Versioning](docs/versioning.md). Research checkpoints
 
 ## Unreleased
 
+## 1.0.0 — 2026-10-22
+
+- Publish the first stable OpenAmbience release: local mixing, fifteen recordings, six generated textures, eight binaural presets, radio, saved mixes, sleep timers, media controls and offline use.
+- Include individual mix links/ZIPs and all-mix ZIP backups with custom audio and radio metadata, selective restore, drag-and-drop imports and device storage management.
+- Establish the 1.x compatibility contract for documented version 1 links/archives and stable sound IDs. Upgrading from 0.9.3 keeps the existing storage and mix formats; this release adds no playback changes or migration.
+- Add release notes and a GitHub Release publishing job after successful container validation and image publication. Retain the documented accessibility announcement quirks and device-validation gaps as follow-up work.
+
 ## 0.9.3 — 2026-10-22
 
 - Remove redundant pressed/unpressed semantics from Play/Pause and Mute/Unmute, which already announce their changing action names. Keep pressed states for sound-selection buttons with stable names.

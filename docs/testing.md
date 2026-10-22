@@ -4,6 +4,10 @@
 
 Run `npm run check` and `npm test` on patched Node.js: 24.22.1 or a newer 24.x patch is recommended; the supported 22.x line starts at 22.23.4. CI resolves the latest patch above those minimums. See [Node security maintenance](node-security.md). Tests cover input normalization, invalid and unavailable storage, independent saved-state snapshots, custom IDs, legacy migration, recording attribution/checksums, finite/non-silent audio buffers, loop endpoint continuity, and the relative smoothness of brown noise. They do not establish perceived audio quality or browser compatibility.
 
+## 1.0.0 release scope — 2026-10-22
+
+The maintainer requested the stable 1.0.0 release with the current feature set and recorded user confirmations. This promotes 0.9.3 without changing playback logic, browser storage or mix formats; runtime-file changes are the displayed release number and service-worker cache key. Local JavaScript syntax, release-publishing Bash syntax and whitespace checks passed. The configured Check and Container workflows run the existing suite on patched Node 22/24 and validate the packaged image; Pages deployment and the tag's GitHub Release job complete the publication pipeline. Publication results are available in those workflow runs. No new automated tests or comprehensive interactive browser/device audit were run locally for this milestone. See the [release notes](releases/1.0.0.md) for the retained validation limits and [version policy](versioning.md#stable-1x-compatibility-contract) for the stable contract.
+
 ## User confirmation: Narrator with Firefox — 2026-10-22
 
 The maintainer reports that screen-reader use on Windows with Firefox generally works, including Space to play/pause, Escape to close dialogs and spoken popup feedback. They also report hearing “padding” beneath the OpenAmbience logo and a button's previous state during activation. Exact Firefox/Windows versions and the affected button were not provided. Record this as a positive initial desktop screen-reader check with announcement issues still open, not a complete desktop/mobile accessibility audit.

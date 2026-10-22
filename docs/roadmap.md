@@ -33,7 +33,16 @@
 - [x] User-confirmed media controls on iOS/Safari, iOS/Chrome, Android/Chrome, Android/Firefox, Linux/Chrome, and Linux/Firefox.
 - [x] User-confirmed lock-screen operation. See the [device validation record](testing.md#device-confirmation-after-040-alpha3--2026-10-05).
 
-The [saved mixes and custom sound proposal](saved-mixes-and-custom-sounds.md) describes the broader scope. Current progress and remaining work:
+## 1.0.0 — Stable release (2026-10-22)
+
+- [x] Establish the current mixer, saved-mix, offline, radio, backup/restore and keyboard feature set as the stable baseline.
+- [x] Preserve the existing mix formats, stable sound IDs and browser storage when upgrading from 0.9.3.
+- [x] Document the [1.x compatibility contract](versioning.md#stable-1x-compatibility-contract), [release notes](releases/1.0.0.md), user-confirmed checks and remaining known limits.
+- [x] Publish stable tags through the checked Pages/container pipeline, with a GitHub Release after image publication.
+
+## Feature status and follow-up work
+
+The [saved mixes and custom sound proposal](saved-mixes-and-custom-sounds.md) describes the broader scope. The unchecked validation items and future capabilities below remain tracked after the 1.0 milestone:
 
 - [x] One-file ZIP export/import containing mix JSON and all referenced custom recordings; restore settings and sounds together, with duplicate detection and clear errors for incomplete archives. Released in 0.7.0; see [mix portability](mix-portability.md).
 - [x] Drag-and-drop audio/ZIP imports and device storage management, including usage estimates, recording downloads and explicit, atomic removal of referenced layers. Released in 0.8.0; see [storage management](storage-management.md).
