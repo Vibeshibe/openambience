@@ -4,6 +4,10 @@
 
 Run `npm run check` and `npm test` on patched Node.js: 24.22.1 or a newer 24.x patch is recommended; the supported 22.x line starts at 22.23.4. CI resolves the latest patch above those minimums. See [Node security maintenance](node-security.md). Tests cover input normalization, invalid and unavailable storage, independent saved-state snapshots, custom IDs, legacy migration, recording attribution/checksums, finite/non-silent audio buffers, loop endpoint continuity, and the relative smoothness of brown noise. They do not establish perceived audio quality or browser compatibility.
 
+## 0.9.1 Node security maintenance — 2026-10-22
+
+The Windows default Node runtime and isolated project tooling both report 24.22.1 after upgrading. The official Windows installer matched the published SHA-256 checksum and had a valid OpenJS Foundation signature; Windows Installer reported success with exit status 0. Local syntax and whitespace checks passed. The preview started with the upgraded runtime and returned HTTP 200 with the 0.9.1 footer. No additional tests were run locally. GitHub's configured Check workflow passed for both `>=22.23.4 <23` and `>=24.22.1 <25`; container validation also passed under the new patched Node 24 range. This maintenance release changes the tooling policy and displayed version, not the mix/archive implementation.
+
 ## 0.9.0 all-mix backups — 2026-10-21
 
 Local syntax and whitespace checks passed. GitHub's configured Check workflow passed for the implementation checkpoint on Node 22 and 24, covering the existing unit suite. No new automated tests were added or run locally for this feature. The computer-use tool reported no available browsers, so the new bulk import/export UI has not received a visual or interactive browser review in this session. Earlier browser results below apply to their recorded versions, not to the new collection workflow.
